@@ -2,9 +2,9 @@
 
 > A blazing fast, cross-platform Git aggregation and reporting CLI tool.
 
-![Go Version](https://img.shields.io/github/go-mod/go-version/anIcedAntFA/go-home)
-![License](https://img.shields.io/github/license/anIcedAntFA/go-home)
-[![Go Report Card](https://goreportcard.com/badge/github.com/anIcedAntFA/go-home)](https://goreportcard.com/report/github.com/anIcedAntFA/go-home)
+![Go Version](https://img.shields.io/github/go-mod/go-version/anIcedAntFA/gohome)
+![License](https://img.shields.io/github/license/anIcedAntFA/gohome)
+[![Go Report Card](https://goreportcard.com/badge/github.com/anIcedAntFA/gohome)](https://goreportcard.com/report/github.com/anIcedAntFA/gohome)
 
 **Forgot what you worked on yesterday?**
 
@@ -27,7 +27,7 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 If you have Go installed (1.20+), you can install the latest version directly:
 
 ```bash
-go install github.com/anIcedAntFA/go-home/cmd/gohome@latest
+go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 ```
 
 Make sure your `$GOPATH/bin` is in your `$PATH`.
@@ -84,6 +84,8 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
 
 | Flag       | Alias | Description                                  | Default     |
 | ---------- | ----- | -------------------------------------------- | ----------- |
+| `--hours`  | `-H`  | Number of hours to look back                 | 0           |
+| `--today`  |       | From the midnight to look back               | 0           |
 | `--days`   | `-d`  | Number of days to look back                  | 1           |
 | `--weeks`  | `-w`  | Number of weeks to look back                 | 0           |
 | `--month`  | `-m`  | Number of months to look back                | 0           |
@@ -108,7 +110,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feat/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add some amazing feature'`)
+3. Commit your changes (`git commit -m '✨ feat(internal): add some amazing feature'`)
 4. Push to the branch (`git push origin feat/amazing-feature`)
 5. Open a Pull Request
 
@@ -116,8 +118,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ```bash
 # Clone the repo
-git clone https://github.com/anIcedAntFA/go-home.git
-cd go-home
+git clone https://github.com/anIcedAntFA/gohome.git
+cd gohome
 
 # Install dependencies
 go mod tidy
