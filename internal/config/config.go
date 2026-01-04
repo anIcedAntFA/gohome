@@ -21,12 +21,14 @@ type AppConfig struct {
 	Years  int  `json:"years"`
 	Today  bool `json:"today"`
 
-	Path            string `json:"path"`
-	Author          string `json:"author"`
-	OutputFmt       string `json:"format"`
-	ShowIcon        bool   `json:"show_icon"`
-	ShowScope       bool   `json:"show_scope"`
-	CopyToClipboard bool   `json:"copy_to_clipboard"`
+	Path      string `json:"path"`
+	Author    string `json:"author"`
+	OutputFmt string `json:"format"`
+	Preset    string `json:"preset"`
+
+	ShowIcon        bool `json:"show_icon"`
+	ShowScope       bool `json:"show_scope"`
+	CopyToClipboard bool `json:"copy_to_clipboard"`
 
 	// Special flag to save config, not saved to file
 	SaveConfig bool `json:"-"`
@@ -157,6 +159,9 @@ func Load() *AppConfig {
 	flag.StringVar(&cfg.OutputFmt, "format", "text", "")
 	flag.StringVar(&cfg.OutputFmt, "f", "text", "")
 
+	flag.StringVar(&cfg.Preset, "style", "normal", "")
+	flag.StringVar(&cfg.Preset, "s", "", "normal")
+
 	flag.BoolVar(&cfg.ShowIcon, "icon", false, "")
 	flag.BoolVar(&cfg.ShowIcon, "i", false, "")
 
@@ -280,6 +285,7 @@ func printUsage() {
 	fmt.Fprintln(w, "   -a, --author <string>\tGit author (auto-detect if empty)")
 	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "   -f, --format <string>\tOutput format: text, table (default \"text\")")
+	fmt.Fprintln(w, "   -s, --style <string>\tPreset style: normal, markdown (default \"normal\")")
 	fmt.Fprintln(w, "   -c, --scope\tShow commit scope")
 	fmt.Fprintln(w, "   -i, --icon\tShow commit type icons")
 	fmt.Fprintln(w, "\t")

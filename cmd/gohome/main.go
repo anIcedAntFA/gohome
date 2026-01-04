@@ -37,6 +37,7 @@ func main() {
 	parserSvc := parser.NewService()
 	printer := renderer.NewPrinter(renderer.Config{
 		Format:    cfg.OutputFmt,
+		Style:     cfg.Preset,
 		ShowIcon:  cfg.ShowIcon,
 		ShowScope: cfg.ShowScope,
 	})
