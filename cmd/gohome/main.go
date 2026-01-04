@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/anIcedAntFA/gohome/internal/config"
@@ -16,6 +17,15 @@ import (
 func main() {
 	// 1. Load Configurations
 	cfg := config.Load()
+
+	if cfg.SaveConfig {
+		if err := cfg.SaveToFile(); err != nil {
+			log.Fatalf("❌ Failed to save config: %v", err)
+		}
+		fmt.Println("✅ Configuration saved successfully!")
+		fmt.Println("You can now run 'gohome' without flags to use these settings.")
+		os.Exit(0) // Exit the program immediately, don't run scan
+	}
 
 	// 2. Initialize Dependencies
 	gitClient := git.NewClient()
@@ -38,7 +48,7 @@ func main() {
 
 	// 4. Get Path and Period
 	period := cfg.GetPeriod()
-	fmt.Println("Period:", period)
+	fmt.Println("🗓️ Period:", period)
 	absPath, _ := filepath.Abs(cfg.Path)
 
 	// 5. Execute Git Log Retrieval

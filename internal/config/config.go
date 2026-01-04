@@ -28,16 +28,16 @@ type AppConfig struct {
 	SaveConfig bool `json:"-"`
 }
 
-// 1. Function to get config file path in user's Home directory
+// getConfigFilePath returns the config file path in user's home directory
 func getConfigFilePath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "./gohome.json" // Fallback to current directory if error
+		return "./.gohome.json" // Fallback to current directory if error
 	}
-	return filepath.Join(home, "gohome.json")
+	return filepath.Join(home, ".gohome.json")
 }
 
-// 2. Function to read config file (if exists)
+// loadConfigFromFile reads and parses the config file if it exists
 func loadConfigFromFile() AppConfig {
 	filePath := getConfigFilePath()
 	var cfg AppConfig
@@ -64,7 +64,7 @@ func loadConfigFromFile() AppConfig {
 	return cfg
 }
 
-// 3. Function to save current config to file
+// SaveToFile writes the current config to the config file
 func (c *AppConfig) SaveToFile() error {
 	filePath := getConfigFilePath()
 
@@ -87,67 +87,127 @@ func (c *AppConfig) SaveToFile() error {
 }
 
 func Load() *AppConfig {
-	// A. Load Default from File first (if exists)
+	// A. Load defaults from file first (if exists)
 	fileCfg := loadConfigFromFile()
 
 	cfg := &AppConfig{}
 
-	// B. Define Flags
-	// Trick: Use values from fileCfg as default values for Flag.
-	// If user doesn't specify flag, it will use value from file.
-	// If file doesn't exist yet, value will be 0 or "" (zero value of struct).
+	// B. Define flags
+	flag.IntVar(&cfg.Hours, "hours", 0, "")
+	flag.IntVar(&cfg.Hours, "H", 0, "")
 
-	flag.IntVar(&cfg.Hours, "hours", fileCfg.Hours, "")
-	flag.IntVar(&cfg.Hours, "H", fileCfg.Hours, "")
+	flag.IntVar(&cfg.Days, "days", 0, "")
+	flag.IntVar(&cfg.Days, "d", 0, "")
 
-	flag.IntVar(&cfg.Days, "days", fileCfg.Days, "")
-	flag.IntVar(&cfg.Days, "d", fileCfg.Days, "")
+	flag.IntVar(&cfg.Weeks, "weeks", 0, "")
+	flag.IntVar(&cfg.Weeks, "w", 0, "")
 
-	flag.IntVar(&cfg.Weeks, "weeks", fileCfg.Weeks, "")
-	flag.IntVar(&cfg.Weeks, "w", fileCfg.Weeks, "")
+	flag.IntVar(&cfg.Months, "months", 0, "")
+	flag.IntVar(&cfg.Months, "m", 0, "")
 
-	flag.IntVar(&cfg.Months, "months", fileCfg.Months, "")
-	flag.IntVar(&cfg.Months, "m", fileCfg.Months, "")
+	flag.IntVar(&cfg.Years, "years", 0, "")
+	flag.IntVar(&cfg.Years, "y", 0, "")
 
-	flag.IntVar(&cfg.Years, "years", fileCfg.Years, "")
-	flag.IntVar(&cfg.Years, "y", fileCfg.Years, "")
+	flag.BoolVar(&cfg.Today, "today", false, "")
 
-	flag.BoolVar(&cfg.Today, "today", fileCfg.Today, "")
+	flag.StringVar(&cfg.Path, "path", ".", "")
+	flag.StringVar(&cfg.Path, "p", ".", "")
 
-	// Handle strings, note hard-coded default fallback if file is empty
-	defaultPath := fileCfg.Path
-	if defaultPath == "" {
-		defaultPath = "."
-	}
-	flag.StringVar(&cfg.Path, "path", defaultPath, "")
-	flag.StringVar(&cfg.Path, "p", defaultPath, "")
+	flag.StringVar(&cfg.Author, "author", "", "")
+	flag.StringVar(&cfg.Author, "a", "", "")
 
-	flag.StringVar(&cfg.Author, "author", fileCfg.Author, "")
-	flag.StringVar(&cfg.Author, "a", fileCfg.Author, "")
+	flag.StringVar(&cfg.OutputFmt, "format", "text", "")
+	flag.StringVar(&cfg.OutputFmt, "f", "text", "")
 
-	defaultFmt := fileCfg.OutputFmt
-	if defaultFmt == "" {
-		defaultFmt = "text"
-	}
-	flag.StringVar(&cfg.OutputFmt, "format", defaultFmt, "")
-	flag.StringVar(&cfg.OutputFmt, "f", defaultFmt, "")
+	flag.BoolVar(&cfg.ShowIcon, "icon", false, "")
+	flag.BoolVar(&cfg.ShowIcon, "i", false, "")
 
-	flag.BoolVar(&cfg.ShowIcon, "icon", fileCfg.ShowIcon, "")
-	flag.BoolVar(&cfg.ShowIcon, "i", fileCfg.ShowIcon, "")
+	flag.BoolVar(&cfg.ShowScope, "scope", false, "")
+	flag.BoolVar(&cfg.ShowScope, "c", false, "")
 
-	flag.BoolVar(&cfg.ShowScope, "scope", fileCfg.ShowScope, "")
-	flag.BoolVar(&cfg.ShowScope, "c", fileCfg.ShowScope, "")
-
-	// Add new flag for user to command save config
+	// Add flag for user to save config
 	flag.BoolVar(&cfg.SaveConfig, "save", false, "Save current arguments as default configuration")
 
 	flag.Usage = printUsage
 	flag.Parse()
 
+	// Track which flags were explicitly set by user
+	userSetFlags := make(map[string]bool)
+	flag.Visit(func(f *flag.Flag) {
+		userSetFlags[f.Name] = true
+	})
+
+	// --- A. Handle time period group (mutual exclusion) ---
+	// Logic: If user sets ANY time flag -> ignore all time values from file.
+	// If user sets NO time flags -> use all time values from file.
+
+	isTimeSetByUser := checkTimeFlags(userSetFlags)
+
+	if !isTimeSetByUser {
+		// User didn't specify any time flags, load from file
+		cfg.Hours = fileCfg.Hours
+		cfg.Days = fileCfg.Days
+		cfg.Weeks = fileCfg.Weeks
+		cfg.Months = fileCfg.Months
+		cfg.Years = fileCfg.Years
+		cfg.Today = fileCfg.Today
+	}
+	// Otherwise: User has specified time flags (e.g., -d 5).
+	// Since flag defaults are 0/false, cfg.Today is false and cfg.Weeks is 0.
+	// Only cfg.Days is 5. Logic is correct!
+
+	// --- B. Handle other independent flags ---
+	// Logic: If user didn't set a flag, use value from file (if available)
+
+	if !isSet(userSetFlags, "path", "p") && fileCfg.Path != "" {
+		cfg.Path = fileCfg.Path
+	}
+	if !isSet(userSetFlags, "author", "a") && fileCfg.Author != "" {
+		cfg.Author = fileCfg.Author
+	}
+	// For output format, need careful check since CLI default is "text"
+	// If user didn't specify format flag, prioritize file value
+	if !isSet(userSetFlags, "format", "f") && fileCfg.OutputFmt != "" {
+		cfg.OutputFmt = fileCfg.OutputFmt
+	}
+
+	// Boolean flags (Icon/Scope)
+	// Note: with booleans, if file is true and user wants to disable, user must override (but bool flags rarely support --flag=false easily).
+	// Simplest approach for Phase 1: If user didn't touch the flag, use value from file.
+	if !isSet(userSetFlags, "icon", "i") {
+		cfg.ShowIcon = fileCfg.ShowIcon
+	}
+	if !isSet(userSetFlags, "scope", "c") {
+		cfg.ShowScope = fileCfg.ShowScope
+	}
+
 	return cfg
 }
 
-// printUsage: Custom professional help screen
+// checkTimeFlags checks if user has set any time-related flag
+func checkTimeFlags(setFlags map[string]bool) bool {
+	keys := []string{
+		"hours", "H",
+		"days", "d",
+		"weeks", "w",
+		"months", "m",
+		"years", "y",
+		"today",
+	}
+	for _, k := range keys {
+		if setFlags[k] {
+			return true
+		}
+	}
+	return false
+}
+
+// isSet checks if user has set a flag (including its alias)
+func isSet(setFlags map[string]bool, name, alias string) bool {
+	return setFlags[name] || setFlags[alias]
+}
+
+// printUsage displays a custom professional help screen
 func printUsage() {
 	// Header
 	fmt.Fprintf(os.Stderr, "\n🚀 GO HOME TOOL (Go CLI)\n")
@@ -159,11 +219,11 @@ func printUsage() {
 
 	fmt.Fprintf(os.Stderr, "EXAMPLES:\n")
 	fmt.Fprintf(os.Stderr, "  gohome -d 3\n")
-	fmt.Fprintf(os.Stderr, "  gohome -f table -s nature -i -d 7\n\n")
+	fmt.Fprintf(os.Stderr, "  gohome -f table -s markdown -i -w 1\n\n")
 
 	fmt.Fprintf(os.Stderr, "FLAGS:\n")
 
-	// Use Tabwriter to align columns
+	// Use tabwriter to align columns
 	// minwidth=0, tabwidth=8, padding=2, padchar=' ', flags=0
 	w := tabwriter.NewWriter(os.Stderr, 0, 8, 2, ' ', 0)
 
@@ -214,7 +274,7 @@ func (c *AppConfig) GetPeriod() string {
 	}
 
 	// Default fallback
-	return "1 day ago"
+	return "24 hours ago"
 }
 
 // pluralize adds "s" suffix for plural values
