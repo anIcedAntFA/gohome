@@ -10,33 +10,33 @@ This document outlines the development status and future plans for **gohome** (G
 
 **Core & Logic:**
 
-- [ ] **Git Integration:** Auto-scan directories (`.git`) to detect repositories.
-- [ ] **Log Parsing:** Parse `git log` output using Conventional Commits rege .
+- [x] **Git Integration:** Auto-scan directories (`.git`) to detect repositories.
+- [x] **Log Parsing:** Parse `git log` output using Conventional Commits regex.
 - [ ] **Smart Configuration:**
-  - [ ] Load config from JSON file (`~/.gohome.json`).
-  - [ ] Support command-line flags with shorthand aliases.
-  - [ ] Persist settings via `--save` flag.
-  - [ ] Auto-detect git author from system config.
+  - [x] Load config from JSON file (`~/.gohome.json`).
+  - [x] Support command-line flags with shorthand aliases.
+  - [x] Persist settings via `--save` flag.
+  - [x] Auto-detect git author from system config.
 - [ ] **Concurrency:** Implement Fan-out/Fan-in pattern using Goroutines for fast scanning.
-- [ ] **Custom Tasks:** Allow users to append manual tasks (e.g., meetings, code reviews) via `-t` flags.
+- [x] **Custom Tasks:** Allow users to append manual tasks (e.g., meetings, code reviews) via `-t` flags.
 
-**User Interface (UI/U ):**
+**User Interface (UI/UI):**
 
-- [ ] **Output Formats:** Support both `text` list and rich `table` format.
-- [ ] **Styling:** Custom table styles (markdown, nature, tech, etc.).
-- [ ] **Clipboard:** Cross-platform clipboard support (`--copy`).
+- [x] **Output Formats:** Support both `text` list and rich `table` format.
+- [x] **Styling:** Custom table styles (markdown, nature, tech, etc.).
+- [x] **Clipboard:** Cross-platform clipboard support (`--copy`).
 - [ ] **Feedback:** Add a Spinner/Loading indicator during the scanning process (UX).
 
 **System & Refinements:**
 
-- [ ] **Versioning:** Implement `--version` flag (injected via build time).
+- [ ] **Versioning:** Implement `--version` (`-v`) flag (injected via build time).
 - [ ] **Debugging:** Implement `--verbose` flag to print debug logs (scanned paths, git errors).
 - [ ] **Scripting:** Implement `--quiet` (`-q`) flag to suppress banners and meta-info (output only raw data).
 - [ ] **Filtering:**
   - [ ] Filter by commit types (e.g., `--types feat,fix`).
   - [ ] Exclude specific patterns/directories (e.g., `--exclude vendor,node_modules`).
 - [ ] **Validation:** Better error handling for invalid paths or git errors.
-- [ ] **Help:** Refine help messages and examples using `tabwriter`.
+- [x] **Help:** Refine help messages and examples using `tabwriter`.
 
 **Quality Assurance:**
 
@@ -55,7 +55,7 @@ This document outlines the development status and future plans for **gohome** (G
 - [ ] **README.md:**
   - [ ] Comprehensive installation guide (Go install, Binary download).
   - [ ] Usage examples with screenshots/GIFs.
-  - [ ] Configuration guide (flags explanation).
+  - [x] Configuration guide (flags explanation).
 - [ ] **Contribution Guide:** Instructions for developers (Running tests, Linting).
 
 ---

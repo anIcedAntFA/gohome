@@ -10,7 +10,23 @@ import (
 	"os"
 	"path/filepath"
 	"text/tabwriter"
+
+	"github.com/anIcedAntFA/gohome/internal/entity"
 )
+
+// StringSlice is a helper type for capturing multiple -t flag values.
+// It implements flag.Value interface to support repeated flags like: -t "task1" -t "task2"
+type StringSlice []string
+
+func (s *StringSlice) String() string {
+	return fmt.Sprintf("%v", *s)
+}
+
+// Set appends a new value to the slice when the flag is encountered.
+func (s *StringSlice) Set(value string) error {
+	*s = append(*s, value)
+	return nil
+}
 
 // AppConfig maps directly to the JSON file
 type AppConfig struct {
@@ -29,6 +45,12 @@ type AppConfig struct {
 	ShowIcon        bool `json:"show_icon"`
 	ShowScope       bool `json:"show_scope"`
 	CopyToClipboard bool `json:"copy_to_clipboard"`
+
+	// Static Tasks loaded from JSON file (Rich objects)
+	Tasks []entity.Task `json:"tasks"`
+
+	// Dynamic Tasks from CLI flags (Simple strings) - This field is not loaded from JSON
+	DynamicTasks StringSlice `json:"-"`
 
 	// Special flag to save config, not saved to file
 	SaveConfig bool `json:"-"`
@@ -105,6 +127,26 @@ func (c *AppConfig) SaveToFile() error {
 		return fmt.Errorf("invalid config path: %w", err)
 	}
 
+	// If user doesn't have any tasks yet (first time saving), add sample tasks as reference
+	if len(c.Tasks) == 0 {
+		c.Tasks = []entity.Task{
+			// Group 1: Communication
+			{Type: "meeting", Message: "Daily Standup & Team Sync", Icon: "📅", Enabled: true},
+			{Type: "collab", Message: "Pair Programming / Mentoring", Icon: "👥", Enabled: true},
+
+			// Group 2: Quality Assurance
+			{Type: "review", Message: "Code Review & PR Feedback", Icon: "👀", Enabled: true},
+			{Type: "testing", Message: "Write Unit/Integration Tests", Icon: "🧪", Enabled: true},
+
+			// Group 3: Operations
+			{Type: "ops", Message: "Monitor CI/CD Pipelines & Deploy", Icon: "🚀", Enabled: true},
+			{Type: "admin", Message: "Check Emails, Jira & Sentry Logs", Icon: "📮", Enabled: true},
+			// Group 4: Maintenance & Knowledge
+			{Type: "docs", Message: "Update Documentation / Wiki", Icon: "📝", Enabled: true},
+			{Type: "learning", Message: "Tech Research & Knowledge Sharing", Icon: "📚", Enabled: true},
+		}
+	}
+
 	// Create or overwrite file
 	// #nosec G304 -- filePath is validated above
 	file, err := os.Create(filePath)
@@ -171,6 +213,9 @@ func Load() *AppConfig {
 	flag.BoolVar(&cfg.CopyToClipboard, "copy", false, "")
 	flag.BoolVar(&cfg.CopyToClipboard, "cp", false, "")
 
+	flag.Var(&cfg.DynamicTasks, "task", "")
+	flag.Var(&cfg.DynamicTasks, "t", "")
+
 	// Add flag for user to save config
 	flag.BoolVar(&cfg.SaveConfig, "save", false, "Save current arguments as default configuration")
 
@@ -225,6 +270,13 @@ func Load() *AppConfig {
 	}
 	if !isSet(userSetFlags, "scope", "c") {
 		cfg.ShowScope = fileCfg.ShowScope
+	}
+	if !isSet(userSetFlags, "copy", "cp") {
+		cfg.CopyToClipboard = fileCfg.CopyToClipboard
+	}
+
+	if len(fileCfg.Tasks) > 0 {
+		cfg.Tasks = fileCfg.Tasks
 	}
 
 	return cfg

@@ -133,3 +133,62 @@ func (p *Printer) createTable(w io.Writer, style string) *tablewriter.Table {
 	// Create new table with writer and built options
 	return tablewriter.NewTable(w, options...)
 }
+
+// PrintTasks outputs formatted task data to the provided writer.
+func (p *Printer) PrintTasks(w io.Writer, tasks []entity.Task) {
+	if len(tasks) == 0 {
+		return
+	}
+
+	title := "📝 Additional Tasks"
+
+	if p.cfg.Format == "table" {
+		p.printTaskTable(w, title, tasks)
+	} else {
+		p.printTaskText(w, title, tasks)
+	}
+}
+
+func (p *Printer) printTaskText(w io.Writer, title string, tasks []entity.Task) {
+	fmt.Fprintf(w, "\n%s\n", title)
+	for _, t := range tasks {
+		// Format: - [Icon] Type: Message
+		line := "- "
+		if p.cfg.ShowIcon && t.Icon != "" {
+			line += t.Icon + " "
+		}
+		if t.Type != "" {
+			line += t.Type + ": "
+		}
+		line += t.Message
+		fmt.Fprintln(w, line)
+	}
+	fmt.Fprintln(w, "------------------------------------------")
+}
+
+func (p *Printer) printTaskTable(w io.Writer, title string, tasks []entity.Task) {
+	fmt.Fprintf(w, "\n%s\n", title)
+
+	// Tái sử dụng hàm createTable có sẵn
+	table := p.createTable(w, p.cfg.Style)
+
+	// Setup Header tương tự Commit Table
+	headers := []string{}
+	if p.cfg.ShowIcon {
+		headers = append(headers, "Icon")
+	}
+	headers = append(headers, "Type", "Message")
+	table.Header(headers)
+
+	for _, t := range tasks {
+		row := []string{}
+		if p.cfg.ShowIcon {
+			row = append(row, t.Icon)
+		}
+		row = append(row, t.Type, t.Message)
+		_ = table.Append(row)
+	}
+
+	_ = table.Render()
+	fmt.Fprintln(w)
+}

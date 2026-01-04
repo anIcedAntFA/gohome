@@ -20,19 +20,50 @@ import (
 )
 
 func main() {
-	// 1. Load Configurations
+	// 1. Load configuration
 	cfg := config.Load()
 
+	// 2. Handle config save and exit early
 	if cfg.SaveConfig {
-		if err := cfg.SaveToFile(); err != nil {
-			log.Fatalf("❌ Failed to save config: %v", err)
-		}
-		fmt.Println("✅ Configuration saved successfully!")
-		fmt.Println("You can now run 'gohome' without flags to use these settings.")
-		os.Exit(0) // Exit the program immediately, don't run scan
+		handleSaveConfig(cfg)
 	}
 
-	// 2. Initialize Dependencies
+	// 3. Initialize dependencies
+	deps := initDependencies(cfg)
+
+	// 4. Setup output writer
+	outputWriter, clipboardBuffer := setupWriter(cfg.CopyToClipboard)
+
+	// 5. Process and render
+	foundAny := processAndRender(deps, cfg, outputWriter)
+
+	// 6. Handle clipboard copy
+	handleClipboard(foundAny, cfg.CopyToClipboard, clipboardBuffer)
+}
+
+// handleSaveConfig saves configuration to file and exits
+func handleSaveConfig(cfg *config.AppConfig) {
+	if err := cfg.SaveToFile(); err != nil {
+		log.Fatalf("❌ Failed to save config: %v", err)
+	}
+	fmt.Println("✅ Configuration saved successfully!")
+	fmt.Println("💡 Tip: You can edit this file to customize your daily recurring tasks.")
+	fmt.Println("You can now run 'gohome' without flags to use these settings.")
+	os.Exit(0)
+}
+
+// dependencies holds all service instances
+type dependencies struct {
+	gitClient *git.Client
+	parser    *parser.Service
+	printer   *renderer.Printer
+	author    string
+	period    string
+	repos     []string
+}
+
+// initDependencies creates and initializes all required services
+func initDependencies(cfg *config.AppConfig) *dependencies {
 	gitClient := git.NewClient()
 	parserSvc := parser.NewService()
 	printer := renderer.NewPrinter(renderer.Config{
@@ -42,7 +73,7 @@ func main() {
 		ShowScope: cfg.ShowScope,
 	})
 
-	// 3. Detect author
+	// Determine author
 	author := cfg.Author
 	if author == "" {
 		if val := gitClient.GetUser(); val != "" {
@@ -52,63 +83,114 @@ func main() {
 		}
 	}
 
-	// 4. Get Path and Period
+	// Get period and scan repos
 	period := cfg.GetPeriod()
 	fmt.Println("🗓️ Period:", period)
-	absPath, _ := filepath.Abs(cfg.Path)
 
-	// 5. Execute Git Log Retrieval
+	absPath, _ := filepath.Abs(cfg.Path)
 	repos, err := scanner.ScanGitRepos(absPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Create a buffer to collect the entire report content
-	var clipboardBuffer bytes.Buffer
+	return &dependencies{
+		gitClient: gitClient,
+		parser:    parserSvc,
+		printer:   printer,
+		author:    author,
+		period:    period,
+		repos:     repos,
+	}
+}
 
-	// Determine where we will write output
-	// Default is stdout (os.Stdout)
+// setupWriter creates output writer and optional clipboard buffer
+func setupWriter(copyToClipboard bool) (io.Writer, *bytes.Buffer) {
+	var clipboardBuffer bytes.Buffer
 	var outputWriter io.Writer = os.Stdout
 
-	// If user wants to copy, use MultiWriter
-	// It will write simultaneously to both stdout AND buffer
-	if cfg.CopyToClipboard {
+	if copyToClipboard {
 		outputWriter = io.MultiWriter(os.Stdout, &clipboardBuffer)
 	}
 
+	return outputWriter, &clipboardBuffer
+}
+
+// processAndRender handles git commits and tasks rendering
+func processAndRender(deps *dependencies, cfg *config.AppConfig, w io.Writer) bool {
+	foundCommits := processCommits(deps, w)
+	foundTasks := processTasks(deps.printer, cfg, w)
+
+	return foundCommits || foundTasks
+}
+
+// processCommits fetches and renders git commits
+func processCommits(deps *dependencies, w io.Writer) bool {
 	foundAny := false
-	for _, repo := range repos {
-		// a. Get Raw Logs
-		rawLogs, err := gitClient.GetLogs(repo, author, period)
+
+	for _, repo := range deps.repos {
+		rawLogs, err := deps.gitClient.GetLogs(repo, deps.author, deps.period)
 		if err != nil || len(rawLogs) == 0 {
 			continue
 		}
 
-		// b. Parse Logs -> Entities
 		var commits []entity.Commit
 		for _, line := range rawLogs {
-			commits = append(commits, parserSvc.Parse(line))
+			commits = append(commits, deps.parser.Parse(line))
 		}
 
-		// c. Render
 		if len(commits) > 0 {
 			foundAny = true
-			printer.Print(outputWriter, filepath.Base(repo), commits)
+			deps.printer.Print(w, filepath.Base(repo), commits)
 		}
 	}
 
+	return foundAny
+}
+
+// processTasks renders static (enabled only) and dynamic tasks
+func processTasks(printer *renderer.Printer, cfg *config.AppConfig, w io.Writer) bool {
+	var activeTasks []entity.Task
+
+	// 1. Filter Static Tasks: Only include tasks where Enabled = true
+	for _, t := range cfg.Tasks {
+		if t.Enabled {
+			activeTasks = append(activeTasks, t)
+		}
+	}
+
+	// 2. Add Dynamic Tasks: Tasks from CLI are always displayed by default
+	for _, msg := range cfg.DynamicTasks {
+		activeTasks = append(activeTasks, entity.Task{
+			Message: msg,
+			Type:    "misc",
+			Icon:    "📌",
+			// Enabled: true, // (Optional: set true if struct requires it, but typically not necessary for printing)
+		})
+	}
+
+	// 3. Print if any tasks exist
+	if len(activeTasks) > 0 {
+		printer.PrintTasks(w, activeTasks)
+		return true
+	}
+
+	return false
+}
+
+// handleClipboard copies content to clipboard if enabled
+func handleClipboard(foundAny, copyEnabled bool, buffer *bytes.Buffer) {
 	if !foundAny {
-		fmt.Println("📭 No commits found.")
-	} else {
-		// If user wants to copy, copy from buffer to clipboard
-		if cfg.CopyToClipboard {
-			content := clipboardBuffer.String()
-			if err := sys.CopyToClipboard(content); err != nil {
-				fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
-				fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
-			} else {
-				fmt.Println("\n📋 Report copied to clipboard!")
-			}
+		fmt.Println("📭 No commits or tasks found.")
+		return
+	}
+
+	if copyEnabled {
+		content := buffer.String()
+		if err := sys.CopyToClipboard(content); err != nil {
+			fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
+			fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
+		} else {
+			fmt.Println("\n📋 Report copied to clipboard!")
 		}
 	}
 }

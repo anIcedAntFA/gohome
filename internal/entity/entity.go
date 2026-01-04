@@ -9,3 +9,11 @@ type Commit struct {
 	Message string
 	Icon    string
 }
+
+// Task represents a manual or recurring task
+type Task struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Icon    string `json:"icon"`
+	Enabled bool   `json:"enabled"`
+}
