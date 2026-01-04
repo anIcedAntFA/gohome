@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,6 +14,7 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/parser"
 	"github.com/anIcedAntFA/gohome/internal/renderer"
 	"github.com/anIcedAntFA/gohome/internal/scanner"
+	"github.com/anIcedAntFA/gohome/internal/sys"
 )
 
 func main() {
@@ -57,6 +60,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Create a buffer to collect the entire report content
+	var clipboardBuffer bytes.Buffer
+
+	// Determine where we will write output
+	// Default is stdout (os.Stdout)
+	var outputWriter io.Writer = os.Stdout
+
+	// If user wants to copy, use MultiWriter
+	// It will write simultaneously to both stdout AND buffer
+	if cfg.CopyToClipboard {
+		outputWriter = io.MultiWriter(os.Stdout, &clipboardBuffer)
+	}
+
 	foundAny := false
 	for _, repo := range repos {
 		// a. Get Raw Logs
@@ -74,11 +90,22 @@ func main() {
 		// c. Render
 		if len(commits) > 0 {
 			foundAny = true
-			printer.Print(filepath.Base(repo), commits)
+			printer.Print(outputWriter, filepath.Base(repo), commits)
 		}
 	}
 
 	if !foundAny {
 		fmt.Println("📭 No commits found.")
+	} else {
+		// If user wants to copy, copy from buffer to clipboard
+		if cfg.CopyToClipboard {
+			content := clipboardBuffer.String()
+			if err := sys.CopyToClipboard(content); err != nil {
+				fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
+				fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
+			} else {
+				fmt.Println("\n📋 Report copied to clipboard!")
+			}
+		}
 	}
 }

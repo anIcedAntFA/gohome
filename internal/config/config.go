@@ -18,11 +18,12 @@ type AppConfig struct {
 	Years  int  `json:"years"`
 	Today  bool `json:"today"`
 
-	Path      string `json:"path"`
-	Author    string `json:"author"`
-	OutputFmt string `json:"format"`
-	ShowIcon  bool   `json:"show_icon"`
-	ShowScope bool   `json:"show_scope"`
+	Path            string `json:"path"`
+	Author          string `json:"author"`
+	OutputFmt       string `json:"format"`
+	ShowIcon        bool   `json:"show_icon"`
+	ShowScope       bool   `json:"show_scope"`
+	CopyToClipboard bool   `json:"copy_to_clipboard"`
 
 	// Special flag to save config, not saved to file
 	SaveConfig bool `json:"-"`
@@ -124,6 +125,9 @@ func Load() *AppConfig {
 
 	flag.BoolVar(&cfg.ShowScope, "scope", false, "")
 	flag.BoolVar(&cfg.ShowScope, "c", false, "")
+
+	flag.BoolVar(&cfg.CopyToClipboard, "copy", false, "")
+	flag.BoolVar(&cfg.CopyToClipboard, "cp", false, "")
 
 	// Add flag for user to save config
 	flag.BoolVar(&cfg.SaveConfig, "save", false, "Save current arguments as default configuration")
@@ -228,21 +232,22 @@ func printUsage() {
 	w := tabwriter.NewWriter(os.Stderr, 0, 8, 2, ' ', 0)
 
 	// Format: Flags \t Description
-	_, _ = fmt.Fprintln(w, "  -H, --hours <int>\tNumber of hours to look back")
-	_, _ = fmt.Fprintln(w, "  -d, --days <int>\tNumber of days to look back")
-	_, _ = fmt.Fprintln(w, "  -w, --weeks <int>\tNumber of weeks to look back")
-	_, _ = fmt.Fprintln(w, "  -m, --months <int>\tNumber of months to look back")
-	_, _ = fmt.Fprintln(w, "  -y, --years <int>\tNumber of years to look back")
+	_, _ = fmt.Fprintln(w, "   -H, --hours <int>\tNumber of hours to look back")
+	_, _ = fmt.Fprintln(w, "   -d, --days <int>\tNumber of days to look back")
+	_, _ = fmt.Fprintln(w, "   -w, --weeks <int>\tNumber of weeks to look back")
+	_, _ = fmt.Fprintln(w, "   -m, --months <int>\tNumber of months to look back")
+	_, _ = fmt.Fprintln(w, "   -y, --years <int>\tNumber of years to look back")
 	_, _ = fmt.Fprintln(w, "      --today\tLook back since midnight today")
 	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "  -p, --path <string>\tRepo path to scan (default \".\")")
-	_, _ = fmt.Fprintln(w, "  -a, --author <string>\tGit author (auto-detect if empty)")
+	_, _ = fmt.Fprintln(w, "   -p, --path <string>\tRepo path to scan (default \".\")")
+	_, _ = fmt.Fprintln(w, "   -a, --author <string>\tGit author (auto-detect if empty)")
 	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "  -f, --format <string>\tOutput format: text, table (default \"text\")")
-	_, _ = fmt.Fprintln(w, "  -c, --scope\tShow commit scope")
-	_, _ = fmt.Fprintln(w, "  -i, --icon\tShow commit type icons")
+	_, _ = fmt.Fprintln(w, "   -f, --format <string>\tOutput format: text, table (default \"text\")")
+	_, _ = fmt.Fprintln(w, "   -c, --scope\tShow commit scope")
+	_, _ = fmt.Fprintln(w, "   -i, --icon\tShow commit type icons")
 	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "      --save\tSave current arguments as default configuration")
+	_, _ = fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
+	_, _ = fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
 
 	_ = w.Flush() // Flush buffer to screen
 	fmt.Fprintf(os.Stderr, "\n")

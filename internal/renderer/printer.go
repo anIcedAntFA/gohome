@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/anIcedAntFA/gohome/internal/entity"
 )
@@ -20,37 +21,21 @@ func NewPrinter(cfg Config) *Printer {
 	return &Printer{cfg: cfg}
 }
 
-func (p *Printer) Print(repoName string, commits []entity.Commit) {
+func (p *Printer) Print(w io.Writer, repoName string, commits []entity.Commit) {
 	if len(commits) == 0 {
 		return
 	}
 
-	p.printFilterInfo()
-
 	if p.cfg.Format == "table" {
 		fmt.Println("TODO: update later")
 	} else {
-		p.printText(repoName, commits)
+		p.printText(w, repoName, commits)
 	}
 }
 
-func (p *Printer) printFilterInfo() {
-	// Print filter options
-	fmt.Printf("\n🔍 Filters: format=%s", p.cfg.Format)
+func (p *Printer) printText(w io.Writer, repoName string, commits []entity.Commit) {
+	fmt.Fprintf(w, "\n📁 Repository: %s\n", repoName)
 
-	if p.cfg.ShowIcon {
-		fmt.Printf(", show_icon=true")
-	}
-
-	if p.cfg.ShowScope {
-		fmt.Printf(", show_scope=true")
-	}
-
-	fmt.Println("\n------------------------------------------")
-}
-
-func (p *Printer) printText(repoName string, commits []entity.Commit) {
-	fmt.Printf("\n📁 Repository: %s\n", repoName)
 	for _, c := range commits {
 		line := "- "
 
@@ -66,7 +51,8 @@ func (p *Printer) printText(repoName string, commits []entity.Commit) {
 
 		line += ": " + c.Message
 
-		fmt.Println(line)
+		fmt.Fprintln(w, line)
 	}
-	fmt.Println("------------------------------------------")
+
+	fmt.Fprintln(w, "------------------------------------------")
 }
