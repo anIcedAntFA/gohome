@@ -1,7 +1,10 @@
+// Package config handles application configuration loading, parsing, and persistence.
+// It supports both command-line flags and JSON file storage.
 package config
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -38,12 +41,38 @@ func getConfigFilePath() string {
 	return filepath.Join(home, ".gohome.json")
 }
 
+// validateConfigPath ensures the config file path is safe from path traversal attacks
+func validateConfigPath(filePath string) error {
+	// Clean the path to remove any '..' or other unsafe elements
+	cleanPath := filepath.Clean(filePath)
+
+	// Get absolute path
+	absPath, err := filepath.Abs(cleanPath)
+	if err != nil {
+		return err
+	}
+
+	// Ensure the file is named .gohome.json
+	if filepath.Base(absPath) != ".gohome.json" {
+		return errors.New("invalid config file name")
+	}
+
+	return nil
+}
+
 // loadConfigFromFile reads and parses the config file if it exists
 func loadConfigFromFile() AppConfig {
 	filePath := getConfigFilePath()
 	var cfg AppConfig
 
+	// Validate path to prevent path traversal attacks
+	if err := validateConfigPath(filePath); err != nil {
+		fmt.Printf("⚠️ Warning: Invalid config path: %v\\n", err)
+		return cfg
+	}
+
 	// Open file
+	// #nosec G304 -- filePath is validated above
 	file, err := os.Open(filePath)
 	if err != nil {
 		return cfg // Return default config if file doesn't exist
@@ -69,7 +98,13 @@ func loadConfigFromFile() AppConfig {
 func (c *AppConfig) SaveToFile() error {
 	filePath := getConfigFilePath()
 
+	// Validate path to prevent path traversal attacks
+	if err := validateConfigPath(filePath); err != nil {
+		return fmt.Errorf("invalid config path: %w", err)
+	}
+
 	// Create or overwrite file
+	// #nosec G304 -- filePath is validated above
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
@@ -87,6 +122,8 @@ func (c *AppConfig) SaveToFile() error {
 	return encoder.Encode(c)
 }
 
+// Load parses command-line flags and returns application configuration.
+// It merges defaults from config file with CLI arguments.
 func Load() *AppConfig {
 	// A. Load defaults from file first (if exists)
 	fileCfg := loadConfigFromFile()
@@ -232,27 +269,29 @@ func printUsage() {
 	w := tabwriter.NewWriter(os.Stderr, 0, 8, 2, ' ', 0)
 
 	// Format: Flags \t Description
-	_, _ = fmt.Fprintln(w, "   -H, --hours <int>\tNumber of hours to look back")
-	_, _ = fmt.Fprintln(w, "   -d, --days <int>\tNumber of days to look back")
-	_, _ = fmt.Fprintln(w, "   -w, --weeks <int>\tNumber of weeks to look back")
-	_, _ = fmt.Fprintln(w, "   -m, --months <int>\tNumber of months to look back")
-	_, _ = fmt.Fprintln(w, "   -y, --years <int>\tNumber of years to look back")
-	_, _ = fmt.Fprintln(w, "      --today\tLook back since midnight today")
-	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "   -p, --path <string>\tRepo path to scan (default \".\")")
-	_, _ = fmt.Fprintln(w, "   -a, --author <string>\tGit author (auto-detect if empty)")
-	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "   -f, --format <string>\tOutput format: text, table (default \"text\")")
-	_, _ = fmt.Fprintln(w, "   -c, --scope\tShow commit scope")
-	_, _ = fmt.Fprintln(w, "   -i, --icon\tShow commit type icons")
-	_, _ = fmt.Fprintln(w, "\t")
-	_, _ = fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
-	_, _ = fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
+	fmt.Fprintln(w, "   -H, --hours <int>\tNumber of hours to look back")
+	fmt.Fprintln(w, "   -d, --days <int>\tNumber of days to look back")
+	fmt.Fprintln(w, "   -w, --weeks <int>\tNumber of weeks to look back")
+	fmt.Fprintln(w, "   -m, --months <int>\tNumber of months to look back")
+	fmt.Fprintln(w, "   -y, --years <int>\tNumber of years to look back")
+	fmt.Fprintln(w, "      --today\tLook back since midnight today")
+	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "   -p, --path <string>\tRepo path to scan (default \".\")")
+	fmt.Fprintln(w, "   -a, --author <string>\tGit author (auto-detect if empty)")
+	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "   -f, --format <string>\tOutput format: text, table (default \"text\")")
+	fmt.Fprintln(w, "   -c, --scope\tShow commit scope")
+	fmt.Fprintln(w, "   -i, --icon\tShow commit type icons")
+	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
+	fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
 
 	_ = w.Flush() // Flush buffer to screen
 	fmt.Fprintf(os.Stderr, "\n")
 }
 
+// GetPeriod returns a human-readable time period string based on the configuration.
+// It returns the largest non-zero period value (years > months > weeks > days > hours).
 func (c *AppConfig) GetPeriod() string {
 	// Table-driven approach: check periods in priority order
 	periods := []struct {

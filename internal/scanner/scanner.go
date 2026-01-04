@@ -1,3 +1,4 @@
+// Package scanner provides utilities for discovering git repositories in the filesystem.
 package scanner
 
 import (

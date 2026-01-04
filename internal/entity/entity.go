@@ -1,3 +1,4 @@
+// Package entity defines core data structures used throughout the application.
 package entity
 
 // Commit represents a parsed git log entry

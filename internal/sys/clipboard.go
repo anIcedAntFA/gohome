@@ -1,3 +1,4 @@
+// Package sys provides system-level utilities like clipboard operations.
 package sys
 
 import (

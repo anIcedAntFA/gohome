@@ -1,3 +1,4 @@
+// Package parser handles parsing of git commit messages according to Conventional Commits specification.
 package parser
 
 import (
@@ -13,6 +14,7 @@ var commitRegex = regexp.MustCompile(`(?i)^.*?([a-zA-Z0-9_-]+)(?:\(([^)]+)\))?:\
 // Service handles parsing logic
 type Service struct{}
 
+// NewService creates a new parser service instance.
 func NewService() *Service {
 	return &Service{}
 }
