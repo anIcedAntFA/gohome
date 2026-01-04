@@ -22,7 +22,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 **User Interface (UI/U ):**
 
-- [ ] **Output Formats:** Support both `te t` list and rich `table` format.
+- [ ] **Output Formats:** Support both `text` list and rich `table` format.
 - [ ] **Styling:** Custom table styles (markdown, nature, tech, etc.).
 - [ ] **Clipboard:** Cross-platform clipboard support (`--copy`).
 - [ ] **Feedback:** Add a Spinner/Loading indicator during the scanning process (UX).
