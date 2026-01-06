@@ -25,7 +25,7 @@ This document outlines the development status and future plans for **gohome** (G
 - [x] **Output Formats:** Support both `text` list and rich `table` format.
 - [x] **Styling:** Custom table styles (markdown, nature, tech, etc.).
 - [x] **Clipboard:** Cross-platform clipboard support (`--copy`).
-- [ ] **Feedback:** Add a Spinner/Loading indicator during the scanning process (UX).
+- [x] **Feedback:** Add a Spinner/Loading indicator during the scanning process (UX).
 
 **System & Refinements:**
 
@@ -103,8 +103,3 @@ This document outlines the development status and future plans for **gohome** (G
 ---
 
 _Note: This roadmap is subject to change based on user feedback and priorities._
-
-- sau khi print line "fmt.Println("💡 Tip: You can edit this file to customize your daily recurring tasks.")" thì tui nghĩ nên chỉ rõ file config locate ở đâu cho user biết.
-- có issue, khi gõ "make install" thì không tạo file binary là "gohome" mà là "main". tui muốn tên file là "gohome".
-- hãy lên plan, solutions chi tiết cho tính năng Add a Spinner/Loading indicator during the scanning process (UX)
-- tui muốn tự viết internal spinner thay vì xài thư viện ngoài.
