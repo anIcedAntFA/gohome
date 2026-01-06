@@ -28,7 +28,7 @@ run:
 ## install: Install tool to $GOPATH/bin (to run from anywhere)
 install:
 	@echo "  >  Installing..."
-	$(GO) install $(MAIN_PATH)
+	$(GOBUILD) -o $(shell go env GOPATH)/bin/$(BINARY_NAME) $(MAIN_PATH)
 	@echo "  >  Installed successfully! You can run '$(BINARY_NAME)' now."
 
 ## clean: Remove old build artifacts

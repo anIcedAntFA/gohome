@@ -3,6 +3,12 @@ version: "2"
 run:
   timeout: 5m
   tests: false # Set to true if you want to lint test files as well
+  skip-dirs:
+    - vendor
+    - third_party
+  skip-files:
+    - ".*\\.md$"
+    - ".*\\.MD$"
 
 linters:
   default: none
@@ -31,6 +37,7 @@ linters:
       check-type-assertions: true
       exclude-functions:
          # fmt.Fprintf/Fprintln errors are typically safe to ignore for logging
+        - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
         - (fmt).Fprintf

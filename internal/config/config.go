@@ -65,6 +65,11 @@ func getConfigFilePath() string {
 	return filepath.Join(home, ".gohome.json")
 }
 
+// GetConfigPath exports the config file path for external use
+func GetConfigPath() string {
+	return getConfigFilePath()
+}
+
 // validateConfigPath ensures the config file path is safe from path traversal attacks
 func validateConfigPath(filePath string) error {
 	// Clean the path to remove any '..' or other unsafe elements

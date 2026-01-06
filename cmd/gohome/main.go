@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/anIcedAntFA/gohome/internal/config"
 	"github.com/anIcedAntFA/gohome/internal/entity"
@@ -16,6 +17,7 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/parser"
 	"github.com/anIcedAntFA/gohome/internal/renderer"
 	"github.com/anIcedAntFA/gohome/internal/scanner"
+	"github.com/anIcedAntFA/gohome/internal/spinner"
 	"github.com/anIcedAntFA/gohome/internal/sys"
 )
 
@@ -46,8 +48,10 @@ func handleSaveConfig(cfg *config.AppConfig) {
 	if err := cfg.SaveToFile(); err != nil {
 		log.Fatalf("❌ Failed to save config: %v", err)
 	}
+
+	configPath := config.GetConfigPath()
 	fmt.Println("✅ Configuration saved successfully!")
-	fmt.Println("💡 Tip: You can edit this file to customize your daily recurring tasks.")
+	fmt.Printf("💡 Tip: You can edit this file to customize your daily recurring tasks.\n   Config location: %s\n", configPath)
 	fmt.Println("You can now run 'gohome' without flags to use these settings.")
 	os.Exit(0)
 }
@@ -88,10 +92,19 @@ func initDependencies(cfg *config.AppConfig) *dependencies {
 	fmt.Println("🗓️ Period:", period)
 
 	absPath, _ := filepath.Abs(cfg.Path)
+
+	sp := spinner.New("🔍 Scanning repositories...").
+		WithFrames(spinner.PacmanGhost).
+		WithInterval(100 * time.Millisecond)
+	sp.Start()
+
 	repos, err := scanner.ScanGitRepos(absPath)
+	sp.Stop()
+
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("✓ Found %d repositories\n", len(repos))
 
 	return &dependencies{
 		gitClient: gitClient,
@@ -128,7 +141,13 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 	foundAny := false
 
 	for _, repo := range deps.repos {
+		repoName := filepath.Base(repo)
+		sp := spinner.New(fmt.Sprintf("📥 Fetching commits from %s...", repoName))
+		sp.Start()
+
 		rawLogs, err := deps.gitClient.GetLogs(repo, deps.author, deps.period)
+		sp.Stop()
+
 		if err != nil || len(rawLogs) == 0 {
 			continue
 		}
