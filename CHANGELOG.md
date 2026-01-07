@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-01-08
+
 ### Added
 
 - Release automation with GoReleaser
@@ -14,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Universal installation script (curl|sh)
 - GitHub Actions workflow for automated releases
 - Multi-platform builds (Linux, macOS, Windows)
-- Comprehensive release documentation
+- Comprehensive release documentation (RELEASE_GUIDE, RELEASE_CHECKLIST, SUMMARY)
 
 ### Changed
 
@@ -45,5 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ROADMAP with development milestones
 - Release guides and checklists
 
-[Unreleased]: https://github.com/anIcedAntFA/gohome/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/anIcedAntFA/gohome/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/anIcedAntFA/gohome/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/anIcedAntFA/gohome/releases/tag/v0.1.0
