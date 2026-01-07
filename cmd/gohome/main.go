@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -43,7 +44,7 @@ func main() {
 	handleClipboard(foundAny, cfg.CopyToClipboard, clipboardBuffer)
 }
 
-// handleSaveConfig saves configuration to file and exits
+// handleSaveConfig saves configuration to file and exits.
 func handleSaveConfig(cfg *config.AppConfig) {
 	if err := cfg.SaveToFile(); err != nil {
 		log.Fatalf("❌ Failed to save config: %v", err)
@@ -56,7 +57,7 @@ func handleSaveConfig(cfg *config.AppConfig) {
 	os.Exit(0)
 }
 
-// dependencies holds all service instances
+// dependencies holds all service instances.
 type dependencies struct {
 	gitClient *git.Client
 	parser    *parser.Service
@@ -66,7 +67,7 @@ type dependencies struct {
 	repos     []string
 }
 
-// initDependencies creates and initializes all required services
+// initDependencies creates and initializes all required services.
 func initDependencies(cfg *config.AppConfig) *dependencies {
 	gitClient := git.NewClient()
 	parserSvc := parser.NewService()
@@ -80,7 +81,7 @@ func initDependencies(cfg *config.AppConfig) *dependencies {
 	// Determine author
 	author := cfg.Author
 	if author == "" {
-		if val := gitClient.GetUser(); val != "" {
+		if val := gitClient.GetUser(context.Background()); val != "" {
 			author = val
 		} else {
 			log.Fatal("❌ Author not found. Please use -a flag or check git config.")
@@ -116,7 +117,7 @@ func initDependencies(cfg *config.AppConfig) *dependencies {
 	}
 }
 
-// setupWriter creates output writer and optional clipboard buffer
+// setupWriter creates output writer and optional clipboard buffer.
 func setupWriter(copyToClipboard bool) (io.Writer, *bytes.Buffer) {
 	var clipboardBuffer bytes.Buffer
 	var outputWriter io.Writer = os.Stdout
@@ -128,7 +129,7 @@ func setupWriter(copyToClipboard bool) (io.Writer, *bytes.Buffer) {
 	return outputWriter, &clipboardBuffer
 }
 
-// processAndRender handles git commits and tasks rendering
+// processAndRender handles git commits and tasks rendering.
 func processAndRender(deps *dependencies, cfg *config.AppConfig, w io.Writer) bool {
 	foundCommits := processCommits(deps, w)
 	foundTasks := processTasks(deps.printer, cfg, w)
@@ -136,7 +137,7 @@ func processAndRender(deps *dependencies, cfg *config.AppConfig, w io.Writer) bo
 	return foundCommits || foundTasks
 }
 
-// processCommits fetches and renders git commits
+// processCommits fetches and renders git commits.
 func processCommits(deps *dependencies, w io.Writer) bool {
 	foundAny := false
 
@@ -145,7 +146,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 		sp := spinner.New(fmt.Sprintf("📥 Fetching commits from %s...", repoName))
 		sp.Start()
 
-		rawLogs, err := deps.gitClient.GetLogs(repo, deps.author, deps.period)
+		rawLogs, err := deps.gitClient.GetLogs(context.Background(), repo, deps.author, deps.period)
 		sp.Stop()
 
 		if err != nil || len(rawLogs) == 0 {
@@ -166,8 +167,9 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 	return foundAny
 }
 
-// processTasks renders static (enabled only) and dynamic tasks
+// processTasks renders static (enabled only) and dynamic tasks.
 func processTasks(printer *renderer.Printer, cfg *config.AppConfig, w io.Writer) bool {
+	//nolint:prealloc // size unknown at compile time
 	var activeTasks []entity.Task
 
 	// 1. Filter Static Tasks: Only include tasks where Enabled = true
@@ -196,7 +198,7 @@ func processTasks(printer *renderer.Printer, cfg *config.AppConfig, w io.Writer)
 	return false
 }
 
-// handleClipboard copies content to clipboard if enabled
+// handleClipboard copies content to clipboard if enabled.
 func handleClipboard(foundAny, copyEnabled bool, buffer *bytes.Buffer) {
 	if !foundAny {
 		fmt.Println("📭 No commits or tasks found.")
@@ -205,7 +207,7 @@ func handleClipboard(foundAny, copyEnabled bool, buffer *bytes.Buffer) {
 
 	if copyEnabled {
 		content := buffer.String()
-		if err := sys.CopyToClipboard(content); err != nil {
+		if err := sys.CopyToClipboard(context.Background(), content); err != nil {
 			fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
 			fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
 		} else {

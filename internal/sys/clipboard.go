@@ -2,36 +2,38 @@
 package sys
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 )
 
-// CopyToClipboard automatically detects OS and copies text to clipboard
-func CopyToClipboard(text string) error {
+// CopyToClipboard automatically detects OS and copies text to clipboard.
+func CopyToClipboard(ctx context.Context, text string) error {
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
 	case "darwin": // macOS
-		cmd = exec.Command("pbcopy")
+		cmd = exec.CommandContext(ctx, "pbcopy")
 	case "windows":
 		// Windows uses clip command
-		cmd = exec.Command("clip")
+		cmd = exec.CommandContext(ctx, "clip")
 	case "linux", "freebsd", "openbsd", "netbsd":
 		// Smart logic for Linux clipboard
 		if isWayland() {
 			// Prefer Wayland
-			cmd = exec.Command("wl-copy")
+			cmd = exec.CommandContext(ctx, "wl-copy")
 		} else {
 			// Fallback to X11, prefer xclip then xsel
+			//nolint:gocritic // if-else is clearer than switch for command availability checks
 			if isCommandAvailable("xclip") {
-				cmd = exec.Command("xclip", "-selection", "clipboard")
+				cmd = exec.CommandContext(ctx, "xclip", "-selection", "clipboard")
 			} else if isCommandAvailable("xsel") {
-				cmd = exec.Command("xsel", "--clipboard", "--input")
+				cmd = exec.CommandContext(ctx, "xsel", "--clipboard", "--input")
 			} else {
 				// Last resort: try wl-copy (in case environment variables are incorrect)
-				cmd = exec.Command("wl-copy")
+				cmd = exec.CommandContext(ctx, "wl-copy")
 			}
 		}
 	default:
@@ -45,7 +47,7 @@ func CopyToClipboard(text string) error {
 	return cmd.Run()
 }
 
-// isWayland checks if user is running Wayland
+// isWayland checks if user is running Wayland.
 func isWayland() bool {
 	// Check common Wayland environment variables
 	waylandDisplay := os.Getenv("WAYLAND_DISPLAY")
@@ -54,7 +56,7 @@ func isWayland() bool {
 	return waylandDisplay != "" || strings.EqualFold(xdgSessionType, "wayland")
 }
 
-// isCommandAvailable checks if tool exists in PATH
+// isCommandAvailable checks if tool exists in PATH.
 func isCommandAvailable(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil

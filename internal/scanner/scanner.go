@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-// ScanGitRepos finds directory paths that contain a .git folder
+// ScanGitRepos finds directory paths that contain a .git folder.
 func ScanGitRepos(rootPath string) ([]string, error) {
 	var repos []string
 

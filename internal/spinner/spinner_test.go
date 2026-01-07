@@ -55,7 +55,7 @@ func TestUpdateMessage(t *testing.T) {
 	sp.Stop()
 
 	output := buf.String()
-	if len(output) == 0 {
+	if output == "" {
 		t.Error("expected output")
 	}
 }

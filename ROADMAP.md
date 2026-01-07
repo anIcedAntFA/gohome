@@ -45,7 +45,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 **CI/CD & Distribution:**
 
-- [ ] **GitHub Actions:** Setup workflow for linting (`golangci-lint`) and testing on every push.
+- [x] **GitHub Actions:** Setup workflow for linting (`golangci-lint`) and testing on every push.
 - [ ] **GoReleaser Integration:** Automate release process.
 - [ ] **Cross-Platform Builds:** Binaries for Linux (amd64/arm64), Windows, macOS (Intel/Apple Silicon).
 - [ ] **Installation Support:** `go install`, `curl | sh`, and Release assets.

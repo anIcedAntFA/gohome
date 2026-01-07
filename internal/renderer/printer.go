@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/anIcedAntFA/gohome/internal/entity"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
 	"github.com/olekukonko/tablewriter/tw"
+
+	"github.com/anIcedAntFA/gohome/internal/entity"
 )
 
 // Config holds printer configuration options.
@@ -105,7 +106,7 @@ func (p *Printer) printTable(w io.Writer, repoName string, commits []entity.Comm
 	fmt.Fprintln(w)
 }
 
-// createTable initializes tablewriter.Table with Style configuration Options
+// createTable initializes tablewriter.Table with Style configuration Options.
 func (p *Printer) createTable(w io.Writer, style string) *tablewriter.Table {
 	var options []tablewriter.Option
 

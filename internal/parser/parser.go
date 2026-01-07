@@ -8,10 +8,10 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/entity"
 )
 
-// Regex to parse Conventional Commits
+// Regex to parse Conventional Commits.
 var commitRegex = regexp.MustCompile(`(?i)^.*?([a-zA-Z0-9_-]+)(?:\(([^)]+)\))?:\s*(.+)$`)
 
-// Service handles parsing logic
+// Service handles parsing logic.
 type Service struct{}
 
 // NewService creates a new parser service instance.
@@ -19,7 +19,7 @@ func NewService() *Service {
 	return &Service{}
 }
 
-// Parse converts a raw log line into a Commit entity
+// Parse converts a raw log line into a Commit entity.
 func (s *Service) Parse(rawLine string) entity.Commit {
 	emoji := s.extractEmoji(rawLine)
 	if emoji == "" {
@@ -53,6 +53,7 @@ func (s *Service) extractEmoji(input string) string {
 	var emoji strings.Builder
 
 	for _, r := range input {
+		//nolint:gocritic // if-else is clearer than switch for multiple range checks
 		if (r >= 0x1F300 && r <= 0x1F9FF) || // Misc Symbols, Emoticons, Transport
 			(r >= 0x2600 && r <= 0x27BF) || // Misc symbols, Dingbats
 			(r >= 0x1F000 && r <= 0x1F2FF) { // Additional symbols

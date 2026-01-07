@@ -1,7 +1,7 @@
 // Package entity defines core data structures used throughout the application.
 package entity
 
-// Commit represents a parsed git log entry
+// Commit represents a parsed git log entry.
 type Commit struct {
 	Raw     string
 	Type    string
@@ -10,7 +10,7 @@ type Commit struct {
 	Icon    string
 }
 
-// Task represents a manual or recurring task
+// Task represents a manual or recurring task.
 type Task struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`

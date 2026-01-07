@@ -2,31 +2,64 @@ version: "2"
 
 run:
   timeout: 5m
-  tests: false # Set to true if you want to lint test files as well
-  skip-dirs:
-    - vendor
-    - third_party
-  skip-files:
-    - ".*\\.md$"
-    - ".*\\.MD$"
+  tests: true
 
 linters:
-  default: none
   enable:
-    # --- Core Linters (Must Have) ---
-    - errcheck      # Check for unchecked errors
-    - govet         # Report suspicious constructs (standard Go tool)
-    - gosec         # Security analyzer for Go code
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Advanced static analysis (includes gosimple)
-    - unused        # Detect unused constants, variables, and functions
+    # Core linters
+    - errcheck
+    - govet
+    - gosec
+    - ineffassign
+    - staticcheck
+    - unused
+    
+    # Code quality
+    - bodyclose
+    - dogsled
+    - dupl
+    - durationcheck
+    - exhaustive
+    - gocritic
+    - godot
+    - gomoddirectives
+    - goprintffuncname
+    - importas
+    - makezero
+    - misspell
+    - nakedret
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+    
+    # Complexity
+    - gocyclo
 
-    # --- Style & Formatting ---
-    - misspell      # Detect spelling mistakes in English
-    - revive        # Modern replacement for golint, enforces coding style
-
-    # --- Complexity ---
-    - gocyclo       # Check cyclomatic complexity of functions
+    # May enable later
+    # - cyclop
+    # - errorlint
+    # - exhaustivestruct
+    # - forbidigo
+    # - forcetypeassert
+    # - gochecknoglobals
+    # - gochecknoinits
+    # - gocognit
+    # - goconst
+    # - gosimple
+    # - lll
+    # - nlreturn
+    # - paralleltest
+    # - wrapcheck
 
   settings:
     govet:
@@ -36,7 +69,6 @@ linters:
     errcheck:
       check-type-assertions: true
       exclude-functions:
-         # fmt.Fprintf/Fprintln errors are typically safe to ignore for logging
         - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
@@ -44,22 +76,76 @@ linters:
         - (fmt).Fprintln
 
     gocyclo:
-      min-complexity: 15 # Report functions with excessive complexity (too many if/else branches)
+      min-complexity: 15
 
     misspell:
       locale: US
+      
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - style
+      disabled-checks:
+        - importShadow
+        - unnamedResult
+        
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+          arguments:
+            - allowTypesBefore: "*testing.T"
+        - name: context-keys-type
+        - name: dot-imports
+        - name: empty-block
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+          arguments:
+            - "sayRepetitiveInsteadOfStutters"
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: package-comments
+          disabled: true
+        - name: range
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: var-declaration
+        - name: var-naming
 
   exclusions:
-    generated: strict
+    rules:
+      - linters:
+        - errcheck
+        - noctx
+        path: _test\.go
+    presets:
+      - std-error-handling
 
 formatters:
   enable:
-    - gofmt         # Check code formatting against Go standards
-    - goimports     # Automatically organize and format imports
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
 
   settings:
     gofmt:
       simplify: true
+      
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/anIcedAntFA/gohome)
 
 issues:
   max-issues-per-linter: 0

@@ -15,7 +15,7 @@ import (
 )
 
 // StringSlice is a helper type for capturing multiple -t flag values.
-// It implements flag.Value interface to support repeated flags like: -t "task1" -t "task2"
+// It implements flag.Value interface to support repeated flags like: -t "task1" -t "task2".
 type StringSlice []string
 
 func (s *StringSlice) String() string {
@@ -28,7 +28,7 @@ func (s *StringSlice) Set(value string) error {
 	return nil
 }
 
-// AppConfig maps directly to the JSON file
+// AppConfig maps directly to the JSON file.
 type AppConfig struct {
 	Hours  int  `json:"hours"`
 	Days   int  `json:"days"`
@@ -56,7 +56,7 @@ type AppConfig struct {
 	SaveConfig bool `json:"-"`
 }
 
-// getConfigFilePath returns the config file path in user's home directory
+// getConfigFilePath returns the config file path in user's home directory.
 func getConfigFilePath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -65,12 +65,12 @@ func getConfigFilePath() string {
 	return filepath.Join(home, ".gohome.json")
 }
 
-// GetConfigPath exports the config file path for external use
+// GetConfigPath exports the config file path for external use.
 func GetConfigPath() string {
 	return getConfigFilePath()
 }
 
-// validateConfigPath ensures the config file path is safe from path traversal attacks
+// validateConfigPath ensures the config file path is safe from path traversal attacks.
 func validateConfigPath(filePath string) error {
 	// Clean the path to remove any '..' or other unsafe elements
 	cleanPath := filepath.Clean(filePath)
@@ -89,7 +89,7 @@ func validateConfigPath(filePath string) error {
 	return nil
 }
 
-// loadConfigFromFile reads and parses the config file if it exists
+// loadConfigFromFile reads and parses the config file if it exists.
 func loadConfigFromFile() AppConfig {
 	filePath := getConfigFilePath()
 	var cfg AppConfig
@@ -123,7 +123,7 @@ func loadConfigFromFile() AppConfig {
 	return cfg
 }
 
-// SaveToFile writes the current config to the config file
+// SaveToFile writes the current config to the config file.
 func (c *AppConfig) SaveToFile() error {
 	filePath := getConfigFilePath()
 
@@ -287,7 +287,7 @@ func Load() *AppConfig {
 	return cfg
 }
 
-// checkTimeFlags checks if user has set any time-related flag
+// checkTimeFlags checks if user has set any time-related flag.
 func checkTimeFlags(setFlags map[string]bool) bool {
 	keys := []string{
 		"hours", "H",
@@ -305,12 +305,12 @@ func checkTimeFlags(setFlags map[string]bool) bool {
 	return false
 }
 
-// isSet checks if user has set a flag (including its alias)
+// isSet checks if user has set a flag (including its alias).
 func isSet(setFlags map[string]bool, name, alias string) bool {
 	return setFlags[name] || setFlags[alias]
 }
 
-// printUsage displays a custom professional help screen
+// printUsage displays a custom professional help screen.
 func printUsage() {
 	// Header
 	fmt.Fprintf(os.Stderr, "\n🚀 GO HOME TOOL (Go CLI)\n")
@@ -384,7 +384,7 @@ func (c *AppConfig) GetPeriod() string {
 	return "24 hours ago"
 }
 
-// pluralize adds "s" suffix for plural values
+// pluralize adds "s" suffix for plural values.
 func pluralize(n int) string {
 	if n == 1 {
 		return ""

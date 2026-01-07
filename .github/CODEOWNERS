@@ -1,0 +1,24 @@
+# CODEOWNERS file for gohome
+# This file defines who owns specific parts of the codebase
+# GitHub will automatically request reviews from these owners when a PR touches their area
+
+# Default owners for everything in the repo
+# These users will be requested for review when someone opens a pull request
+*  @anIcedAntFA
+
+# Core application logic
+cmd/  @anIcedAntFA
+internal/  @anIcedAntFA
+
+# Documentation
+*.md  @anIcedAntFA
+docs/  @anIcedAntFA
+
+# GitHub workflows and CI/CD
+.github/  @anIcedAntFA
+
+# Build and configuration files
+Makefile  @anIcedAntFA
+go.mod  @anIcedAntFA
+go.sum  @anIcedAntFA
+.golangci.yml  @anIcedAntFA
