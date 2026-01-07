@@ -39,6 +39,9 @@ func TestStartStop(t *testing.T) {
 		t.Error("should not be running after Stop")
 	}
 
+	// Give goroutine time to finish and flush output
+	time.Sleep(50 * time.Millisecond)
+
 	if buf.Len() == 0 {
 		t.Error("expected output to be produced")
 	}
@@ -53,6 +56,9 @@ func TestUpdateMessage(t *testing.T) {
 	sp.UpdateMessage("second")
 	time.Sleep(100 * time.Millisecond)
 	sp.Stop()
+
+	// Give goroutine time to finish and flush output
+	time.Sleep(50 * time.Millisecond)
 
 	output := buf.String()
 	if output == "" {

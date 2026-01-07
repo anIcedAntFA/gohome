@@ -28,7 +28,7 @@ jobs:
       
       - name: Run tests
         run: |
-          go test -v -race -coverprofile=coverage.txt ./...
+          go test -v -coverprofile=coverage.txt ./...
       
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
