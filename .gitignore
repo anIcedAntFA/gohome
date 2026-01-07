@@ -6,7 +6,16 @@ bin/
 /lab
 dev.sh
 *csv2table
-_test/
+
+# Test
+coverage.out
 *.test
+_test/
+
+# Build
+/dist/
+/build/
 
 .exe
+
+SUMMARY.md

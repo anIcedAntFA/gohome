@@ -29,7 +29,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 **System & Refinements:**
 
-- [ ] **Versioning:** Implement `--version` (`-v`) flag (injected via build time).
+- [x] **Versioning:** Implement `--version` (`-v`) flag (injected via build time).
 - [ ] **Debugging:** Implement `--verbose` flag to print debug logs (scanned paths, git errors).
 - [ ] **Scripting:** Implement `--quiet` (`-q`) flag to suppress banners and meta-info (output only raw data).
 - [ ] **Filtering:**
@@ -46,9 +46,16 @@ This document outlines the development status and future plans for **gohome** (G
 **CI/CD & Distribution:**
 
 - [x] **GitHub Actions:** Setup workflow for linting (`golangci-lint`) and testing on every push.
-- [ ] **GoReleaser Integration:** Automate release process.
-- [ ] **Cross-Platform Builds:** Binaries for Linux (amd64/arm64), Windows, macOS (Intel/Apple Silicon).
-- [ ] **Installation Support:** `go install`, `curl | sh`, and Release assets.
+- [x] **GoReleaser Integration:** Automate release process (see [RELEASE_GUIDE.md](RELEASE_GUIDE.md)).
+- [x] **Cross-Platform Builds:** Binaries for Linux (amd64/arm64), Windows, macOS (Intel/Apple Silicon).
+- [x] **Installation Support:** `go install`, `curl | sh`, and Release assets.
+  - [x] Direct binary downloads (GitHub Releases)
+  - [x] Universal installation script (`install.sh`)
+  - [x] Homebrew (macOS/Linux)
+  - [x] Snap (Linux universal)
+  - [x] APT/RPM packages
+  - [x] npm wrapper (optional)
+  - [x] Scoop/Chocolatey (Windows)
 
 **Documentation & Support:**
 

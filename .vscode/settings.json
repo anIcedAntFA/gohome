@@ -5,9 +5,9 @@
     "editor.defaultFormatter": "golang.go"
   },
 
-  "go.useLanguageServer": true, // Bật language server (gopls) để có gợi ý code tốt hơn
-  "go.lintTool": "golangci-lint", // Sử dụng golangci-lint làm linter
-  "go.lintOnSave": "file", // Chạy linter mỗi khi lưu file
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "go.lintOnSave": "file",
   "gopls": {
 	  "formatting.gofumpt": true,
   },

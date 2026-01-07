@@ -36,6 +36,7 @@ clean:
 	@echo "  >  Cleaning build cache..."
 	$(GO) clean
 	rm -rf bin/
+	@echo "  >  Cleaned."
 
 ## test: Run unit tests
 test:

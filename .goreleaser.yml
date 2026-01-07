@@ -1,0 +1,115 @@
+# GoReleaser configuration for gohome
+# Simplified config focusing on curl|sh and go install methods
+# See https://goreleaser.com for more details
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - id: gohome
+    binary: gohome
+    main: ./cmd/gohome
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: gohome
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^style:"
+      - "^refactor:"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: "Performance Improvements"
+      regexp: "^.*perf[(\\w)]*:+.*$"
+      order: 2
+    - title: "Other Changes"
+      order: 999
+
+release:
+  github:
+    owner: anIcedAntFA
+    name: gohome
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Installation
+
+    ### Quick Install (Linux/macOS)
+    ```bash
+    curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
+    ```
+
+    ### Go Install
+    ```bash
+    go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
+    ```
+
+    ### Download Binary
+    Download the appropriate binary for your platform below.
+
+  footer: |
+    ## Full Changelog
+    **Full Changelog**: https://github.com/anIcedAntFA/gohome/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    ---
+    
+    Questions? Feedback? Open an issue: https://github.com/anIcedAntFA/gohome/issues
+
+project_name: gohome
+dist: dist
