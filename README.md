@@ -1,10 +1,64 @@
-# gohome 🏠
+<h1 align="center">gohome</h1>
 
-> A blazing fast, cross-platform Git aggregation and reporting CLI tool.
+<p align="center">
+  A fast, configurable Git activity & standup CLI written in Go.
+</p>
 
-![Go Version](https://img.shields.io/github/go-mod/go-version/anIcedAntFA/gohome)
-![License](https://img.shields.io/github/license/anIcedAntFA/gohome)
-[![Go Report Card](https://goreportcard.com/badge/github.com/anIcedAntFA/gohome)](https://goreportcard.com/report/github.com/anIcedAntFA/gohome)
+<p align="center">
+  <sub>
+    Turn your local git history into clean, daily developer reports.
+  </sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/anIcedAntFA/gohome/actions">
+    <img
+      src="https://img.shields.io/github/actions/workflow/status/anIcedAntFA/gohome/release.yml?label=build&logo=githubactions&logoColor=white"
+      alt="Build status"
+    />
+  </a>
+  <a href="https://codecov.io/gh/anIcedAntFA/gohome">
+    <img
+      src="https://codecov.io/gh/anIcedAntFA/gohome/branch/main/graph/badge.svg"
+      alt="Code coverage"
+    />
+  </a>
+  <a href="https://goreportcard.com/report/github.com/anIcedAntFA/gohome">
+    <img
+      src="https://img.shields.io/badge/go%20report-A+-brightgreen?logo=go"
+      alt="Go Report Card grade"
+    />
+  </a>
+  <a href="https://github.com/anIcedAntFA/gohome/releases">
+    <img
+      src="https://img.shields.io/github/v/release/anIcedAntFA/gohome?logo=github"
+      alt="Latest release version"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://pkg.go.dev/github.com/anIcedAntFA/gohome">
+    <img
+      src="https://pkg.go.dev/badge/github.com/anIcedAntFA/gohome.svg"
+      alt="Go package documentation on pkg.go.dev"
+      style="margin-right:6px;"
+    />
+  </a>
+  <img
+    src="https://img.shields.io/github/downloads/anIcedAntFA/gohome/total?logo=github"
+    alt="Total GitHub downloads"
+  />
+  <img
+    src="https://img.shields.io/github/go-mod/go-version/anIcedAntFA/gohome?logo=go"
+    alt="Go module version requirement"
+  />
+  <img
+    src="https://img.shields.io/github/license/anIcedAntFA/gohome?logo=opensourceinitiative"
+    alt="Project license"
+  />
+</p>
+
 
 **Forgot what you worked on yesterday?**
 
@@ -16,21 +70,65 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 
 - **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace.
 - **⚡ Concurrency:** Scans multiple repos in parallel using Goroutines for maximum speed.
-- **🎨 Rich Output:** Supports Markdown tables, plain text, and custom styles (Nature, Tech, etc.).
+- **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
-- **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line aliases.
+- **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
+- **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line flags.
+- **🔄 Loading Spinner:** Visual feedback during repository scanning.
 
 ## 📦 Installation
 
-### 🛠️ From Source (Go Developers)
+### Quick Install (Recommended)
 
-If you have Go installed (1.20+), you can install the latest version directly:
+**Linux/macOS:**
+```bash
+curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+# Coming soon - for now use go install or download binary
+```
+
+### Go Install
+
+If you have Go 1.21+ installed:
 
 ```bash
 go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 ```
 
 Make sure your `$GOPATH/bin` is in your `$PATH`.
+
+### Download Binary
+
+Download pre-built binaries from [GitHub Releases](https://github.com/anIcedAntFA/gohome/releases/latest):
+
+1. Download the appropriate archive for your OS/architecture
+2. Extract the binary
+3. Move to a directory in your `$PATH`:
+
+**Linux/macOS:**
+```bash
+# Extract
+tar -xzf gohome_*_linux_x86_64.tar.gz
+# Move to PATH
+sudo mv gohome /usr/local/bin/
+# Make executable
+chmod +x /usr/local/bin/gohome
+```
+
+**Windows:**
+```powershell
+# Extract the .zip file
+# Move gohome.exe to a directory in your PATH
+```
+
+### Verify Installation
+
+```bash
+gohome --version
+```
 
 ## 🚀 Usage
 
@@ -57,7 +155,7 @@ gohome -d 3
 **3️⃣ Generate a Table Report**
 
 ```bash
-gohome -f table -s nature
+gohome -f table -s markdown
 ```
 
 **4️⃣ Copy to Clipboard**
@@ -68,7 +166,15 @@ This is useful for pasting directly into Slack/Teams/Discord:
 gohome -d 1 --copy
 ```
 
-**5️⃣ Save Settings**
+**5️⃣ Add Custom Tasks**
+
+Add tasks that aren't tracked in git:
+
+```bash
+gohome -t "Meeting: Sprint Planning" -t "Review: PR #123"
+```
+
+**6️⃣ Save Settings**
 
 Save your favorite flags as default (so you don't have to type them next time):
 
@@ -80,24 +186,60 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
 
 **gohome** looks for a config file at `~/.gohome.json`. You can create it manually or use the `--save` flag to auto-generate it.
 
+### Example Config
+
+```json
+{
+  "hours": 0,
+  "days": 1,
+  "weeks": 0,
+  "months": 0,
+  "years": 0,
+  "today": false,
+  "path": "/Users/ngockhoi96/workspace",
+  "author": "ngockhoi96",
+  "format": "table",
+  "preset": "normal",
+  "show_icon": true,
+  "show_scope": false,
+  "copy_to_clipboard": false,
+  "tasks": [
+    {
+      "type": "meeting",
+      "message": "Daily Standup & Team Sync",
+      "icon": "📅",
+      "enabled": true
+    },
+    {
+      "type": "review",
+      "message": "Code Review & PR Feedback",
+      "icon": "👀",
+      "enabled": true
+    }
+  ]
+}
+```
+
 ### 🧾 Flags Reference
 
 | Flag       | Alias | Description                                  | Default     |
 | ---------- | ----- | -------------------------------------------- | ----------- |
 | `--hours`  | `-H`  | Number of hours to look back                 | 0           |
-| `--today`  |       | From the midnight to look back               | 0           |
+| `--today`  |       | Report from midnight to now                  | false       |
 | `--days`   | `-d`  | Number of days to look back                  | 1           |
 | `--weeks`  | `-w`  | Number of weeks to look back                 | 0           |
-| `--month`  | `-m`  | Number of months to look back                | 0           |
+| `--months` | `-m`  | Number of months to look back                | 0           |
 | `--years`  | `-y`  | Number of years to look back                 | 0           |
-| `--path`   | `-p`  | Root path to scan                            | `.`         |
+| `--path`   | `-p`  | Root path to scan for repositories           | `.`         |
 | `--author` | `-a`  | Git author name (auto-detected)              | System User |
-| `--format` | `-f`  | Output format (text, table)                  | text        |
-| `--style`  | `-s`  | Table style (normal, markdown, nature, tech) | normal      |
+| `--format` | `-f`  | Output format: `text`, `table`               | `text`      |
+| `--preset` | `-s`  | Table style: `normal`, `markdown`, `nature`, `tech` | `normal` |
 | `--copy`   | `-cp` | Copy output to clipboard                     | false       |
-| `--icon`   | `-i`  | Show icon column (table only)                | false       |
-| `--scope`  | `-c`  | Show scope column (table only)               | false       |
-| `--save`   |       | Save current flags as default                | false       |
+| `--icon`   | `-i`  | Show icon column (table format only)         | false       |
+| `--scope`  | `-c`  | Show scope column (table format only)        | false       |
+| `--task`   | `-t`  | Add custom task (repeatable)                 | []          |
+| `--save`   |       | Save current flags as default config         | false       |
+| `--version`| `-v`  | Show version information                     |             |
 | `--help`   | `-h`  | Show help message                            |             |
 
 ## 🗺️ Roadmap
@@ -143,3 +285,4 @@ This project also serves as a practical journey to master **Go (Golang)**, imple
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+

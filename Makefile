@@ -55,4 +55,4 @@ tidy:
 ## help: Display this help message
 help:
 	@echo "Choose a command run in $(BINARY_NAME):"
-	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+	@sed -n 's/^##//p' $(MAKEFILE_LIST) | column -t -s ':' | sed -e 's/^/ /'

@@ -12,7 +12,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 - [x] **Git Integration:** Auto-scan directories (`.git`) to detect repositories.
 - [x] **Log Parsing:** Parse `git log` output using Conventional Commits regex.
-- [ ] **Smart Configuration:**
+- [x] **Smart Configuration:**
   - [x] Load config from JSON file (`~/.gohome.json`).
   - [x] Support command-line flags with shorthand aliases.
   - [x] Persist settings via `--save` flag.
@@ -60,7 +60,7 @@ This document outlines the development status and future plans for **gohome** (G
 **Documentation & Support:**
 
 - [ ] **README.md:**
-  - [ ] Comprehensive installation guide (Go install, Binary download).
+  - [x] Comprehensive installation guide (Go install, Binary download).
   - [ ] Usage examples with screenshots/GIFs.
   - [x] Configuration guide (flags explanation).
 - [ ] **Contribution Guide:** Instructions for developers (Running tests, Linting).
