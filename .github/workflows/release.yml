@@ -34,6 +34,8 @@ jobs:
       - name: Run tests
         run: |
           go test -v -coverprofile=coverage.txt ./...
+          mkdir -p /tmp/coverage
+          mv coverage.txt /tmp/coverage/ || true
       
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -47,4 +49,4 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.txt
+          files: /tmp/coverage/coverage.txt
