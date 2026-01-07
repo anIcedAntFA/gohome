@@ -9,6 +9,7 @@ dev.sh
 
 # Test
 coverage.out
+coverage.txt
 *.test
 _test/
 

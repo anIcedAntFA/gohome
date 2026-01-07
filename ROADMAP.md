@@ -51,11 +51,11 @@ This document outlines the development status and future plans for **gohome** (G
 - [x] **Installation Support:** `go install`, `curl | sh`, and Release assets.
   - [x] Direct binary downloads (GitHub Releases)
   - [x] Universal installation script (`install.sh`)
-  - [x] Homebrew (macOS/Linux)
-  - [x] Snap (Linux universal)
-  - [x] APT/RPM packages
-  - [x] npm wrapper (optional)
-  - [x] Scoop/Chocolatey (Windows)
+  - [ ] Homebrew (macOS/Linux)
+  - [ ] Snap (Linux universal)
+  - [ ] APT/RPM packages
+  - [ ] npm wrapper (optional)
+  - [ ] Scoop/Chocolatey (Windows)
 
 **Documentation & Support:**
 
