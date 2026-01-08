@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-01-08
+
+### Fixed
+
+- Version command now correctly displays version information
+- Fixed CI/CD workflows to inject version at build time
+- Improved version display for `go install` users (cleaner output)
+- Fixed prealloc lint warnings with proper slice preallocation
+- Fixed Windows build compatibility in CI workflows
+
+### Changed
+
+- Refactored version handling into dedicated `internal/version` package
+- Enhanced version detection with VCS fallback for go install users
+
+### Documentation
+
+- Added comprehensive VERSIONING.md guide
+- Updated README with version flag usage
+
 ## [1.0.0] - 2026-01-08
 
 ### Added
@@ -47,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ROADMAP with development milestones
 - Release guides and checklists
 
-[Unreleased]: https://github.com/anIcedAntFA/gohome/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/anIcedAntFA/gohome/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/anIcedAntFA/gohome/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/anIcedAntFA/gohome/releases/tag/v1.0.0
 [1.0.0]: https://github.com/anIcedAntFA/gohome/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/anIcedAntFA/gohome/releases/tag/v0.1.0

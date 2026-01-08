@@ -37,10 +37,54 @@ func getVersion() string {
 	return Version
 }
 
+// getCommit returns commit hash from ldflags or VCS info.
+func getCommit() string {
+	if Commit != "none" {
+		return Commit
+	}
+
+	// Try to get from VCS info
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" && len(setting.Value) >= 7 {
+				return setting.Value[:7]
+			}
+		}
+	}
+
+	return Commit
+}
+
+// getDate returns build date from ldflags or VCS info.
+func getDate() string {
+	if Date != "unknown" {
+		return Date
+	}
+
+	// Try to get from VCS info
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.time" {
+				return setting.Value
+			}
+		}
+	}
+
+	return Date
+}
+
 // String returns the formatted version string.
 func String() string {
 	v := getVersion()
-	return fmt.Sprintf("gohome %s (commit: %s, built: %s)", v, Commit, Date)
+	c := getCommit()
+	d := getDate()
+
+	// For go install builds, show cleaner format if no build info
+	if c == "none" && d == "unknown" {
+		return fmt.Sprintf("gohome %s", v)
+	}
+
+	return fmt.Sprintf("gohome %s (commit: %s, built: %s)", v, c, d)
 }
 
 // Short returns a short version string (version only).
