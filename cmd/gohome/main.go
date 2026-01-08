@@ -153,7 +153,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 			continue
 		}
 
-		var commits []entity.Commit
+		commits := make([]entity.Commit, 0, len(rawLogs))
 		for _, line := range rawLogs {
 			commits = append(commits, deps.parser.Parse(line))
 		}
@@ -169,8 +169,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 
 // processTasks renders static (enabled only) and dynamic tasks.
 func processTasks(printer *renderer.Printer, cfg *config.AppConfig, w io.Writer) bool {
-	//nolint:prealloc // size unknown at compile time
-	var activeTasks []entity.Task
+	activeTasks := make([]entity.Task, 0, len(cfg.Tasks))
 
 	// 1. Filter Static Tasks: Only include tasks where Enabled = true
 	for _, t := range cfg.Tasks {

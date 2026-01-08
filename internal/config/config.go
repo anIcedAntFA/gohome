@@ -357,6 +357,8 @@ func printUsage() {
 	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
 	fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
+	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "   -v, --version\tShow version information")
 
 	_ = w.Flush() // Flush buffer to screen
 	fmt.Fprintf(os.Stderr, "\n")

@@ -104,4 +104,3 @@ If you have specific requirements, list them here:
 - [ ] Update documentation and help text
 - [ ] Add tests for filtering logic
 - [ ] Maintain backward compatibility
-
