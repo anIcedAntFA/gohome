@@ -22,23 +22,8 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/sys"
 )
 
-// Version information, set by GoReleaser at build time via -ldflags.
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-)
-
 func main() {
-	// Check for version flag before parsing all flags
-	for _, arg := range os.Args[1:] {
-		if arg == "--version" || arg == "-v" {
-			fmt.Printf("gohome %s (commit: %s, built: %s)\n", version, commit, date)
-			os.Exit(0)
-		}
-	}
-
-	// 1. Load configuration
+	// 1. Load configuration (handles --version flag internally)
 	cfg := config.Load()
 
 	// 2. Handle config save and exit early
