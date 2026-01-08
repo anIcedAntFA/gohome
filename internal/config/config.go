@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/anIcedAntFA/gohome/internal/entity"
+	"github.com/anIcedAntFA/gohome/internal/version"
 )
 
 // StringSlice is a helper type for capturing multiple -t flag values.
@@ -174,6 +175,14 @@ func (c *AppConfig) SaveToFile() error {
 // Load parses command-line flags and returns application configuration.
 // It merges defaults from config file with CLI arguments.
 func Load() *AppConfig {
+	// Check for version flag early (before flag parsing)
+	for _, arg := range os.Args[1:] {
+		if arg == "--version" || arg == "-v" {
+			fmt.Println(getVersion())
+			os.Exit(0)
+		}
+	}
+
 	// A. Load defaults from file first (if exists)
 	fileCfg := loadConfigFromFile()
 
@@ -348,6 +357,8 @@ func printUsage() {
 	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
 	fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
+	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "   -v, --version\tShow version information")
 
 	_ = w.Flush() // Flush buffer to screen
 	fmt.Fprintf(os.Stderr, "\n")
@@ -390,4 +401,9 @@ func pluralize(n int) string {
 		return ""
 	}
 	return "s"
+}
+
+// getVersion returns the version string from version package.
+func getVersion() string {
+	return version.String()
 }

@@ -22,23 +22,8 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/sys"
 )
 
-// Version information, set by GoReleaser at build time via -ldflags.
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-)
-
 func main() {
-	// Check for version flag before parsing all flags
-	for _, arg := range os.Args[1:] {
-		if arg == "--version" || arg == "-v" {
-			fmt.Printf("gohome %s (commit: %s, built: %s)\n", version, commit, date)
-			os.Exit(0)
-		}
-	}
-
-	// 1. Load configuration
+	// 1. Load configuration (handles --version flag internally)
 	cfg := config.Load()
 
 	// 2. Handle config save and exit early
@@ -168,7 +153,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 			continue
 		}
 
-		var commits []entity.Commit
+		commits := make([]entity.Commit, 0, len(rawLogs))
 		for _, line := range rawLogs {
 			commits = append(commits, deps.parser.Parse(line))
 		}
@@ -184,8 +169,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 
 // processTasks renders static (enabled only) and dynamic tasks.
 func processTasks(printer *renderer.Printer, cfg *config.AppConfig, w io.Writer) bool {
-	//nolint:prealloc // size unknown at compile time
-	var activeTasks []entity.Task
+	activeTasks := make([]entity.Task, 0, len(cfg.Tasks))
 
 	// 1. Filter Static Tasks: Only include tasks where Enabled = true
 	for _, t := range cfg.Tasks {
