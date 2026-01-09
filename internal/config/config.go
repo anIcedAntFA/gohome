@@ -216,7 +216,7 @@ func Load() *AppConfig {
 	flag.StringVar(&cfg.OutputFmt, "f", "text", "")
 
 	flag.StringVar(&cfg.Preset, "style", "normal", "")
-	flag.StringVar(&cfg.Preset, "s", "", "normal")
+	flag.StringVar(&cfg.Preset, "s", "normal", "")
 
 	flag.BoolVar(&cfg.ShowIcon, "icon", false, "")
 	flag.BoolVar(&cfg.ShowIcon, "i", false, "")
@@ -274,6 +274,10 @@ func Load() *AppConfig {
 	// If user didn't specify format flag, prioritize file value
 	if !isSet(userSetFlags, "format", "f") && fileCfg.OutputFmt != "" {
 		cfg.OutputFmt = fileCfg.OutputFmt
+	}
+	// Same logic for preset/style
+	if !isSet(userSetFlags, "style", "s") && fileCfg.Preset != "" {
+		cfg.Preset = fileCfg.Preset
 	}
 
 	// Boolean flags (Icon/Scope)
@@ -345,7 +349,7 @@ func printUsage() {
 	fmt.Fprintln(w, "   -w, --weeks <int>\tNumber of weeks to look back")
 	fmt.Fprintln(w, "   -m, --months <int>\tNumber of months to look back")
 	fmt.Fprintln(w, "   -y, --years <int>\tNumber of years to look back")
-	fmt.Fprintln(w, "      --today\tLook back since midnight today")
+	fmt.Fprintln(w, "       --today\tLook back since midnight today")
 	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "   -p, --path <string>\tRepo path to scan (default \".\")")
 	fmt.Fprintln(w, "   -a, --author <string>\tGit author (auto-detect if empty)")

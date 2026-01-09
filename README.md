@@ -233,7 +233,7 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
 | `--path`   | `-p`  | Root path to scan for repositories           | `.`         |
 | `--author` | `-a`  | Git author name (auto-detected)              | System User |
 | `--format` | `-f`  | Output format: `text`, `table`               | `text`      |
-| `--preset` | `-s`  | Table style: `normal`, `markdown`, `nature`, `tech` | `normal` |
+| `--preset` | `-s`  | Table style: `normal`, `markdown`            |             |
 | `--copy`   | `-cp` | Copy output to clipboard                     | false       |
 | `--icon`   | `-i`  | Show icon column (table format only)         | false       |
 | `--scope`  | `-c`  | Show scope column (table format only)        | false       |
