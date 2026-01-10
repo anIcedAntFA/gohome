@@ -81,11 +81,20 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 ### Quick Install (Recommended)
 
 **Linux/macOS:**
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
 ```
 
+The install script will:
+- Auto-detect your platform (Linux/macOS, x86_64/arm64)
+- Download the latest release from GitHub
+- Install to `/usr/local/bin` (may require sudo)
+- Clean up any conflicting dev builds in `$GOPATH/bin`
+- Automatically upgrade existing installations when run again
+
 **Windows (PowerShell):**
+
 ```powershell
 # Coming soon - for now use go install or download binary
 ```
@@ -98,7 +107,13 @@ If you have Go 1.21+ installed:
 go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 ```
 
-Make sure your `$GOPATH/bin` is in your `$PATH`.
+> ⚠️ **Note:** When using production releases (installed via curl or binary download), ensure `/usr/local/bin` comes **before** `$GOPATH/bin` in your `$PATH` to avoid conflicts with dev builds.
+>
+> **Fish shell users:**
+> ```fish
+> # Correct order - system bins have priority
+> set -gx PATH $PATH $HOME/go/bin
+> ```
 
 ### Download Binary
 
@@ -109,6 +124,7 @@ Download pre-built binaries from [GitHub Releases](https://github.com/anIcedAntF
 3. Move to a directory in your `$PATH`:
 
 **Linux/macOS:**
+
 ```bash
 # Extract
 tar -xzf gohome_*_linux_x86_64.tar.gz
@@ -119,6 +135,7 @@ chmod +x /usr/local/bin/gohome
 ```
 
 **Windows:**
+
 ```powershell
 # Extract the .zip file
 # Move gohome.exe to a directory in your PATH
@@ -128,7 +145,13 @@ chmod +x /usr/local/bin/gohome
 
 ```bash
 gohome --version
+# Production release: gohome v1.0.1
+# Dev build: gohome abc1234 (commit: abc1234, built: 2026-01-10)
 ```
+
+The version format differs based on how it was built:
+- **Production releases** show clean version only
+- **Development builds** include commit hash and build date for debugging
 
 ## 🚀 Usage
 
