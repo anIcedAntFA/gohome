@@ -96,8 +96,15 @@ The install script will:
 **Windows (PowerShell):**
 
 ```powershell
-# Coming soon - for now use go install or download binary
+irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.ps1 | iex
 ```
+
+The PowerShell script will:
+- Auto-detect your architecture (x64/arm64)
+- Download and extract the latest release
+- Install to `%LOCALAPPDATA%\Programs\gohome`
+- Automatically add to PATH
+- Clean up conflicting dev builds
 
 ### Go Install
 
@@ -143,6 +150,28 @@ go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 > ```
 > </details>
 >
+> <details>
+> <summary><strong>PowerShell</strong> (Windows - run as Administrator)</summary>
+>
+> ```powershell
+> # Check current PATH
+> $env:Path
+>
+> # Add Go bin to PATH (User level - persists across sessions)
+> $goPath = "$env:USERPROFILE\go\bin"
+> [Environment]::SetEnvironmentVariable(
+>     "Path",
+>     [Environment]::GetEnvironmentVariable("Path", "User") + ";$goPath",
+>     "User"
+> )
+>
+> # Reload PATH in current session
+> $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User")
+> ```
+>
+> Note: The install.ps1 script automatically adds gohome to PATH.
+> </details>
+>
 > After updating your shell config, reload it:
 > ```bash
 > # Bash
@@ -153,6 +182,9 @@ go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 > 
 > # Fish
 > source ~/.config/fish/config.fish
+>
+> # PowerShell
+> $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User")
 > ```
 
 ### Download Binary
