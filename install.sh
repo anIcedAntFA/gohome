@@ -41,12 +41,17 @@ ask() {
     
     if [ -t 0 ]; then  # Check if running interactively
         if [ "$default" = "Y" ]; then
-            read -p "$prompt (Y/n) " -n 1 -r
+            read -p "$prompt (Y/n) " -r
         else
-            read -p "$prompt (y/N) " -n 1 -r
+            read -p "$prompt (y/N) " -r
         fi
         echo
-        [[ $REPLY =~ ^[Yy]$ ]]
+        # If empty reply, use default; otherwise check if reply is Y/y
+        if [ -z "$REPLY" ]; then
+            [ "$default" = "Y" ]
+        else
+            [[ $REPLY =~ ^[Yy]$ ]]
+        fi
     else
         # Non-interactive: use default
         [ "$default" = "Y" ]
@@ -276,8 +281,11 @@ get_latest_version() {
 install_binary() {
     local version="$1"
     local platform="$2"
-    local os="${platform%%_*}"
-    local arch="${platform##*_}"
+    
+    # Extract OS and architecture from platform string
+    # Format: os_arch (e.g., linux_x86_64, darwin_arm64)
+    local os="${platform%%_*}"           # Everything before first _
+    local arch="${platform#*_}"          # Everything after first _
     
     info "Installing ${BINARY_NAME} ${version} for ${platform}..."
 
@@ -352,6 +360,22 @@ install_binary() {
     # Make binary executable
     chmod +x "${binary_path}"
     
+    # Clean up conflicting binaries in GOPATH
+    if [ -n "${GOPATH:-}" ]; then
+        local gobin="${GOPATH}/bin/${BINARY_NAME}"
+        if [ -f "${gobin}" ]; then
+            warn "Found existing binary in GOPATH/bin, removing..."
+            rm -f "${gobin}" || warn "Failed to remove ${gobin}, continuing anyway"
+        fi
+    fi
+    
+    # Also check common go/bin location
+    local home_gobin="${HOME}/go/bin/${BINARY_NAME}"
+    if [ -f "${home_gobin}" ]; then
+        warn "Found existing binary in ~/go/bin, removing..."
+        rm -f "${home_gobin}" || warn "Failed to remove ${home_gobin}, continuing anyway"
+    fi
+    
     # Install binary
     info "Installing to ${INSTALL_DIR}..."
     
@@ -370,10 +394,19 @@ install_binary() {
 verify_installation() {
     if has_command "${BINARY_NAME}"; then
         local installed_version
+        local binary_location
+        binary_location=$(command -v ${BINARY_NAME})
         installed_version=$("${BINARY_NAME}" --version 2>&1 || true)
+        
         success "Verification successful!"
         info "Installed version: ${installed_version}"
-        info "Location: $(command -v ${BINARY_NAME})"
+        info "Location: ${binary_location}"
+        
+        # Warn if not using the one we just installed
+        if [ "${binary_location}" != "${INSTALL_DIR}/${BINARY_NAME}" ]; then
+            warn "Using binary from ${binary_location} instead of ${INSTALL_DIR}"
+            warn "Please ensure ${INSTALL_DIR} is in your PATH before other locations"
+        fi
     else
         warn "Binary installed but not found in PATH."
         warn "Please add ${INSTALL_DIR} to your PATH:"
