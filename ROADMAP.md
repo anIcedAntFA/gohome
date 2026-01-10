@@ -48,14 +48,17 @@ This document outlines the development status and future plans for **gohome** (G
 - [x] **GitHub Actions:** Setup workflow for linting (`golangci-lint`) and testing on every push.
 - [x] **GoReleaser Integration:** Automate release process (see [RELEASE_GUIDE.md](RELEASE_GUIDE.md)).
 - [x] **Cross-Platform Builds:** Binaries for Linux (amd64/arm64), Windows, macOS (Intel/Apple Silicon).
-- [x] **Installation Support:** `go install`, `curl | sh`, and Release assets.
+- [x] **Installation Support:** Multiple installation methods for all platforms.
   - [x] Direct binary downloads (GitHub Releases)
-  - [x] Universal installation script (`install.sh`)
-  - [ ] Homebrew (macOS/Linux)
-  - [ ] Snap (Linux universal)
-  - [ ] APT/RPM packages
-  - [ ] npm wrapper (optional)
-  - [ ] Scoop/Chocolatey (Windows)
+  - [x] Universal installation scripts:
+    - [x] `install.sh` (Linux/macOS via curl)
+    - [x] `install.ps1` (Windows via PowerShell)
+  - [ ] Package managers:
+    - [ ] Homebrew (macOS/Linux)
+    - [ ] Scoop/Chocolatey (Windows)
+    - [ ] Snap (Linux universal)
+    - [ ] APT/RPM packages (Debian/RedHat)
+  - [ ] npm wrapper (optional - for Node.js users)
 
 **Documentation & Support:**
 

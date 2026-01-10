@@ -92,12 +92,12 @@ release:
 
     ### Quick Install (Linux/macOS)
     ```bash
-    curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
+    curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash
     ```
 
     ### Quick Install (Windows PowerShell)
     ```powershell
-    irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.ps1 | iex
+    irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.ps1 | iex
     ```
 
     ### Go Install

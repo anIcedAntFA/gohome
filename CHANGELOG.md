@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Windows PowerShell installation script (`scripts/install.ps1`)
+  - Auto-detect architecture (x64/arm64/x86)
+  - Install to `%LOCALAPPDATA%\Programs\gohome`
+  - Automatically add to user PATH
+  - Clean up conflicting GOPATH binaries
+
+### Changed
+
+- Reorganized installation scripts into `scripts/` folder
+- Updated documentation with PowerShell installation examples
+- Enhanced shell configuration guide with PowerShell PATH management
+
 ## [1.0.2] - 2026-01-10
 
 ### Added

@@ -83,10 +83,11 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 **Linux/macOS:**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash
 ```
 
 The install script will:
+
 - Auto-detect your platform (Linux/macOS, x86_64/arm64)
 - Download the latest release from GitHub
 - Install to `/usr/local/bin` (may require sudo)
@@ -96,10 +97,11 @@ The install script will:
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.ps1 | iex
 ```
 
 The PowerShell script will:
+
 - Auto-detect your architecture (x64/arm64)
 - Download and extract the latest release
 - Install to `%LOCALAPPDATA%\Programs\gohome`
@@ -222,6 +224,7 @@ gohome --version
 ```
 
 The version format differs based on how it was built:
+
 - **Production releases** show clean version only
 - **Development builds** include commit hash and build date for debugging
 
