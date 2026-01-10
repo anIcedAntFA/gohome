@@ -137,18 +137,18 @@ func (c *AppConfig) SaveToFile() error {
 	if len(c.Tasks) == 0 {
 		c.Tasks = []entity.Task{
 			// Group 1: Communication
-			{Type: "meeting", Message: "Daily Standup & Team Sync", Icon: "📅", Enabled: true},
-			{Type: "collab", Message: "Pair Programming / Mentoring", Icon: "👥", Enabled: true},
+			{Type: "meeting", Message: "Daily Standup & Team Sync", Icon: "📅", Enabled: false},
+			{Type: "collab", Message: "Pair Programming / Mentoring", Icon: "👥", Enabled: false},
 
 			// Group 2: Quality Assurance
 			{Type: "review", Message: "Code Review & PR Feedback", Icon: "👀", Enabled: true},
-			{Type: "testing", Message: "Write Unit/Integration Tests", Icon: "🧪", Enabled: true},
+			{Type: "testing", Message: "Write Unit/Integration Tests", Icon: "🧪", Enabled: false},
 
 			// Group 3: Operations
-			{Type: "ops", Message: "Monitor CI/CD Pipelines & Deploy", Icon: "🚀", Enabled: true},
-			{Type: "admin", Message: "Check Emails, Jira & Sentry Logs", Icon: "📮", Enabled: true},
+			{Type: "ops", Message: "Monitor CI/CD Pipelines & Deploy", Icon: "🚀", Enabled: false},
+			{Type: "admin", Message: "Check Emails, Jira & Sentry Logs", Icon: "📮", Enabled: false},
 			// Group 4: Maintenance & Knowledge
-			{Type: "docs", Message: "Update Documentation / Wiki", Icon: "📝", Enabled: true},
+			{Type: "docs", Message: "Update Documentation / Wiki", Icon: "📝", Enabled: false},
 			{Type: "learning", Message: "Tech Research & Knowledge Sharing", Icon: "📚", Enabled: true},
 		}
 	}

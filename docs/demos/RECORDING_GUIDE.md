@@ -1,290 +1,464 @@
 # 🎬 Demo Recording Guide
 
-This guide shows how to create terminal demo recordings for gohome using asciinema.
+This guide shows how to create terminal demo recordings for gohome using **VHS** (Video Hacking System) by Charm.
+
+## Why VHS?
+
+**VHS** allows you to write terminal GIFs **as code** instead of recording actual terminal sessions. This provides several advantages:
+
+| Feature | Traditional Recording | VHS (Code-based) |
+|---------|----------------------|------------------|
+| **Reproducibility** | ❌ System-dependent | ✅ 100% deterministic |
+| **Version Control** | ⚠️ Binary files only | ✅ Source code (`.tape`) |
+| **Editing** | ⚠️ Limited (trim only) | ✅ Full control (every keystroke) |
+| **CI/CD** | ⚠️ Manual process | ✅ GitHub Action built-in |
+| **Testing** | ❌ | ✅ Golden files (`.ascii`) |
+| **Consistency** | ⚠️ Varies by run | ✅ Pixel-perfect every time |
+
+**Used by**: Charm's BubbleTea, Glow, Glamour, and hundreds of professional CLI tools.
 
 ## 📦 Prerequisites
 
-Install required tools (Arch Linux):
+Install VHS and its dependencies (Arch Linux):
 
 ```bash
-# Terminal recorder
-yay -S asciinema
+# VHS requires ttyd and ffmpeg
+yay -S vhs ttyd ffmpeg
 
-# GIF generator (for GitHub embedding)
-yay -S agg
+# Verify installation
+vhs --version  # Should show 0.10+
+ttyd --version # Should show 1.7+
+ffmpeg -version | head -1
+```
 
-# Alternative: SVG generator (smaller file size, scalable)
-npm install -g svg-term-cli
+**Other platforms:**
+- macOS: `brew install vhs`
+- Ubuntu/Debian: See [VHS installation docs](https://github.com/charmbracelet/vhs#installation)
+- Windows: `scoop install vhs` or `winget install charmbracelet.vhs`
+
+---
+
+## 🎥 Creating Demos with VHS
+
+### Quick Start
+
+VHS uses `.tape` files (DSL) to script terminal sessions:
+
+```bash
+# Create a new tape file
+vhs new demo.tape
+
+# Edit the tape file
+vim docs/demos/quickstart.tape
+
+# Generate the GIF
+vhs docs/demos/quickstart.tape
+```
+
+### Tape File Structure
+
+A `.tape` file consists of commands that VHS executes:
+
+```elixir
+# Output configuration
+Output docs/demos/quickstart.gif
+
+# Terminal settings
+Set Shell fish
+Set FontSize 16
+Set Width 1200
+Set Height 600
+Set Theme "Dracula"
+Set TypingSpeed 50ms
+
+# Script your demo
+Type "gohome --version"
+Enter
+Sleep 2s
+
+Type "gohome --help"
+Enter
+Sleep 3s
+```
+
+### Key VHS Commands
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `Output` | Specify output file | `Output demo.gif` |
+| `Set <Setting>` | Configure terminal | `Set FontSize 16` |
+| `Type "<text>"` | Simulate typing | `Type "echo hello"` |
+| `Enter` | Press Enter key | `Enter` |
+| `Sleep <time>` | Wait/pause | `Sleep 2s` |
+| `Ctrl+<key>` | Control sequences | `Ctrl+C` |
+| `Hide`/`Show` | Toggle recording | `Hide` (for setup) |
+| `Screenshot` | Capture frame | `Screenshot out.png` |
+
+### Available Themes
+
+```bash
+# List all themes
+vhs themes
+
+# Popular themes:
+- Dracula (purple/pink, used by gohome)
+- Catppuccin Mocha
+- Nord
+- Tokyo Night
+- Gruvbox Dark
+- Monokai
+```
+
+### Terminal Settings Reference
+
+```elixir
+Set Shell fish              # Shell to use
+Set FontSize 16             # Font size in pixels
+Set FontFamily "JetBrains Mono"
+Set Width 1200              # Terminal width in pixels
+Set Height 600              # Terminal height in pixels
+Set Padding 20              # Inner padding
+Set Margin 10               # Outer margin
+Set MarginFill "#282a36"    # Margin background color
+Set BorderRadius 8          # Rounded corners
+Set WindowBar Colorful      # Window controls style
+Set TypingSpeed 50ms        # Typing delay (global)
+Set Theme "Dracula"         # Color theme
+Set FrameRate 60            # FPS for recording
+Set PlaybackSpeed 1.0       # Speed multiplier
+Set LoopOffset 0            # GIF loop start frame
+Set CursorBlink true        # Blinking cursor
 ```
 
 ---
 
-## 🎥 Recording Sessions
+## 📝 Demo Examples
 
-### Demo 1: Quick Start (Installation + Basic Usage)
+### Example 1: Quick Start Demo
 
-**Theme:** Show new users how to get started
+File: `docs/demos/quickstart.tape`
 
-**Script:**
-```bash
-# Start recording
-asciinema rec docs/demos/quickstart.cast
+```elixir
+Output docs/demos/quickstart.gif
 
-# === Recording starts ===
-# 1. Show version (pretend fresh install)
-gohome --version
+Set Shell fish
+Set FontSize 16
+Set Width 1200
+Set Height 600
+Set Theme "Dracula"
+Set TypingSpeed 50ms
 
-# 2. Show help
-gohome --help
+Type "# 🚀 gohome - Git Activity Aggregator"
+Enter
+Sleep 1s
 
-# 3. Run basic command (last 24 hours)
-gohome
+Type "gohome --version"
+Sleep 500ms
+Enter
+Sleep 2s
 
-# 4. Run with custom time range
-gohome --days 7
-
-# Exit with Ctrl+D
+Type "gohome"
+Enter
+Sleep 3s
 ```
 
-### Demo 2: Configuration & Customization
+### Example 2: Configuration Demo
 
-**Theme:** Advanced features (config file, custom tasks, formats)
+File: `docs/demos/config.tape`
 
-**Script:**
-```bash
-# Start recording
-asciinema rec docs/demos/config.cast
+```elixir
+Output docs/demos/config.gif
 
-# === Recording starts ===
-# 1. Show current config
-gohome --help | grep -A 20 "Configuration"
+Set Shell fish
+Set Theme "Dracula"
+Set TypingSpeed 50ms
 
-# 2. Save config to file
-gohome --workspaces ~/projects --days 1 --format table --save
+Type `gohome -t "Code review: PR #123"`
+Sleep 500ms
+Enter
+Sleep 3s
 
-# 3. Add custom tasks
-gohome -t "Code review: PR #123" -t "Team standup meeting"
+Type "gohome --format table --style markdown"
+Enter
+Sleep 3s
 
-# 4. Different output styles
-gohome --style markdown
-gohome --style nature
-
-# 5. Copy to clipboard
-gohome --copy
-echo "Report copied to clipboard!"
-
-# Exit with Ctrl+D
-```
-
-### Demo 3: Installation Process
-
-**Theme:** Show install script in action
-
-**Script:**
-```bash
-# Start recording
-asciinema rec docs/demos/install.cast
-
-# === Recording starts ===
-# 1. Download and run install script
-curl -fsSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash
-
-# 2. Verify installation
-gohome --version
-which gohome
-
-# Exit with Ctrl+D
+Type "gohome --icon --scope"
+Enter
+Sleep 3s
 ```
 
 ---
 
-## 🎨 Converting to GIF/SVG
+## 🚀 Workflow
 
-### Option A: GIF (Best for GitHub README)
-
-```bash
-# Convert .cast to .gif with agg
-agg docs/demos/quickstart.cast docs/demos/quickstart.gif
-
-# With custom settings
-agg --theme monokai \
-    --font-size 16 \
-    --cols 100 \
-    --rows 30 \
-    --speed 1.5 \
-    docs/demos/quickstart.cast \
-    docs/demos/quickstart.gif
-```
-
-**agg options:**
-- `--theme`: Color theme (monokai, dracula, nord, etc.)
-- `--font-size`: Font size (default: 14)
-- `--cols/--rows`: Terminal dimensions
-- `--speed`: Playback speed multiplier (1.5 = 50% faster)
-- `--idle-time-limit`: Max pause duration (e.g., 2.0 = max 2 seconds)
-
-### Option B: SVG (Smaller size, scalable)
+### Using Makefile (Recommended)
 
 ```bash
-# Convert .cast to .svg
-cat docs/demos/quickstart.cast | svg-term --out docs/demos/quickstart.svg
+# Generate all demos
+make demo-record
 
-# With custom settings
-cat docs/demos/quickstart.cast | svg-term \
-    --width 100 \
-    --height 30 \
-    --at 9999 \
-    --window \
-    --out docs/demos/quickstart.svg
+# Validate tape files
+make demo-validate
+
+# List available themes
+make demo-themes
+
+# Clean generated files
+make demo-clean
 ```
 
-**svg-term options:**
-- `--width/--height`: Terminal dimensions (columns/rows)
-- `--at`: Timestamp to capture (9999 = end of recording)
-- `--window`: Add window frame decoration
-- `--from/--to`: Trim recording
-
----
-
-## ✂️ Editing Recordings
-
-### Trim recording (remove beginning/end)
+### Manual Execution
 
 ```bash
-# Remove first 2 seconds and last 1 second
-asciinema cut --start 2 --end -1 docs/demos/raw.cast docs/demos/trimmed.cast
+# Generate single demo
+vhs docs/demos/quickstart.tape
+
+# Watch mode (auto-regenerate on file change)
+vhs docs/demos/quickstart.tape --watch
+
+# Validate syntax
+vhs validate docs/demos/quickstart.tape
+
+# Output to multiple formats
+# Edit .tape file:
+Output demo.gif
+Output demo.mp4
+Output demo.webm
 ```
-
-### Speed up playback
-
-Edit the `.cast` file directly - each line has a timestamp:
-```json
-[0.123, "o", "text"]  // [timestamp, type, content]
-```
-
-Or use agg's `--speed` flag during conversion.
 
 ---
 
 ## 📏 Best Practices
 
-### Recording Tips
+### Writing Good Tape Files
 
-1. **Set consistent terminal size:**
-   ```bash
-   # Before recording, resize terminal to 100x30
-   printf '\e[8;30;100t'
+1. **Use comments liberally:**
+   ```elixir
+   # Show version information
+   Type "gohome --version"
+   Enter
+   Sleep 2s
    ```
 
-2. **Use deliberate typing:**
-   - Type at moderate speed (not too fast)
-   - Add natural pauses between commands
-   - Avoid typos (or edit them out)
+2. **Set consistent terminal size:**
+   ```elixir
+   Set Width 1200
+   Set Height 600
+   ```
 
-3. **Keep it short:**
-   - Aim for 30-60 seconds per demo
-   - One concept per recording
-   - Use `--idle-time-limit` to cut long pauses
+3. **Add natural pauses:**
+   ```elixir
+   Type "gohome"
+   Sleep 500ms  # Brief pause before Enter
+   Enter
+   Sleep 3s     # Let output display
+   ```
 
-4. **Add context:**
-   - Show command output clearly
-   - Include success/error messages
-   - Demonstrate real-world use cases
+4. **Use Hide/Show for setup:**
+   ```elixir
+   Hide
+   Type "make build && clear"  # Build binary (hidden)
+   Enter
+   Show
+   Type "gohome --version"  # This appears in GIF
+   ```
+
+5. **Keep demos focused:**
+   - One concept per demo
+   - 30-60 seconds ideal
+   - Show output clearly
 
 ### File Organization
 
 ```
 docs/demos/
 ├── RECORDING_GUIDE.md          # This file
-├── quickstart.cast             # Raw recording
-├── quickstart.gif              # Converted GIF
-├── config.cast
-├── config.gif
-├── install.cast
-└── install.gif
+├── quickstart.tape             # Quick start demo script
+├── quickstart.gif              # Generated GIF
+├── config.tape                 # Configuration demo script
+├── config.gif                  # Generated GIF
+└── themes.tape                 # (optional) Theme showcase
 ```
 
-### Git LFS for Large Files
+### Version Control
 
-If GIFs are >5MB, use Git LFS:
+VHS `.tape` files are **source code** - commit them to git:
 
 ```bash
-# Install Git LFS
-yay -S git-lfs
-git lfs install
+# Commit tape files (always)
+git add docs/demos/*.tape
 
-# Track GIF files
-git lfs track "docs/demos/*.gif"
-git add .gitattributes
+# Commit GIFs (with Git LFS if >1MB)
+git add docs/demos/*.gif
 ```
 
 ---
 
-## 🚀 Publishing
+## 🧪 Integration Testing
 
-### In README.md
+VHS can generate `.ascii` files for golden testing:
 
-```markdown
-## 🎬 Quick Demo
+```elixir
+# In your .tape file
+Output golden.ascii
 
-![gohome demo](docs/demos/quickstart.gif)
+# Run test
+vhs test.tape
 
-Or link to asciinema.org:
-[![asciicast](https://asciinema.org/a/RECORDING_ID.svg)](https://asciinema.org/a/RECORDING_ID)
+# Compare with committed golden file
+diff golden.ascii golden.expected.ascii
 ```
 
-### Upload to asciinema.org (optional)
-
-```bash
-# Upload recording to asciinema.org for embedding
-asciinema upload docs/demos/quickstart.cast
-
-# Get shareable link and embed code
-```
+Use in CI to ensure CLI output doesn't change unexpectedly.
 
 ---
 
-## 🎯 Example Recording Session
+## 🎯 CI/CD with GitHub Actions
 
-```bash
-# 1. Prepare terminal
-clear
-printf '\e[8;30;100t'  # Resize to 100x30
+Use the official VHS GitHub Action:
 
-# 2. Start recording
-asciinema rec docs/demos/quickstart.cast
+```yaml
+name: Generate Demos
 
-# 3. Perform demo (type naturally, add pauses)
-gohome --version
-sleep 1
-gohome --help
-sleep 2
-gohome
-sleep 1
+on: [push, pull_request]
 
-# 4. Stop recording (Ctrl+D)
+jobs:
+  demos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: charmbracelet/vhs-action@v2
+        with:
+          path: 'docs/demos/*.tape'
+```
 
-# 5. Convert to GIF
-agg --theme monokai \
-    --font-size 16 \
-    --speed 1.3 \
-    --idle-time-limit 2 \
-    docs/demos/quickstart.cast \
-    docs/demos/quickstart.gif
+This auto-generates GIFs on every commit!
 
-# 6. Preview
-xdg-open docs/demos/quickstart.gif
+---
 
-# 7. Commit and push
-git add docs/demos/quickstart.{cast,gif}
-git commit -m "📹 demo: add quickstart recording"
+## 🎨 Advanced Techniques
+
+### Dynamic Content
+
+```elixir
+# Use environment variables
+Env PROJECT_NAME "gohome"
+Type "echo $PROJECT_NAME"
+Enter
+```
+
+### Conditional Flow
+
+```elixir
+# Wait for output before continuing
+Type "gohome --days 7"
+Enter
+Wait /Repository/ # Wait for "Repository" to appear
+Sleep 1s
+```
+
+### Multiple Outputs
+
+```elixir
+# Generate multiple formats at once
+Output demo.gif
+Output demo.mp4
+Output demo.webm
+Output frames/  # PNG sequence
+```
+
+### Source Reuse
+
+```elixir
+# Reuse common settings
+Source config.tape  # Import settings from another file
+Type "gohome"
 ```
 
 ---
 
 ## 🔗 Resources
 
-- [asciinema docs](https://docs.asciinema.org/)
-- [agg GitHub](https://github.com/asciinema/agg)
-- [svg-term-cli](https://github.com/marionebl/svg-term-cli)
-- [Charm BubbleTea demos](https://github.com/charmbracelet/bubbletea#examples) (for inspiration)
+- [VHS GitHub](https://github.com/charmbracelet/vhs)
+- [VHS Documentation](https://github.com/charmbracelet/vhs#vhs-command-reference)
+- [VHS GitHub Action](https://github.com/charmbracelet/vhs-action)
+- [Charm Community](https://charm.sh/)
+- [Example Tapes](https://github.com/charmbracelet/vhs/tree/main/examples)
+
+---
+
+## 🆚 Comparison: VHS vs asciinema
+
+| Aspect | asciinema + agg | VHS |
+|--------|----------------|-----|
+| **Workflow** | Record → Convert | Write code → Generate |
+| **File format** | `.cast` (JSON lines) | `.tape` (DSL) |
+| **Reproducibility** | ❌ System-dependent | ✅ Deterministic |
+| **Editing** | Limited (trim only) | Full (modify any line) |
+| **Version control** | Binary diffs | Text diffs |
+| **CI/CD** | Manual setup | GitHub Action |
+| **Testing** | No | Yes (golden files) |
+| **Learning curve** | Low (just record) | Medium (learn DSL) |
+| **Output quality** | Good | Excellent |
+| **File size** | ~200KB | ~200KB (similar) |
+
+**Verdict**: VHS is better for professional projects requiring reproducibility and CI/CD integration.
+
+---
+
+## 🚀 Quick Reference
+
+### Generate Demos
+
+```bash
+# Using Makefile (recommended)
+make demo-record        # Generate all GIFs
+make demo-validate      # Check tape syntax
+make demo-themes        # List available themes
+make demo-clean         # Remove generated files
+
+# Manual
+vhs docs/demos/quickstart.tape
+vhs docs/demos/config.tape --watch  # Auto-reload on change
+```
+
+### Common VHS Commands
+
+```elixir
+# Output
+Output demo.gif
+
+# Settings
+Set Theme "Dracula"
+Set FontSize 16
+Set Width 1200
+Set Height 600
+Set TypingSpeed 50ms
+
+# Actions
+Type "command here"
+Type@100ms "slow typing"
+Enter
+Sleep 2s
+Ctrl+C
+
+# Control
+Hide  # Stop recording
+Show  # Resume recording
+
+# Wait for conditions
+Wait /pattern/  # Wait for regex match
+```
+
+### Debugging Tape Files
+
+```bash
+# Validate syntax
+vhs validate demo.tape
+
+# Verbose output
+VHS_DEBUG=1 vhs demo.tape
+
+# Check single frame
+vhs demo.tape --screenshot
+```
