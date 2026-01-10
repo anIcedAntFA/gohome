@@ -176,19 +176,43 @@ func (c *AppConfig) SaveToFile() error {
 // It merges defaults from config file with CLI arguments.
 func Load() *AppConfig {
 	// Check for version flag early (before flag parsing)
-	for _, arg := range os.Args[1:] {
-		if arg == "--version" || arg == "-v" {
-			fmt.Println(getVersion())
-			os.Exit(0)
-		}
-	}
+	checkVersionFlag()
 
 	// A. Load defaults from file first (if exists)
 	fileCfg := loadConfigFromFile()
 
 	cfg := &AppConfig{}
 
-	// B. Define flags
+	// B. Define all flags
+	defineFlags(cfg)
+
+	flag.Usage = printUsage
+	flag.Parse()
+
+	// Track which flags were explicitly set by user
+	userSetFlags := make(map[string]bool)
+	flag.Visit(func(f *flag.Flag) {
+		userSetFlags[f.Name] = true
+	})
+
+	// C. Merge file config with CLI flags
+	mergeConfigs(cfg, &fileCfg, userSetFlags)
+
+	return cfg
+}
+
+// checkVersionFlag handles early version flag detection.
+func checkVersionFlag() {
+	for _, arg := range os.Args[1:] {
+		if arg == "--version" || arg == "-v" {
+			fmt.Println(getVersion())
+			os.Exit(0)
+		}
+	}
+}
+
+// defineFlags sets up all command-line flags.
+func defineFlags(cfg *AppConfig) {
 	flag.IntVar(&cfg.Hours, "hours", 0, "")
 	flag.IntVar(&cfg.Hours, "H", 0, "")
 
@@ -232,24 +256,13 @@ func Load() *AppConfig {
 
 	// Add flag for user to save config
 	flag.BoolVar(&cfg.SaveConfig, "save", false, "Save current arguments as default configuration")
+}
 
-	flag.Usage = printUsage
-	flag.Parse()
-
-	// Track which flags were explicitly set by user
-	userSetFlags := make(map[string]bool)
-	flag.Visit(func(f *flag.Flag) {
-		userSetFlags[f.Name] = true
-	})
-
-	// --- A. Handle time period group (mutual exclusion) ---
-	// Logic: If user sets ANY time flag -> ignore all time values from file.
-	// If user sets NO time flags -> use all time values from file.
-
-	isTimeSetByUser := checkTimeFlags(userSetFlags)
-
-	if !isTimeSetByUser {
-		// User didn't specify any time flags, load from file
+// mergeConfigs merges file configuration with CLI flags based on user-set flags.
+func mergeConfigs(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
+	// Handle time period group (mutual exclusion)
+	// If user sets ANY time flag -> ignore all time values from file
+	if !checkTimeFlags(userSetFlags) {
 		cfg.Hours = fileCfg.Hours
 		cfg.Days = fileCfg.Days
 		cfg.Weeks = fileCfg.Weeks
@@ -257,32 +270,22 @@ func Load() *AppConfig {
 		cfg.Years = fileCfg.Years
 		cfg.Today = fileCfg.Today
 	}
-	// Otherwise: User has specified time flags (e.g., -d 5).
-	// Since flag defaults are 0/false, cfg.Today is false and cfg.Weeks is 0.
-	// Only cfg.Days is 5. Logic is correct!
 
-	// --- B. Handle other independent flags ---
-	// Logic: If user didn't set a flag, use value from file (if available)
-
+	// Handle other independent flags
 	if !isSet(userSetFlags, "path", "p") && fileCfg.Path != "" {
 		cfg.Path = fileCfg.Path
 	}
 	if !isSet(userSetFlags, "author", "a") && fileCfg.Author != "" {
 		cfg.Author = fileCfg.Author
 	}
-	// For output format, need careful check since CLI default is "text"
-	// If user didn't specify format flag, prioritize file value
 	if !isSet(userSetFlags, "format", "f") && fileCfg.OutputFmt != "" {
 		cfg.OutputFmt = fileCfg.OutputFmt
 	}
-	// Same logic for preset/style
 	if !isSet(userSetFlags, "style", "s") && fileCfg.Preset != "" {
 		cfg.Preset = fileCfg.Preset
 	}
 
-	// Boolean flags (Icon/Scope)
-	// Note: with booleans, if file is true and user wants to disable, user must override (but bool flags rarely support --flag=false easily).
-	// Simplest approach for Phase 1: If user didn't touch the flag, use value from file.
+	// Boolean flags
 	if !isSet(userSetFlags, "icon", "i") {
 		cfg.ShowIcon = fileCfg.ShowIcon
 	}
@@ -296,8 +299,6 @@ func Load() *AppConfig {
 	if len(fileCfg.Tasks) > 0 {
 		cfg.Tasks = fileCfg.Tasks
 	}
-
-	return cfg
 }
 
 // checkTimeFlags checks if user has set any time-related flag.

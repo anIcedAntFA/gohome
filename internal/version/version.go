@@ -116,7 +116,7 @@ func isSemanticVersion(v string) bool {
 
 	// Must start with digit and contain a dot (e.g., 1.0.1, not just "1")
 	// This distinguishes semantic versions from plain commit hashes
-	if len(test) == 0 || test[0] < '0' || test[0] > '9' {
+	if test == "" || test[0] < '0' || test[0] > '9' {
 		return false
 	}
 

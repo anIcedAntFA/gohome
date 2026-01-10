@@ -107,12 +107,52 @@ If you have Go 1.21+ installed:
 go install github.com/anIcedAntFA/gohome/cmd/gohome@latest
 ```
 
-> ⚠️ **Note:** When using production releases (installed via curl or binary download), ensure `/usr/local/bin` comes **before** `$GOPATH/bin` in your `$PATH` to avoid conflicts with dev builds.
+> ⚠️ **Path Configuration:** When using production releases (installed via curl or binary download), ensure `/usr/local/bin` comes **before** `$GOPATH/bin` in your `$PATH` to avoid conflicts with dev builds.
 >
-> **Fish shell users:**
+> **Shell Configuration Examples:**
+>
+> <details>
+> <summary><strong>Bash</strong> (~/.bashrc or ~/.bash_profile)</summary>
+>
+> ```bash
+> # Go environment
+> export GOPATH=$HOME/go
+> export PATH=$PATH:$GOPATH/bin  # Append GOPATH/bin (lower priority)
+> ```
+> </details>
+>
+> <details>
+> <summary><strong>Zsh</strong> (~/.zshrc)</summary>
+>
+> ```zsh
+> # Go environment
+> export GOPATH=$HOME/go
+> export PATH=$PATH:$GOPATH/bin  # Append GOPATH/bin (lower priority)
+> ```
+> </details>
+>
+> <details>
+> <summary><strong>Fish</strong> (~/.config/fish/config.fish)</summary>
+>
 > ```fish
-> # Correct order - system bins have priority
-> set -gx PATH $PATH $HOME/go/bin
+> # Go environment
+> set -gx GOPATH $HOME/go
+> set -gx PATH $PATH $GOPATH/bin  # Append GOPATH/bin (lower priority)
+> # Or use fish_add_path for better management:
+> # fish_add_path -aP $GOPATH/bin
+> ```
+> </details>
+>
+> After updating your shell config, reload it:
+> ```bash
+> # Bash
+> source ~/.bashrc
+> 
+> # Zsh
+> source ~/.zshrc
+> 
+> # Fish
+> source ~/.config/fish/config.fish
 > ```
 
 ### Download Binary
