@@ -62,9 +62,9 @@ This document outlines the development status and future plans for **gohome** (G
 
 **Documentation & Support:**
 
-- [ ] **README.md:**
+- [x] **README.md:**
   - [x] Comprehensive installation guide (Go install, Binary download).
-  - [ ] Usage examples with screenshots/GIFs.
+  - [x] Usage examples with terminal recordings (asciinema + GIF).
   - [x] Configuration guide (flags explanation).
 - [ ] **Contribution Guide:** Instructions for developers (Running tests, Linting).
 

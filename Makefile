@@ -62,6 +62,30 @@ lint:
 tidy:
 	$(GOMOD) tidy
 
+## demo-record: Record terminal demo sessions (requires asciinema)
+demo-record:
+	@echo "  >  Recording demos..."
+	@echo "  >  Demo 1: Quick Start"
+	asciinema rec -c "./docs/demos/demo-quickstart.sh" docs/demos/quickstart.cast --overwrite
+	@echo "  >  Demo 2: Configuration"
+	asciinema rec -c "./docs/demos/demo-config.sh" docs/demos/config.cast --overwrite
+	@echo "  >  Recordings saved to docs/demos/*.cast"
+
+## demo-gif: Convert recordings to GIF (requires agg)
+demo-gif:
+	@echo "  >  Converting to GIF..."
+	@command -v agg >/dev/null 2>&1 || { echo "Error: agg not installed. Run: yay -S agg"; exit 1; }
+	agg --theme monokai --font-size 14 --cols 100 --rows 30 --speed 1.3 --idle-time-limit 2 \
+		docs/demos/quickstart.cast docs/demos/quickstart.gif
+	agg --theme monokai --font-size 14 --cols 100 --rows 30 --speed 1.3 --idle-time-limit 2 \
+		docs/demos/config.cast docs/demos/config.gif
+	@echo "  >  GIFs saved to docs/demos/*.gif"
+
+## demo-all: Record and convert all demos
+demo-all: demo-record demo-gif
+	@echo "  >  All demos ready!"
+	@ls -lh docs/demos/*.{cast,gif}
+
 ## help: Display this help message
 help:
 	@echo "Choose a command run in $(BINARY_NAME):"

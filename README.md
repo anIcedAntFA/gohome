@@ -1,12 +1,12 @@
 <h1 align="center">gohome</h1>
 
 <p align="center">
-  A fast, configurable Git activity & standup CLI written in Go.
+  A fast, configurable Git standup & activity reporting CLI written in Go.
 </p>
 
 <p align="center">
   <sub>
-    Turn your local git history into clean, daily developer reports.
+    Turn your local Git commits across multiple repositories into clean, daily developer reports.
   </sub>
 </p>
 
@@ -59,12 +59,17 @@
   />
 </p>
 
-
 **Forgot what you worked on yesterday?**
 
 **gohome** automates your daily status reporting by recursively scanning your workspace to find git repositories. It aggregates commit logs from multiple projects instantly and formats them into beautiful, ready-to-share reports.
 
 Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Personal Coding Habits**.
+
+## 🎬 Quick Demo
+
+![gohome quickstart demo](docs/demos/quickstart.gif)
+
+*See [docs/demos/](docs/demos/) for more examples and recording guide.*
 
 ## ✨ Features
 
