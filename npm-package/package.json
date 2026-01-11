@@ -1,0 +1,45 @@
+{
+  "name": "@ngockhoi96/gohome",
+  "version": "1.0.2",
+  "description": "A fast, configurable Git standup & activity reporting CLI",
+  "keywords": [
+    "git",
+    "standup",
+    "report",
+    "cli",
+    "productivity",
+    "developer-tools",
+    "commits",
+    "daily-standup",
+    "golang"
+  ],
+  "homepage": "https://github.com/anIcedAntFA/gohome#readme",
+  "bugs": {
+    "url": "https://github.com/anIcedAntFA/gohome/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anIcedAntFA/gohome.git"
+  },
+  "license": "MIT",
+  "author": "anIcedAntFA <nguyenngockhoi.dev@gmail.com>",
+  "bin": {
+    "gohome": "bin/gohome.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "test": "node scripts/test.js"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}

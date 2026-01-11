@@ -1,11 +1,17 @@
 # folders
 .idea
-bin/
-# .vscode
+/bin/
+.vscode
 /tmp
 /lab
 dev.sh
 *csv2table
+
+# NPM
+npm-package/bin/gohome
+npm-package/bin/gohome.exe
+npm-package/*.tgz
+node_modules/
 
 # Test
 coverage.out

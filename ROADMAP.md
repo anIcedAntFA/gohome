@@ -58,7 +58,7 @@ This document outlines the development status and future plans for **gohome** (G
     - [ ] Scoop/Chocolatey (Windows)
     - [ ] Snap (Linux universal)
     - [ ] APT/RPM packages (Debian/RedHat)
-  - [ ] npm wrapper (optional - for Node.js users)
+    - [x] npm (Node.js users)
 
 **Documentation & Support:**
 

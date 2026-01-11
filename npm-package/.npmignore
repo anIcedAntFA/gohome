@@ -1,0 +1,36 @@
+# Ignore source code and build files
+*.go
+go.mod
+go.sum
+Makefile
+
+# Ignore development files
+.git
+.github
+.gitignore
+.gitattributes
+
+# Ignore documentation
+docs/
+ROADMAP.md
+RELEASE_GUIDE.md
+RELEASE_CHECKLIST.md
+SUMMARY.md
+CHANGELOG.md
+
+# Ignore test files
+*_test.go
+test/
+coverage.txt
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Keep only essentials for npm
+# package.json
+# install.js
+# README.md
+# LICENSE (if exists)
