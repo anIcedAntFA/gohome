@@ -5,13 +5,13 @@ A fast, configurable Git standup & activity reporting CLI written in Go.
 ## Installation
 
 ```bash
-npm install -g @anicedantfa/gohome
+npm install -g @ngockhoi96/gohome
 ```
 
 Or use npx without installation:
 
 ```bash
-npx @anicedantfa/gohome --help
+npx @ngockhoi96/gohome --help
 ```
 
 ## Quick Start

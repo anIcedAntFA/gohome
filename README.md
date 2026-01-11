@@ -118,13 +118,13 @@ The PowerShell script will:
 If you have Node.js and npm installed:
 
 ```bash
-npm install -g @anicedantfa/gohome
+npm install -g @ngockhoi96/gohome
 ```
 
 Or using npx (no installation required):
 
 ```bash
-npx @anicedantfa/gohome --help
+npx @ngockhoi96/gohome --help
 ```
 
 ### Go Install

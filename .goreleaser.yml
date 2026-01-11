@@ -102,7 +102,7 @@ release:
 
     ### NPM
     ```bash
-    npm install -g @anicedantfa/gohome
+    npm install -g @ngockhoi96/gohome
     ```
 
     ### Go Install

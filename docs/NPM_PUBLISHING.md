@@ -4,7 +4,7 @@ This guide explains how gohome is published to npm as a wrapper package for the 
 
 ## Architecture
 
-The npm package (`@anicedantfa/gohome`) is a **binary wrapper** that:
+The npm package (`@ngockhoi96/gohome`) is a **binary wrapper** that:
 1. Downloads the pre-compiled binary from GitHub Releases
 2. Extracts it to `node_modules/@anicedantfa/gohome/bin/`
 3. Exposes it as a global command when installed with `-g`
@@ -28,7 +28,7 @@ npm/
 
 ### 1. User Installs Package
 ```bash
-npm install -g @anicedantfa/gohome
+npm install -g @ngockhoi96/gohome
 ```
 
 ### 2. Post-Install Script Runs
@@ -109,16 +109,13 @@ The `bin` field in `package.json` creates symlink:
 
 ## Package Scope
 
-**Package name:** `@anicedantfa/gohome`
+**Package name:** `@ngockhoi96/gohome`
 
-The `@anicedantfa` scope:
-- Must be registered on npmjs.com
-- Requires organization or user account setup
-- Must grant publish access to npm token
-
-**To create scope:**
-1. Create npm organization: https://www.npmjs.com/org/create
-2. Or use user scope (automatic with your username)
+The `@ngockhoi96` scope:
+- Already exists with your npm account (https://www.npmjs.com/~ngockhoi96)
+- User scope (automatic with your username)
+- No organization needed
+- Just need npm token for publishing
 
 ## Supported Platforms
 
@@ -191,9 +188,9 @@ node install.js
 - **Cause:** Insufficient npm token permissions
 - **Fix:** Regenerate token with "Automation" scope
 
-**Error:** `404 Not Found - PUT https://registry.npmjs.org/@anicedantfa%2fgohome`
-- **Cause:** Scope `@anicedantfa` doesn't exist
-- **Fix:** Create organization or use different scope
+**Error:** `404 Not Found - PUT https://registry.npmjs.org/@ngockhoi96%2fgohome`
+- **Cause:** Scope `@ngockhoi96` doesn't exist (unlikely if using your account)
+- **Fix:** Verify you're logged in: `npm whoami`
 
 **Error:** `Package name too similar to existing packages`
 - **Cause:** npm name squatting protection
