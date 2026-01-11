@@ -4,13 +4,6 @@
 
 version: 2
 
-# Git configuration - ignore demo GIF files (LFS/metadata changes)
-git:
-  ignore_tags:
-    - nightly
-  ignore:
-    - docs/demos/*.gif
-
 before:
   hooks:
     - go mod tidy
