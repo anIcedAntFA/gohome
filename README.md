@@ -113,6 +113,20 @@ The PowerShell script will:
 - Automatically add to PATH
 - Clean up conflicting dev builds
 
+### NPM
+
+If you have Node.js and npm installed:
+
+```bash
+npm install -g @anicedantfa/gohome
+```
+
+Or using npx (no installation required):
+
+```bash
+npx @anicedantfa/gohome --help
+```
+
 ### Go Install
 
 If you have Go 1.21+ installed:

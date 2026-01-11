@@ -6,7 +6,7 @@ Output docs/demos/quickstart.gif
 
 # Terminal settings
 Set Shell fish
-Set FontSize 16
+Set FontSize 20
 Set Width 1200
 Set Height 800
 Set Padding 20

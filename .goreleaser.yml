@@ -100,6 +100,11 @@ release:
     irm https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.ps1 | iex
     ```
 
+    ### NPM
+    ```bash
+    npm install -g @anicedantfa/gohome
+    ```
+
     ### Go Install
     ```bash
     go install github.com/anIcedAntFA/gohome/cmd/gohome@latest

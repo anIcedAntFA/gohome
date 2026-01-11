@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **NPM distribution support** via GoReleaser
+  - Package published as `@anicedantfa/gohome` on npm registry
+  - Installation: `npm install -g @anicedantfa/gohome`
+  - Supports npx usage: `npx @anicedantfa/gohome`
+  - Automated publishing via GitHub Actions with OIDC trusted publishing
 - Windows PowerShell installation script (`scripts/install.ps1`)
   - Auto-detect architecture (x64/arm64/x86)
   - Install to `%LOCALAPPDATA%\Programs\gohome`
@@ -20,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reorganized installation scripts into `scripts/` folder
 - Updated documentation with PowerShell installation examples
 - Enhanced shell configuration guide with PowerShell PATH management
+- Updated release notes template to include npm installation method
 
 ## [1.0.2] - 2026-01-10
 
