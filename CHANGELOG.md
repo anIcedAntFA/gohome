@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Installation: `npm install -g @ngockhoi96/gohome`
   - Supports npx usage: `npx @ngockhoi96/gohome`
   - Automated publishing via GitHub Actions with OIDC trusted publishing
+  - Structured package with bin/ and scripts/ folders
+  - Wrapper script for seamless binary execution
+  - Test suite for package validation
 - Windows PowerShell installation script (`scripts/install.ps1`)
   - Auto-detect architecture (x64/arm64/x86)
   - Install to `%LOCALAPPDATA%\Programs\gohome`

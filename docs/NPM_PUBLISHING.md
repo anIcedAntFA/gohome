@@ -17,11 +17,17 @@ The npm package (`@ngockhoi96/gohome`) is a **binary wrapper** that:
 ## Package Structure
 
 ```
-npm/
-├── package.json      # NPM package metadata
-├── install.js        # Post-install script (downloads binary)
+npm-package/
+├── bin/
+│   ├── gohome.js     # Wrapper script to execute binary
+│   └── gohome(.exe)  # Native binary (downloaded by postinstall)
+├── scripts/
+│   ├── postinstall.js # Downloads and extracts binary
+│   └── test.js       # Package tests
+├── package.json      # Package metadata
 ├── README.md         # NPM-specific documentation
-└── .npmignore        # Exclude unnecessary files from package
+├── LICENSE           # MIT License
+└── .npmignore        # Excludes source code from package
 ```
 
 ## How It Works
@@ -32,7 +38,7 @@ npm install -g @ngockhoi96/gohome
 ```
 
 ### 2. Post-Install Script Runs
-The `install.js` script:
+The `scripts/postinstall.js` script:
 - Detects user's platform (darwin/linux/windows) and architecture (amd64/arm64)
 - Constructs GitHub Release download URL
 - Downloads the appropriate binary archive
@@ -40,14 +46,16 @@ The `install.js` script:
 - Makes it executable (on Unix systems)
 
 ### 3. Binary Available Globally
-The `bin` field in `package.json` creates symlink:
+The `bin` field in `package.json` creates symlink to wrapper:
 ```json
 {
   "bin": {
-    "gohome": "bin/gohome"
+    "gohome": "bin/gohome.js"
   }
 }
 ```
+
+The wrapper script (`bin/gohome.js`) then executes the native binary.
 
 ## Publishing Process
 
@@ -75,17 +83,22 @@ The `bin` field in `package.json` creates symlink:
 
 1. **Update version in package.json:**
    ```bash
-   cd npm
+   cd npm-package
    npm version 1.0.3 --no-git-tag-version
    ```
 
-2. **Test locally:**
+2. **Run tests:**
+   ```bash
+   npm test
+   ```
+
+3. **Test locally:**
    ```bash
    npm install -g .
    gohome --version
    ```
 
-3. **Publish to npm:**
+4. **Publish to npm:**
    ```bash
    npm publish --access public
    ```

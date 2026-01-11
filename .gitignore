@@ -1,6 +1,6 @@
 # folders
 .idea
-bin/
+/bin/
 .vscode
 /tmp
 /lab
@@ -8,8 +8,9 @@ dev.sh
 *csv2table
 
 # NPM
-npm/bin/
-npm/*.tgz
+npm-package/bin/gohome
+npm-package/bin/gohome.exe
+npm-package/*.tgz
 node_modules/
 
 # Test

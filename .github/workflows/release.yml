@@ -75,12 +75,12 @@ jobs:
       
       - name: Update package.json version
         run: |
-          cd npm
+          cd npm-package
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
       
       - name: Publish to NPM
         run: |
-          cd npm
+          cd npm-package
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

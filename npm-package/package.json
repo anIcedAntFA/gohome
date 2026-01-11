@@ -24,10 +24,11 @@
   "license": "MIT",
   "author": "anIcedAntFA <nguyenngockhoi.dev@gmail.com>",
   "bin": {
-    "gohome": "bin/gohome"
+    "gohome": "bin/gohome.js"
   },
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node scripts/postinstall.js",
+    "test": "node scripts/test.js"
   },
   "engines": {
     "node": ">=14"
