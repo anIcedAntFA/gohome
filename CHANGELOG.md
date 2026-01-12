@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **AUR (Arch User Repository) support**
+  - Automated publishing to AUR via GoReleaser
+  - Build from source following Arch packaging guidelines
+  - Installation: `yay -S gohome` or `paru -S gohome`
+  - Includes proper PKGBUILD with build flags and version injection
+  - See [docs/AUR_SETUP.md](docs/AUR_SETUP.md) for setup guide
+
 ## [1.0.4] - 2026-01-12
 
 ### Fixed

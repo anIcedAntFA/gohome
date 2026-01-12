@@ -57,6 +57,7 @@ This document outlines the development status and future plans for **gohome** (G
     - [ ] Homebrew (macOS/Linux)
     - [ ] Scoop/Chocolatey (Windows)
     - [ ] Snap (Linux universal)
+    - [x] **AUR (Arch Linux)** - Build from source via `yay -S gohome`
     - [ ] APT/RPM packages (Debian/RedHat)
     - [x] npm (Node.js users)
 

@@ -127,6 +127,23 @@ Or using npx (no installation required):
 npx @ngockhoi96/gohome --help
 ```
 
+### Arch Linux (AUR)
+
+For Arch Linux users, install from the AUR:
+
+```bash
+# Using yay
+yay -S gohome
+
+# Or using paru
+paru -S gohome
+
+# Or manually
+git clone https://aur.archlinux.org/gohome.git
+cd gohome
+makepkg -si
+```
+
 ### Go Install
 
 If you have Go 1.21+ installed:
