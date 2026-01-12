@@ -47,6 +47,12 @@ archives:
       - README.md
       - LICENSE
 
+# Source archive for AUR
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}-{{ .Version }}"
+  format: "tar.gz"
+
 checksum:
   name_template: "checksums.txt"
   algorithm: sha256
@@ -137,7 +143,7 @@ aur_sources:
     homepage: "https://github.com/anIcedAntFA/gohome"
     description: "A fast, configurable Git standup & activity reporting CLI written in Go"
     maintainers:
-      - "ngockhoi96 <ngockhoi96 dot dev at gmail dot com>"
+      - "ngockhoi96 <ngockhoi96.dev@gmail.com>"
     license: "MIT"
     
     # SSH private key for pushing to AUR

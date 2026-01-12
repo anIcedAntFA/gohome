@@ -85,9 +85,59 @@ Before publishing, you need to claim the package name:
 git clone ssh://aur@aur.archlinux.org/gohome.git aur-gohome
 cd aur-gohome
 
-# This creates an empty repo on AUR for your package
-# GoReleaser will populate it during the first release
+# The repo is empty at this point
+# Package will NOT appear on AUR website until first commit is pushed
 ```
+
+**Option A: Let GoReleaser create the first commit (Recommended)**
+
+Skip to step "Publishing Workflow". When you release a new tag, GoReleaser will automatically create and push the initial PKGBUILD.
+
+**Option B: Manually create initial commit to verify (Optional)**
+
+If you want to verify SSH access and see the package on AUR before releasing:
+
+```bash
+cd aur-gohome
+
+# Create a minimal PKGBUILD (will be replaced by GoReleaser later)
+cat > PKGBUILD << 'EOF'
+# Maintainer: ngockhoi96 <ngockhoi96 dot dev at gmail dot com>
+pkgname=gohome
+pkgver=1.0.4
+pkgrel=1
+pkgdesc="A fast, configurable Git standup & activity reporting CLI"
+arch=('x86_64' 'aarch64')
+url="https://github.com/anIcedAntFA/gohome"
+license=('MIT')
+makedepends=('go' 'git')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  go build -o gohome ./cmd/gohome
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  install -Dm755 gohome "${pkgdir}/usr/bin/gohome"
+}
+EOF
+
+# Generate .SRCINFO
+makepkg --printsrcinfo > .SRCINFO
+
+# Commit and push
+git add PKGBUILD .SRCINFO
+git commit -m "Initial commit: gohome v1.0.4"
+git push origin master
+
+# Now check https://aur.archlinux.org/packages/gohome
+# Package should appear within a few minutes
+```
+
+**Note:** If you manually push an initial commit, GoReleaser will overwrite it on the next release with the proper generated PKGBUILD.
 
 If you get an error that the package already exists, you'll need to:
 - Use a different name (e.g., `gohome-git`)
