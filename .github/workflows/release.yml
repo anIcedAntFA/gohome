@@ -73,17 +73,6 @@ jobs:
       - name: Update npm for OIDC trusted publishing
         run: npm install -g npm@latest  # Requires npm >= 11.5.1
       
-      - name: Extract version from tag
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
-      - name: Update package.json version
-        run: |
-          cd npm-package
-          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-      
       - name: Publish to NPM
         run: |
           cd npm-package
