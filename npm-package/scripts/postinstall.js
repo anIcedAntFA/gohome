@@ -5,8 +5,11 @@ const path = require('path');
 const https = require('https');
 const { execSync } = require('child_process');
 
-const packageJSON = require('./package.json');
+const packageJSON = require('../package.json');
 const version = packageJSON.version;
+
+// Strip prerelease suffixes (e.g., 1.0.3-hotfix.1 -> 1.0.3) for GitHub release tag
+const releaseVersion = version.split('-')[0];
 
 // Platform and architecture mapping
 const PLATFORM_MAPPING = {
@@ -16,7 +19,7 @@ const PLATFORM_MAPPING = {
 };
 
 const ARCH_MAPPING = {
-  x64: 'amd64',
+  x64: 'x86_64',
   arm64: 'arm64'
 };
 
@@ -33,15 +36,15 @@ if (!platform || !arch) {
 }
 
 // Construct download URL
-const ext = platform === 'windows' ? 'zip' : 'tar.gz';
-const filename = `gohome_${version}_${platform}_${arch}.${ext}`;
-const downloadUrl = `https://github.com/anIcedAntFA/gohome/releases/download/v${version}/${filename}`;
+const ext = 'tar.gz'; // GoReleaser uses tar.gz for all platforms
+const filename = `gohome_${releaseVersion}_${platform}_${arch}.${ext}`;
+const downloadUrl = `https://github.com/anIcedAntFA/gohome/releases/download/v${releaseVersion}/${filename}`;
 
 console.log(`📦 Installing gohome v${version} for ${platform}/${arch}...`);
 console.log(`🔗 Downloading from: ${downloadUrl}`);
 
-// Create bin directory
-const binDir = path.join(__dirname, 'bin');
+// Create bin directory (in parent directory of scripts/)
+const binDir = path.join(__dirname, '..', 'bin');
 if (!fs.existsSync(binDir)) {
   fs.mkdirSync(binDir, { recursive: true });
 }
@@ -80,17 +83,10 @@ function download(url, dest) {
 // Extract function
 function extract(archivePath, binDir, platform) {
   try {
-    if (platform === 'windows') {
-      // Extract zip on Windows
-      execSync(`powershell -command "Expand-Archive -Path '${archivePath}' -DestinationPath '${binDir}' -Force"`, {
-        stdio: 'inherit'
-      });
-    } else {
-      // Extract tar.gz on Unix
-      execSync(`tar -xzf "${archivePath}" -C "${binDir}"`, {
-        stdio: 'inherit'
-      });
-    }
+    // All platforms use tar.gz now
+    execSync(`tar -xzf "${archivePath}" -C "${binDir}"`, {
+      stdio: 'inherit'
+    });
     console.log('✅ Extraction completed');
   } catch (error) {
     console.error('❌ Extraction failed:', error.message);

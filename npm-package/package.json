@@ -1,20 +1,21 @@
 {
   "name": "@ngockhoi96/gohome",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A fast, configurable Git standup & activity reporting CLI",
   "keywords": [
     "git",
     "standup",
-    "report",
+    "reporting",
     "cli",
     "productivity",
     "developer-tools",
-    "commits",
-    "daily-standup",
-    "golang"
+    "command-line",
+    "golang",
+    "go"
   ],
   "homepage": "https://github.com/anIcedAntFA/gohome#readme",
   "bugs": {
+    "type": "git",
     "url": "https://github.com/anIcedAntFA/gohome/issues"
   },
   "repository": {
@@ -22,9 +23,16 @@
     "url": "git+https://github.com/anIcedAntFA/gohome.git"
   },
   "license": "MIT",
-  "author": "anIcedAntFA <nguyenngockhoi.dev@gmail.com>",
+  "author": {
+    "name": "ngockhoi96",
+    "email": "ngockhoi96.dev@gmail.com",
+    "url": "https://github.com/anIcedAntFA"
+  },
   "bin": {
     "gohome": "bin/gohome.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "postinstall": "node scripts/postinstall.js",

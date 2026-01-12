@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-01-12
+
+### Fixed
+
+- **NPM package installation issues**
+  - Fixed `Cannot find module './package.json'` error in postinstall script
+  - Fixed incorrect `binDir` path (was creating `scripts/bin` instead of root `bin/`)
+  - Fixed architecture mapping: `amd64` → `x86_64` to match GoReleaser output
+  - Fixed file extension: removed Windows `.zip` handling, all platforms use `.tar.gz`
+  - Simplified extraction logic: unified `tar` command for all platforms (Windows 10+ supported)
+  - Added prerelease version handling: strips `-beta`, `-hotfix` suffixes for GitHub release URL
+
+### Changed
+
+- **NPM publishing automation**
+  - Migrated from token-based to OIDC trusted publishing for enhanced security
+  - Removed long-lived `NPM_TOKEN` requirement
+  - Added automatic provenance attestation generation
+  - Updated npm CLI to latest version (>= 11.5.1) in CI workflow
+
+## [1.0.3] - 2026-01-11
+
 ### Added
 
 - **NPM distribution support** via GoReleaser
