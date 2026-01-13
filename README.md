@@ -75,7 +75,8 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 
 - **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace.
 - **⚡ Concurrency:** Scans multiple repos in parallel using Goroutines for maximum speed.
-- **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
+- **� Branch Support:** Include commits from all local branches or filter by specific branch.
+- **�🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
 - **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
 - **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line flags.
@@ -308,7 +309,31 @@ Add tasks that aren't tracked in git:
 gohome -t "Meeting: Sprint Planning" -t "Review: PR #123"
 ```
 
-**6️⃣ Save Settings**
+**6️⃣ Include All Local Branches**
+
+By default, gohome only shows commits from your current branch. Use `-b` to include commits from all local branches:
+
+```bash
+gohome -d 2 -b
+```
+
+This is useful when:
+
+- You have commits on feature branches not yet merged
+- You want to see all your work across multiple branches
+- You're generating a standup report before merging PRs
+
+**7️⃣ Filter by Specific Branch**
+
+Filter commits from a specific branch instead of the current one:
+
+```bash
+gohome -d 3 --branch feature/new-ui
+```
+
+Useful for reviewing work on a specific feature branch without checking it out.
+
+**8️⃣ Save Settings**
 
 Save your favorite flags as default (so you don't have to type them next time):
 
@@ -337,6 +362,8 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
   "show_icon": true,
   "show_scope": false,
   "copy_to_clipboard": false,
+  "all_branches": false,
+  "branch": "",
   "tasks": [
     {
       "type": "meeting",
@@ -356,25 +383,29 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
 
 ### 🧾 Flags Reference
 
-| Flag       | Alias | Description                                  | Default     |
-| ---------- | ----- | -------------------------------------------- | ----------- |
-| `--hours`  | `-H`  | Number of hours to look back                 | 0           |
-| `--today`  |       | Report from midnight to now                  | false       |
-| `--days`   | `-d`  | Number of days to look back                  | 1           |
-| `--weeks`  | `-w`  | Number of weeks to look back                 | 0           |
-| `--months` | `-m`  | Number of months to look back                | 0           |
-| `--years`  | `-y`  | Number of years to look back                 | 0           |
-| `--path`   | `-p`  | Root path to scan for repositories           | `.`         |
-| `--author` | `-a`  | Git author name (auto-detected)              | System User |
-| `--format` | `-f`  | Output format: `text`, `table`               | `text`      |
-| `--preset` | `-s`  | Table style: `normal`, `markdown`            |             |
-| `--copy`   | `-cp` | Copy output to clipboard                     | false       |
-| `--icon`   | `-i`  | Show icon column (table format only)         | false       |
-| `--scope`  | `-c`  | Show scope column (table format only)        | false       |
-| `--task`   | `-t`  | Add custom task (repeatable)                 | []          |
-| `--save`   |       | Save current flags as default config         | false       |
-| `--version`| `-v`  | Show version information                     |             |
-| `--help`   | `-h`  | Show help message                            |             |
+| Flag             | Alias | Description                                           | Default     |
+| ---------------- | ----- | ----------------------------------------------------- | ----------- |
+| `--hours`        | `-H`  | Number of hours to look back                          | 0           |
+| `--today`        |       | Report from midnight to now                           | false       |
+| `--days`         | `-d`  | Number of days to look back                           | 1           |
+| `--weeks`        | `-w`  | Number of weeks to look back                          | 0           |
+| `--months`       | `-m`  | Number of months to look back                         | 0           |
+| `--years`        | `-y`  | Number of years to look back                          | 0           |
+| `--path`         | `-p`  | Root path to scan for repositories                    | `.`         |
+| `--author`       | `-a`  | Git author name (auto-detected)                       | System User |
+| `--format`       | `-f`  | Output format: `text`, `table`                        | `text`      |
+| `--preset`       | `-s`  | Table style: `normal`, `markdown`                     | `normal`    |
+| `--all-branches` | `-b`  | Include commits from all local branches               | false       |
+| `--branch`       |       | Filter commits by specific branch                     | (current)   |
+| `--copy`         | `-cp` | Copy output to clipboard                              | false       |
+| `--icon`         | `-i`  | Show icon column (table format only)                  | false       |
+| `--scope`        | `-c`  | Show scope column (table format only)                 | false       |
+| `--task`         | `-t`  | Add custom task (repeatable)                          | []          |
+| `--save`         |       | Save current flags as default config                  | false       |
+| `--version`      | `-v`  | Show version information                              |             |
+| `--help`         | `-h`  | Show help message                                     |             |
+
+> **Note:** By default (without `-b` or `--branch`), gohome shows commits from your **current branch only**. Use `-b` to include all local branches, or `--branch <name>` to filter by a specific branch.
 
 ## 🗺️ Roadmap
 
@@ -419,4 +450,3 @@ This project also serves as a practical journey to master **Go (Golang)**, imple
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
