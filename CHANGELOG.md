@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-01-13
+
+### Added
+
+- **Multi-branch support** (`--all-branches` / `-b` flag)
+  - Include commits from all local branches using `git log --branches`
+  - Solves the problem where commits on unmerged feature branches are invisible
+  - No need to pull from remote or wait for PR merges
+  - Git automatically handles commit deduplication
+  - Configurable via CLI flag or JSON config file (`all_branches: true`)
+  - Perfect for generating standup reports before merging PRs
+
+- **Branch filtering** (`--branch <name>` flag)
+  - Filter commits from a specific branch without checking it out
+  - Useful for reviewing work on feature branches
+  - Mutually exclusive with `--all-branches` (branch filter takes precedence)
+  - Branch names are sanitized to prevent command injection
+  - Configurable via CLI flag or JSON config file (`branch: "branch-name"`)
+
+### Changed
+
+- Refactored `mergeConfigs` function to reduce cyclomatic complexity (17 → under 15)
+  - Extracted `mergeTimePeriods`, `mergeStringFlags`, `mergeBooleanFlags`, `mergeTasks` helper functions
+  - Improved code maintainability and readability
+  - No behavioral changes, pure refactoring
+
+### Documentation
+
+- Updated README.md with comprehensive branch features documentation
+  - Added `--all-branches` and `--branch` to Flags Reference table
+  - Added usage examples (6️⃣ Include All Local Branches, 7️⃣ Filter by Specific Branch)
+  - Added important note about default behavior (shows current branch only)
+  - Updated Features section to mention branch support
+- Updated ROADMAP.md
+  - Moved multi-branch and branch filtering features to Phase 1 (completed)
+  - Marked features as implemented in filtering section
+- Updated example config with `all_branches` and `branch` fields
+
+## [1.0.4] - 2026-01-12
+
 ### Added
 
 - **AUR (Arch User Repository) support**
@@ -15,8 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Installation: `yay -S gohome` or `paru -S gohome`
   - Includes proper PKGBUILD with build flags and version injection
   - See [docs/AUR_SETUP.md](docs/AUR_SETUP.md) for setup guide
-
-## [1.0.4] - 2026-01-12
 
 ### Fixed
 

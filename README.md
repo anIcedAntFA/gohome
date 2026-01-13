@@ -74,9 +74,9 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 ## ✨ Features
 
 - **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace.
-- **⚡ Concurrency:** Scans multiple repos in parallel using Goroutines for maximum speed.
-- **� Branch Support:** Include commits from all local branches or filter by specific branch.
-- **�🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
+- **⚡️ Concurrency:** Scans multiple repos in parallel using Goroutines for maximum speed.
+- **🌱 Branch Support:** Include commits from all local branches or filter by specific branch.
+- **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
 - **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
 - **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line flags.
