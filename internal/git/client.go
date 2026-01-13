@@ -34,18 +34,34 @@ func sanitizeInput(input string) string {
 }
 
 // GetLogs returns raw commit messages as a slice of strings.
-func (c *Client) GetLogs(ctx context.Context, repoPath, author, period string) ([]string, error) {
+// If allBranches is true, it includes commits from all local branches.
+// If branch is specified, it filters commits from that specific branch.
+func (c *Client) GetLogs(ctx context.Context, repoPath, author, period string, allBranches bool, branch string) ([]string, error) {
 	// Sanitize inputs to prevent command injection
 	safeAuthor := sanitizeInput(author)
 	safePeriod := sanitizeInput(period)
+	safeBranch := sanitizeInput(branch)
 
-	// #nosec G204 -- inputs are sanitized above
-	cmd := exec.CommandContext(ctx, "git", "log",
-		"--author="+safeAuthor,
-		"--since="+safePeriod,
+	// Build git log arguments
+	args := []string{
+		"log",
+		"--author=" + safeAuthor,
+		"--since=" + safePeriod,
 		"--pretty=format:%s",
 		"--no-merges", // Exclude merge commits
-	)
+	}
+
+	// Add branch filtering (mutually exclusive with --branches)
+	if branch != "" && safeBranch != "" {
+		// Filter by specific branch
+		args = append(args, safeBranch)
+	} else if allBranches {
+		// Include commits from all local branches
+		args = append(args, "--branches")
+	}
+
+	// #nosec G204 -- inputs are sanitized above
+	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = repoPath
 	output, err := cmd.Output()
 	if err != nil {

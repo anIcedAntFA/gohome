@@ -35,6 +35,8 @@ This document outlines the development status and future plans for **gohome** (G
 - [ ] **Filtering:**
   - [ ] Filter by commit types (e.g., `--types feat,fix`).
   - [ ] Exclude specific patterns/directories (e.g., `--exclude vendor,node_modules`).
+  - [x] **Multi-branch support:** Include commits from all local branches using `--all-branches` (`-b`) flag.
+  - [x] **Branch filtering:** Filter commits by specific branch using `--branch <name>` flag.
 - [ ] **Validation:** Better error handling for invalid paths or git errors.
 - [x] **Help:** Refine help messages and examples using `tabwriter`.
 

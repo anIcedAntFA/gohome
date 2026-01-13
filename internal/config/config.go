@@ -43,9 +43,11 @@ type AppConfig struct {
 	OutputFmt string `json:"format"`
 	Preset    string `json:"preset"`
 
-	ShowIcon        bool `json:"show_icon"`
-	ShowScope       bool `json:"show_scope"`
-	CopyToClipboard bool `json:"copy_to_clipboard"`
+	ShowIcon        bool   `json:"show_icon"`
+	ShowScope       bool   `json:"show_scope"`
+	CopyToClipboard bool   `json:"copy_to_clipboard"`
+	AllBranches     bool   `json:"all_branches"`
+	Branch          string `json:"branch"`
 
 	// Static Tasks loaded from JSON file (Rich objects)
 	Tasks []entity.Task `json:"tasks"`
@@ -251,6 +253,11 @@ func defineFlags(cfg *AppConfig) {
 	flag.BoolVar(&cfg.CopyToClipboard, "copy", false, "")
 	flag.BoolVar(&cfg.CopyToClipboard, "cp", false, "")
 
+	flag.BoolVar(&cfg.AllBranches, "all-branches", false, "")
+	flag.BoolVar(&cfg.AllBranches, "b", false, "")
+
+	flag.StringVar(&cfg.Branch, "branch", "", "")
+
 	flag.Var(&cfg.DynamicTasks, "task", "")
 	flag.Var(&cfg.DynamicTasks, "t", "")
 
@@ -260,7 +267,14 @@ func defineFlags(cfg *AppConfig) {
 
 // mergeConfigs merges file configuration with CLI flags based on user-set flags.
 func mergeConfigs(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
-	// Handle time period group (mutual exclusion)
+	mergeTimePeriods(cfg, fileCfg, userSetFlags)
+	mergeStringFlags(cfg, fileCfg, userSetFlags)
+	mergeBooleanFlags(cfg, fileCfg, userSetFlags)
+	mergeTasks(cfg, fileCfg)
+}
+
+// mergeTimePeriods handles time period group (mutual exclusion).
+func mergeTimePeriods(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 	// If user sets ANY time flag -> ignore all time values from file
 	if !checkTimeFlags(userSetFlags) {
 		cfg.Hours = fileCfg.Hours
@@ -270,8 +284,10 @@ func mergeConfigs(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 		cfg.Years = fileCfg.Years
 		cfg.Today = fileCfg.Today
 	}
+}
 
-	// Handle other independent flags
+// mergeStringFlags handles independent string flags.
+func mergeStringFlags(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 	if !isSet(userSetFlags, "path", "p") && fileCfg.Path != "" {
 		cfg.Path = fileCfg.Path
 	}
@@ -284,8 +300,13 @@ func mergeConfigs(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 	if !isSet(userSetFlags, "style", "s") && fileCfg.Preset != "" {
 		cfg.Preset = fileCfg.Preset
 	}
+	if !isSet(userSetFlags, "branch", "") && fileCfg.Branch != "" {
+		cfg.Branch = fileCfg.Branch
+	}
+}
 
-	// Boolean flags
+// mergeBooleanFlags handles boolean flags.
+func mergeBooleanFlags(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 	if !isSet(userSetFlags, "icon", "i") {
 		cfg.ShowIcon = fileCfg.ShowIcon
 	}
@@ -295,7 +316,13 @@ func mergeConfigs(cfg, fileCfg *AppConfig, userSetFlags map[string]bool) {
 	if !isSet(userSetFlags, "copy", "cp") {
 		cfg.CopyToClipboard = fileCfg.CopyToClipboard
 	}
+	if !isSet(userSetFlags, "all-branches", "b") {
+		cfg.AllBranches = fileCfg.AllBranches
+	}
+}
 
+// mergeTasks handles task list merging.
+func mergeTasks(cfg, fileCfg *AppConfig) {
 	if len(fileCfg.Tasks) > 0 {
 		cfg.Tasks = fileCfg.Tasks
 	}
@@ -360,6 +387,8 @@ func printUsage() {
 	fmt.Fprintln(w, "   -c, --scope\tShow commit scope")
 	fmt.Fprintln(w, "   -i, --icon\tShow commit type icons")
 	fmt.Fprintln(w, "\t")
+	fmt.Fprintln(w, "   -b, --all-branches\tInclude commits from all local branches")
+	fmt.Fprintln(w, "       --branch <string>\tFilter commits by specific branch")
 	fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
 	fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
 	fmt.Fprintln(w, "\t")

@@ -131,14 +131,14 @@ func setupWriter(copyToClipboard bool) (io.Writer, *bytes.Buffer) {
 
 // processAndRender handles git commits and tasks rendering.
 func processAndRender(deps *dependencies, cfg *config.AppConfig, w io.Writer) bool {
-	foundCommits := processCommits(deps, w)
+	foundCommits := processCommits(deps, cfg, w)
 	foundTasks := processTasks(deps.printer, cfg, w)
 
 	return foundCommits || foundTasks
 }
 
 // processCommits fetches and renders git commits.
-func processCommits(deps *dependencies, w io.Writer) bool {
+func processCommits(deps *dependencies, cfg *config.AppConfig, w io.Writer) bool {
 	foundAny := false
 
 	for _, repo := range deps.repos {
@@ -146,7 +146,7 @@ func processCommits(deps *dependencies, w io.Writer) bool {
 		sp := spinner.New(fmt.Sprintf("📥 Fetching commits from %s...", repoName))
 		sp.Start()
 
-		rawLogs, err := deps.gitClient.GetLogs(context.Background(), repo, deps.author, deps.period)
+		rawLogs, err := deps.gitClient.GetLogs(context.Background(), repo, deps.author, deps.period, cfg.AllBranches, cfg.Branch)
 		sp.Stop()
 
 		if err != nil || len(rawLogs) == 0 {
