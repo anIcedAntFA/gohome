@@ -25,4 +25,6 @@ _test/
 
 .exe
 
+.vscode/
+
 SUMMARY.md
