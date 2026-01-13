@@ -172,8 +172,9 @@ aur_sources:
     
     # Custom build instructions for Arch
     # This follows Arch packaging guidelines
+    # Note: GoReleaser source archive extracts directly to $srcdir (no wrapper directory)
     build: |-
-      cd "${pkgname}-${pkgver}"
+      cd "$srcdir"
       export CGO_ENABLED=0
       export CGO_CPPFLAGS="${CPPFLAGS}"
       export CGO_CFLAGS="${CFLAGS}"
@@ -190,7 +191,7 @@ aur_sources:
     
     # Custom package installation instructions
     package: |-
-      cd "${pkgname}-${pkgver}"
+      cd "$srcdir"
       install -Dm755 gohome "${pkgdir}/usr/bin/gohome"
       install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
       install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
