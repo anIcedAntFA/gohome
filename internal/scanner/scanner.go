@@ -7,9 +7,15 @@ import (
 )
 
 // ScanGitRepos finds directory paths that contain a .git folder.
-// It scans up to 2 levels deep to support structures like github.com/{org}/{repo}.
-func ScanGitRepos(rootPath string) ([]string, error) {
+// It scans up to maxDepth levels deep to support structures like github.com/{org}/{repo}.
+// If maxDepth is 0 or negative, it defaults to 2 levels.
+func ScanGitRepos(rootPath string, maxDepth int) ([]string, error) {
 	var repos []string
+
+	// Default to 2 levels if invalid value
+	if maxDepth <= 0 {
+		maxDepth = 2
+	}
 
 	// 1. Check root
 	if isGitRepo(rootPath) {
@@ -17,8 +23,8 @@ func ScanGitRepos(rootPath string) ([]string, error) {
 		return repos, nil // If root is a git repo, don't scan subdirectories
 	}
 
-	// 2. Scan subdirectories recursively (up to 2 levels deep)
-	repos, err := scanRecursive(rootPath, 0, 2)
+	// 2. Scan subdirectories recursively (up to maxDepth levels deep)
+	repos, err := scanRecursive(rootPath, 0, maxDepth)
 	if err != nil {
 		return nil, err
 	}

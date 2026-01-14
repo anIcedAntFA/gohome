@@ -42,6 +42,7 @@ type AppConfig struct {
 	Author    string `json:"author"`
 	OutputFmt string `json:"format"`
 	Preset    string `json:"preset"`
+	MaxDepth  int    `json:"max_depth"`
 
 	ShowIcon        bool   `json:"show_icon"`
 	ShowScope       bool   `json:"show_scope"`
@@ -244,6 +245,8 @@ func defineFlags(cfg *AppConfig) {
 	flag.StringVar(&cfg.Preset, "style", "normal", "")
 	flag.StringVar(&cfg.Preset, "s", "normal", "")
 
+	flag.IntVar(&cfg.MaxDepth, "max-depth", 2, "")
+
 	flag.BoolVar(&cfg.ShowIcon, "icon", false, "")
 	flag.BoolVar(&cfg.ShowIcon, "i", false, "")
 
@@ -389,6 +392,8 @@ func printUsage() {
 	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "   -b, --all-branches\tInclude commits from all local branches")
 	fmt.Fprintln(w, "       --branch <string>\tFilter commits by specific branch")
+	fmt.Fprintln(w, "       --max-depth <int>\tMax directory scan depth (default 2)")
+	fmt.Fprintln(w, "\t")
 	fmt.Fprintln(w, "  -cp, --copy\tCopy output to system clipboard")
 	fmt.Fprintln(w, "       --save\tSave current arguments as default configuration")
 	fmt.Fprintln(w, "\t")

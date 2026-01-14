@@ -127,6 +127,11 @@ linters:
         - errcheck
         - noctx
         path: _test\.go
+      - linters:
+        - gosec
+        - gocyclo
+        path: _test\.go
+        text: "(G301|G304|cyclomatic complexity)"
     presets:
       - std-error-handling
 
