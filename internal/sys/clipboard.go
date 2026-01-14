@@ -20,21 +20,23 @@ func CopyToClipboard(ctx context.Context, text string) error {
 		// Windows uses clip command
 		cmd = exec.CommandContext(ctx, "clip")
 	case "linux", "freebsd", "openbsd", "netbsd":
-		// Smart logic for Linux clipboard
-		if isWayland() {
+		// Check for WSL first, then Wayland, then X11
+		switch {
+		case isWSL():
+			// WSL uses Windows' clip.exe to access system clipboard
+			cmd = exec.CommandContext(ctx, "clip.exe")
+		case isWayland():
 			// Prefer Wayland
 			cmd = exec.CommandContext(ctx, "wl-copy")
-		} else {
-			// Fallback to X11, prefer xclip then xsel
-			//nolint:gocritic // if-else is clearer than switch for command availability checks
-			if isCommandAvailable("xclip") {
-				cmd = exec.CommandContext(ctx, "xclip", "-selection", "clipboard")
-			} else if isCommandAvailable("xsel") {
-				cmd = exec.CommandContext(ctx, "xsel", "--clipboard", "--input")
-			} else {
-				// Last resort: try wl-copy (in case environment variables are incorrect)
-				cmd = exec.CommandContext(ctx, "wl-copy")
-			}
+		case isCommandAvailable("xclip"):
+			// Fallback to X11, prefer xclip
+			cmd = exec.CommandContext(ctx, "xclip", "-selection", "clipboard")
+		case isCommandAvailable("xsel"):
+			// Then xsel
+			cmd = exec.CommandContext(ctx, "xsel", "--clipboard", "--input")
+		default:
+			// Last resort: try wl-copy (in case environment variables are incorrect)
+			cmd = exec.CommandContext(ctx, "wl-copy")
 		}
 	default:
 		return nil // Unsupported OS
@@ -45,6 +47,25 @@ func CopyToClipboard(ctx context.Context, text string) error {
 
 	// Execute command
 	return cmd.Run()
+}
+
+// isWSL checks if the binary is running inside Windows Subsystem for Linux.
+func isWSL() bool {
+	// Method 1: Check for WSL_DISTRO_NAME environment variable (common in newer WSL versions)
+	if os.Getenv("WSL_DISTRO_NAME") != "" {
+		return true
+	}
+
+	// Method 2: Check /proc/version for "microsoft" string
+	data, err := os.ReadFile("/proc/version")
+	if err == nil {
+		content := strings.ToLower(string(data))
+		if strings.Contains(content, "microsoft") || strings.Contains(content, "wsl") {
+			return true
+		}
+	}
+
+	return false
 }
 
 // isWayland checks if user is running Wayland.
