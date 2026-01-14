@@ -7,31 +7,62 @@ import (
 )
 
 // ScanGitRepos finds directory paths that contain a .git folder.
+// It scans up to 2 levels deep to support structures like github.com/{org}/{repo}.
 func ScanGitRepos(rootPath string) ([]string, error) {
 	var repos []string
 
 	// 1. Check root
 	if isGitRepo(rootPath) {
 		repos = append(repos, rootPath)
+		return repos, nil // If root is a git repo, don't scan subdirectories
 	}
 
-	// 2. Check sub-directories
-	entries, err := os.ReadDir(rootPath)
+	// 2. Scan subdirectories recursively (up to 2 levels deep)
+	repos, err := scanRecursive(rootPath, 0, 2)
+	if err != nil {
+		return nil, err
+	}
+
+	return repos, nil
+}
+
+// scanRecursive recursively scans directories up to maxDepth levels.
+func scanRecursive(path string, currentDepth, maxDepth int) ([]string, error) {
+	var repos []string
+
+	// Stop if we've reached max depth
+	if currentDepth > maxDepth {
+		return repos, nil
+	}
+
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, entry := range entries {
-		if entry.IsDir() {
-			if shouldSkip(entry.Name()) {
-				continue
-			}
-			fullPath := filepath.Join(rootPath, entry.Name())
-			if isGitRepo(fullPath) {
-				repos = append(repos, fullPath)
-			}
+		if !entry.IsDir() || shouldSkip(entry.Name()) {
+			continue
 		}
+
+		fullPath := filepath.Join(path, entry.Name())
+
+		// Check if this directory is a git repo
+		if isGitRepo(fullPath) {
+			repos = append(repos, fullPath)
+			// Don't scan inside git repos (skip nested repos)
+			continue
+		}
+
+		// Recursively scan subdirectories
+		subRepos, err := scanRecursive(fullPath, currentDepth+1, maxDepth)
+		if err != nil {
+			// Log error but continue scanning other directories
+			continue
+		}
+		repos = append(repos, subRepos...)
 	}
+
 	return repos, nil
 }
 
