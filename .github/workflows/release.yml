@@ -22,6 +22,13 @@ jobs:
           fetch-depth: 0  # Full history for changelog
           lfs: true       # Fetch LFS files (demo GIFs)
       
+      - name: Normalize line endings
+        run: |
+          # Ensure line endings are normalized according to .gitattributes
+          # This prevents "dirty state" errors in GoReleaser
+          git add --renormalize .
+          git status
+      
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
