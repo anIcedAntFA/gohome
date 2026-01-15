@@ -64,9 +64,9 @@ docs/demos/*.cast -diff
 # -----------------------------------------------------------------------------
 # Go specific
 # -----------------------------------------------------------------------------
-# Go module
+# Go module files
+go.mod text
 go.sum text
-go.sum text eol=lf
 
 # Generated Go files
 *.pb.go linguist-generated

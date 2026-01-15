@@ -1,5 +1,15 @@
 {
+  // Enforce LF line endings in all files
+  "files.eol": "\n",
+
+  // Format on save
   "editor.formatOnSave": true,
+
+  // Trim trailing whitespace automatically
+  "files.trimTrailingWhitespace": true,
+
+  // Insert final newline
+  "files.insertFinalNewline": true,
 
   "[go]": {
     "editor.defaultFormatter": "golang.go"
@@ -11,4 +21,25 @@
   "gopls": {
 	  "formatting.gofumpt": true,
   },
+
+  // File associations
+  "files.associations": {
+    "*.tape": "elixir",
+    "*.cast": "json",
+    ".gohome.json": "jsonc"
+  },
+
+  // Git settings
+  "git.enableCommitSigning": false,
+  "git.autofetch": true,
+
+  // Editor settings
+  "editor.rulers": [80, 120],
+  "editor.wordWrap": "off",
+
+  // Markdown settings
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false,
+    "editor.wordWrap": "on"
+  }
 }
