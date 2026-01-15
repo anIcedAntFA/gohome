@@ -50,8 +50,8 @@
     alt="Total GitHub downloads"
   />
   <img
-    src="https://img.shields.io/github/go-mod/go-version/anIcedAntFA/gohome?logo=go"
-    alt="Go module version requirement"
+    src="https://img.shields.io/badge/go-%3E%3D%201.21-00ADD8?logo=go"
+    alt="Go version >= 1.21"
   />
   <img
     src="https://img.shields.io/github/license/anIcedAntFA/gohome?logo=opensourceinitiative"
@@ -81,7 +81,6 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
 - **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
 - **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line flags.
-- **🔄 Loading Spinner:** Visual feedback during repository scanning.
 
 ## 📦 Installation
 
