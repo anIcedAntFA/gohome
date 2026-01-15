@@ -19,7 +19,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Full history for changelog
+          lfs: true       # Fetch LFS files (demo GIFs)
       
       - name: Setup Go
         uses: actions/setup-go@v5
