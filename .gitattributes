@@ -1,3 +1,88 @@
-# Git attributes for demo files
-# Note: GIF files are stored as regular git files, not using LFS
+# =============================================================================
+# Git Attributes Configuration for gohome
+# =============================================================================
+# This file defines how Git handles different file types in this repository.
+#
+# Git LFS (Large File Storage) is used for binary media files to keep the
+# repository lightweight. LFS stores pointers in Git history while actual
+# files are stored separately on GitHub's LFS servers.
+#
+# Migration History:
+# - Initial: GIFs stored as regular Git files (commits 7097c03-28f9223)
+# - v1.2.0: Migrated to Git LFS for scalability (this commit)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Text files - Line ending normalization
+# -----------------------------------------------------------------------------
+# Ensure consistent LF line endings across platforms
+*.go text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.tape text eol=lf
+*.cast text eol=lf
+
+# -----------------------------------------------------------------------------
+# Media files - Git LFS tracking
+# -----------------------------------------------------------------------------
+# Demo GIFs and images for README examples
+# These files are stored in Git LFS to avoid bloating the repository
+docs/demos/*.gif filter=lfs diff=lfs merge=lfs -text
+docs/demos/*.png filter=lfs diff=lfs merge=lfs -text
+docs/demos/*.mp4 filter=lfs diff=lfs merge=lfs -text
+docs/demos/*.webm filter=lfs diff=lfs merge=lfs -text
+
+# Asciinema cast files: Don't show diffs (large JSON recordings)
 docs/demos/*.cast -diff
+
+# VHS tape files: Syntax highlight as Elixir (similar to VHS project)
+*.tape linguist-language=elixir
+
+# -----------------------------------------------------------------------------
+# Binary executables
+# -----------------------------------------------------------------------------
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+
+# -----------------------------------------------------------------------------
+# Compressed archives
+# -----------------------------------------------------------------------------
+*.zip binary
+*.tar.gz binary
+*.tgz binary
+*.rar binary
+*.7z binary
+
+# -----------------------------------------------------------------------------
+# Go specific
+# -----------------------------------------------------------------------------
+# Go module files should always use LF
+go.mod text eol=lf
+go.sum text eol=lf
+
+# Generated Go files
+*.pb.go linguist-generated
+*_gen.go linguist-generated
+
+# -----------------------------------------------------------------------------
+# Documentation and generated files
+# -----------------------------------------------------------------------------
+# Linguist overrides for GitHub language statistics
+vendor/* linguist-vendored
+node_modules/* linguist-vendored
+
+# -----------------------------------------------------------------------------
+# Export and diff settings
+# -----------------------------------------------------------------------------
+# Exclude files from git archive
+.github export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.golangci.yml export-ignore
