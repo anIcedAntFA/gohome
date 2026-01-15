@@ -11,6 +11,7 @@ This document outlines the development status and future plans for **gohome** (G
 **Core & Logic:**
 
 - [x] **Git Integration:** Auto-scan directories (`.git`) to detect repositories.
+- [x] **Recursive Scanning:** Configurable depth scanning (`--max-depth`) for nested repo structures like `github.com/{org}/{repo}`.
 - [x] **Log Parsing:** Parse `git log` output using Conventional Commits regex.
 - [x] **Smart Configuration:**
   - [x] Load config from JSON file (`~/.gohome.json`).
@@ -42,6 +43,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 **Quality Assurance:**
 
+- [x] **Unit Tests:** Comprehensive test coverage for `scanner` package with table-driven tests.
 - [ ] **Unit Tests:** Add test coverage for `parser` and `config` packages.
 - [ ] **Integration Tests:** Test the full flow with a dummy git repo.
 
@@ -60,15 +62,19 @@ This document outlines the development status and future plans for **gohome** (G
     - [ ] Scoop/Chocolatey (Windows)
     - [ ] Snap (Linux universal)
     - [x] **AUR (Arch Linux)** - Build from source via `yay -S gohome`
+    - [ ] **AUR-bin (Arch Linux)** - Pre-built binary package for faster installation
     - [ ] APT/RPM packages (Debian/RedHat)
+    - [ ] **NUR (Nix User Repository)** - Nix package for NixOS users
     - [x] npm (Node.js users)
 
 **Documentation & Support:**
 
 - [x] **README.md:**
-  - [x] Comprehensive installation guide (Go install, Binary download).
-  - [x] Usage examples with terminal recordings (asciinema + GIF).
+  - [x] Comprehensive installation guide (Go instVHS + GIF).
   - [x] Configuration guide (flags explanation).
+- [x] **Contribution Guide:** Instructions for developers (Running tests, Linting, Commit conventions).
+- [x] **Security Policy:** Vulnerability reporting and security best practices.
+- [x] **Git LFS Guide:** Complete documentation for working with LFS-tracked media files
 - [ ] **Contribution Guide:** Instructions for developers (Running tests, Linting).
 
 ---

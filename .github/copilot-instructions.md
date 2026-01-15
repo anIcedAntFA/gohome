@@ -16,9 +16,9 @@ main() → Load() → ScanGitRepos() → GetLogs() → Parse() → Print() → C
 
 ### Key Components
 
-- **config** (`internal/config/`): Dual-source configuration (JSON file + CLI flags). File defaults at `~/.gohome.json` merged with flag overrides.
-- **scanner** (`internal/scanner/`): Shallow directory scan (1-level deep) to discover `.git` folders. Skips `.git`, `.vscode`, `.idea`.
-- **git** (`internal/git/`): Executes `git log` commands with sanitized inputs (regex-based injection prevention).
+- **config** (`internal/config/`): Dual-source configuration (JSON file + CLI flags). File defaults at `~/.gohome.json` merged with flag overrides. Supports `MaxDepth` for scan depth configuration.
+- **scanner** (`internal/scanner/`): **Recursive directory scanner** (configurable depth, default 2 levels) to discover `.git` folders. Supports structures like `github.com/{org}/{repo}`. Skips `.git`, `.vscode`, `.idea`. Implements `scanRecursive()` helper with depth tracking.
+- **git** (`internal/git/`): Executes `git log` commands with sanitized inputs (regex-based injection prevention). Supports multi-branch filtering via `--all-branches` and `--branch` flags.
 - **parser** (`internal/parser/`): Regex-based Conventional Commits parser extracting type/scope/message + emoji detection.
 - **renderer** (`internal/renderer/`): Dual-format output (text/table) with preset styles (normal/markdown/nature/tech).
 - **spinner** (`internal/spinner/`): Custom terminal spinner with configurable frames and intervals.
@@ -81,7 +81,14 @@ Automated via GoReleaser:
 2. Push: `git push origin v1.x.x`
 3. GitHub Actions triggers cross-platform builds (Linux/Windows/macOS amd64/arm64)
 
-See [docs/RELEASE_GUIDE.md](../docs/RELEASE_GUIDE.md) and [.github/workflows/release.yml](.github/workflows/release.yml)
+See [docs/RELEASE_GUIDE.md](docs/RELEASE_GUIDE.md) and [.github/workflows/release.yml](.github/workflows/release.yml)
+
+### Git LFS for Media Files
+Starting v1.2.0, demo media files (GIF, PNG, MP4, WebM) are managed via **Git LFS**:
+- Files tracked: `docs/demos/*.{gif,png,mp4,webm}`
+- Pointers in Git (132 bytes), actual files on GitHub LFS servers
+- CI/CD workflows use `lfs: true` to fetch files during checkout
+- See [docs/GIT_LFS_GUIDE.md](docs/GIT_LFS_GUIDE.md) for complete setup guide
 
 ## Code Conventions
 
@@ -124,20 +131,26 @@ See [spinner/spinner.go](internal/spinner/spinner.go) for custom frames.
 - No concurrency for multi-repo scanning yet (planned Fan-out/Fan-in pattern)
 - No `--verbose` or `--quiet` flags
 - No commit type filtering or directory exclusion patterns
-- Limited unit test coverage
+- Scanner unit tests comprehensive, but other packages need more coverage
 
 ## Key Files to Reference
 
 - [cmd/gohome/main.go](cmd/gohome/main.go): Main entry point and pipeline orchestration
 - [internal/config/config.go](internal/config/config.go): Configuration loading logic and precedence rules
+- [internal/scanner/scanner.go](internal/scanner/scanner.go): Recursive repository scanning with configurable depth
 - [internal/parser/parser.go](internal/parser/parser.go): Conventional Commits regex and emoji extraction
 - [Makefile](Makefile): Build commands and version injection
 - [ROADMAP.md](ROADMAP.md): Feature status and planned enhancements
+- [CONTRIBUTING.md](CONTRIBUTING.md): Development guidelines and commit conventions
+- [docs/GIT_LFS_GUIDE.md](docs/GIT_LFS_GUIDE.md): Git LFS setup and usage for media files
 
 ## When Making Changes
 
 1. **Adding CLI flags**: Update both `Load()` function and `SaveToFile()` for JSON persistence
 2. **Modifying git commands**: Ensure sanitization in `git.Client` methods
+6. **Scanner modifications**: Update both `ScanGitRepos()` and `scanRecursive()`, maintain depth parameter validation
+7. **Adding demo media**: Use VHS to generate `.tape` → `.gif`, commit both, LFS handles large files automatically
+8. **Documentation changes**: Update relevant docs in both root and `docs/` folder, maintain cross-references
 3. **New output formats**: Extend `renderer.Printer` with new `print*()` methods
 4. **Version updates**: Use `make build` to inject version—never hardcode in source
 5. **New spinner animations**: Add to `spinner/frames.go` FrameSet constants

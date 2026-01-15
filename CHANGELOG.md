@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-01-15
+
+### Added
+
+- **Recursive scanning with configurable depth** (`--max-depth` flag)
+  - Scanner now supports multi-level directory structures (default 2 levels deep)
+  - Properly detects repos in nested paths like `github.com/{org}/{repo}`
+  - Configurable via `--max-depth <int>` flag or `max_depth` in JSON config
+  - Automatically defaults to 2 levels if maxDepth <= 0
+  - Implements `scanRecursive()` helper function with depth tracking
+  - Fixes issue where only shallow (1-level) scanning was performed
+  - See PR #11 for implementation details
+
+- **Git LFS (Large File Storage) for demo media files**
+  - Migrated demo GIF files from regular Git to LFS storage
+  - Files tracked: `docs/demos/*.{gif,png,mp4,webm}`
+  - Reduced Git history size: 4.3MB → 264 bytes (LFS pointers)
+  - Scalable solution for adding unlimited demo content
+  - Proper `.gitattributes` configuration following VHS project best practices
+  - CI/CD workflows updated with `lfs: true` to fetch files during builds
+
+- **Comprehensive project documentation**
+  - `CONTRIBUTING.md`: Development setup, workflow, coding standards, commit conventions
+  - `SECURITY.md`: Vulnerability reporting, security policies, best practices
+  - `docs/GIT_LFS_GUIDE.md`: Complete Git LFS setup and usage guide (320+ lines)
+  - `docs/RELEASE_CHECKLIST.md` and `docs/RELEASE_GUIDE.md` moved to `docs/` folder for better organization
+
+- **WSL2 clipboard support**
+  - Fixed clipboard functionality for Windows Subsystem for Linux 2
+  - Refactored clipboard detection to use switch statement for better maintainability
+  - Properly handles WSL2 environment detection and `clip.exe` integration
+
+- **Comprehensive scanner unit tests**
+  - Added 4 test suites: `TestIsGitRepo`, `TestShouldSkip`, `TestScanRecursive`, `TestScanGitRepos`
+  - Covers depth scenarios (0, 1, 2, 3 levels), special directories, edge cases
+  - Table-driven tests with comprehensive coverage
+  - Test helper `createGitRepo()` for consistent test setup
+
+### Changed
+
+- **Documentation reorganization**
+  - Moved `RELEASE_CHECKLIST.md` and `RELEASE_GUIDE.md` from root to `docs/` folder
+  - Updated all cross-references in `ROADMAP.md` and `.github/copilot-instructions.md`
+  - Improved project structure for better documentation discoverability
+
+- **CI/CD improvements**
+  - Release workflow now properly fetches LFS files during checkout
+  - Build workflow updated with LFS support
+  - Automated npm version synchronization during release publishing
+
+### Fixed
+
+- **Scanner not detecting nested repositories**
+  - Fixed shallow scanning limitation (was only 1 level deep)
+  - Now properly discovers repos in `github.com/{org}/{repo}` structures
+  - Respects configurable depth setting with proper validation
+
+- **Git LFS workflow errors**
+  - Resolved "dirty state" detection during GoReleaser builds
+  - Fixed LFS pointer files being checked out instead of actual media files
+  - Proper workflow configuration prevents LFS-related release failures
+
+### Documentation
+
+- Updated `.github/copilot-instructions.md` with:
+  - Recursive scanner implementation details
+  - Git LFS configuration and usage patterns
+  - New documentation file references
+  - Enhanced "When Making Changes" guidelines
+- Updated `README.md` with Git LFS notes (if applicable)
+- Updated `ROADMAP.md` with completed features and future distribution plans
+
 ## [1.1.0] - 2026-01-13
 
 ### Added
