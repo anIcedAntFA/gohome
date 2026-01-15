@@ -73,8 +73,9 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 
 ## ✨ Features
 
-- **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace.
-- **⚡️ Concurrency:** Scans multiple repos in parallel using Goroutines for maximum speed.
+- **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace (configurable depth, default 2 levels).
+- **🎯 Smart Scanning:** Skip nested repos and ignore common directories (`.git`, `.vscode`, `node_modules`).
+- **⚡️ Fast Performance:** Lightweight scanner optimized for large workspace structures like `github.com/{org}/{repo}`.
 - **🌱 Branch Support:** Include commits from all local branches or filter by specific branch.
 - **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
@@ -333,12 +334,29 @@ gohome -d 3 --branch feature/new-ui
 
 Useful for reviewing work on a specific feature branch without checking it out.
 
-**8️⃣ Save Settings**
+**8️⃣ Customize Scan Depth**
+
+Control how deep gohome scans for repositories (default: 2 levels):
+
+```bash
+# Scan only 1 level deep (faster for flat structures)
+gohome --max-depth 1
+
+# Scan 3 levels deep for deeper nested repos
+gohome --max-depth 3 -d 2
+```
+
+Useful when:
+- You have a flat workspace structure (use `--max-depth 1`)
+- You have deeply nested projects (increase to 3 or 4)
+- You want faster scans by limiting depth
+
+**9️⃣ Save Settings**
 
 Save your favorite flags as default (so you don't have to type them next time):
 
 ```bash
-gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
+gohome -p /Users/ngockhoi96/workspace -d 1 -f table --max-depth 2 --save
 ```
 
 ## 🔧 Configuration
@@ -359,6 +377,7 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
   "author": "ngockhoi96",
   "format": "table",
   "preset": "normal",
+  "max_depth": 2,
   "show_icon": true,
   "show_scope": false,
   "copy_to_clipboard": false,
@@ -392,6 +411,7 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --save
 | `--months`       | `-m`  | Number of months to look back                         | 0           |
 | `--years`        | `-y`  | Number of years to look back                          | 0           |
 | `--path`         | `-p`  | Root path to scan for repositories                    | `.`         |
+| `--max-depth`    |       | Maximum depth to scan for repositories                | 2           |
 | `--author`       | `-a`  | Git author name (auto-detected)                       | System User |
 | `--format`       | `-f`  | Output format: `text`, `table`                        | `text`      |
 | `--preset`       | `-s`  | Table style: `normal`, `markdown`                     | `normal`    |
@@ -413,26 +433,40 @@ See [ROADMAP.md](ROADMAP.md) for the full development plan and upcoming features
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! We appreciate bug reports, feature requests, documentation improvements, and code contributions.
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feat/amazing-feature`)
-3. Commit your changes (`git commit -m '✨ feat(internal): add some amazing feature'`)
-4. Push to the branch (`git push origin feat/amazing-feature`)
-5. Open a Pull Request
+For detailed guidelines on:
+- Development setup and workflow
+- Coding standards and conventions
+- Commit message format (Conventional Commits with emojis)
+- Pull request process
+- Testing and quality assurance
 
-### 🧑‍💻 Development Setup
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for the complete guide.
+
+### Quick Start for Contributors
 
 ```bash
-# Clone the repo
-git clone https://github.com/anIcedAntFA/gohome.git
+# 1. Fork and clone
+git clone https://github.com/YOUR_USERNAME/gohome.git
 cd gohome
 
-# Install dependencies
+# 2. Install dependencies
 go mod tidy
 
-# Run locally
-go run cmd/gohome/main.go
+# 3. Create feature branch
+git checkout -b feat/amazing-feature
+
+# 4. Make changes and test
+make build
+make test
+make lint
+
+# 5. Commit using Conventional Commits
+git commit -m '✨ feat(scanner): add amazing feature'
+
+# 6. Push and open PR
+git push origin feat/amazing-feature
 ```
 
 ## ❤️ Credits & Motivation

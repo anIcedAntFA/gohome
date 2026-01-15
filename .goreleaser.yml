@@ -98,7 +98,7 @@ release:
 
     ### Quick Install (Linux/macOS)
     ```bash
-    curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash
+    curl -sS https://get.ngockhoi96.dev/gohome | sh
     ```
 
     ### Quick Install (Windows PowerShell)
@@ -131,7 +131,7 @@ release:
     **Full Changelog**: https://github.com/anIcedAntFA/gohome/compare/{{ .PreviousTag }}...{{ .Tag }}
 
     ---
-    
+
     Questions? Feedback? Open an issue: https://github.com/anIcedAntFA/gohome/issues
 
 project_name: gohome
@@ -145,31 +145,31 @@ aur_sources:
     maintainers:
       - "ngockhoi96 <ngockhoi96.dev@gmail.com>"
     license: "MIT"
-    
+
     # SSH private key for pushing to AUR
     # Store the key content in GitHub Secrets as AUR_SSH_PRIVATE_KEY
     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
-    
+
     # AUR Git repository URL
     git_url: "ssh://aur@aur.archlinux.org/gohome.git"
-    
+
     # Skip upload for prereleases
     skip_upload: auto
-    
+
     # Package metadata
     provides:
       - gohome
     conflicts:
       - gohome-bin
-    
+
     # Build dependencies (Go and Git are included by default)
     makedepends:
       - go
       - git
-    
+
     # Commit message template
     commit_msg_template: "Update to {{ .Tag }}"
-    
+
     # Custom build instructions for Arch
     # This follows Arch packaging guidelines
     # Note: GoReleaser source archive extracts directly to $srcdir (no wrapper directory)
@@ -188,7 +188,7 @@ aur_sources:
           -X github.com/anIcedAntFA/gohome/internal/version.Date={{ .Date }}" \
         -o gohome \
         ./cmd/gohome
-    
+
     # Custom package installation instructions
     package: |-
       cd "$srcdir"
