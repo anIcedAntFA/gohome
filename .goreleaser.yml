@@ -4,11 +4,6 @@
 
 version: 2
 
-# Snapshot configuration for development builds
-# Allows dirty state for non-release builds
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
-
 before:
   hooks:
     - go mod tidy
