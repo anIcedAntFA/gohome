@@ -99,7 +99,7 @@ func initDependencies(cfg *config.AppConfig) *dependencies {
 		WithInterval(100 * time.Millisecond)
 	sp.Start()
 
-	repos, err := scanner.ScanGitRepos(absPath)
+	repos, err := scanner.ScanGitRepos(absPath, cfg.MaxDepth)
 	sp.Stop()
 
 	if err != nil {
