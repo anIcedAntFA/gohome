@@ -81,7 +81,7 @@ Automated via GoReleaser:
 2. Push: `git push origin v1.x.x`
 3. GitHub Actions triggers cross-platform builds (Linux/Windows/macOS amd64/arm64)
 
-See [RELEASE_GUIDE.md](RELEASE_GUIDE.md) and [.github/workflows/release.yml](.github/workflows/release.yml)
+See [docs/RELEASE_GUIDE.md](../docs/RELEASE_GUIDE.md) and [.github/workflows/release.yml](.github/workflows/release.yml)
 
 ## Code Conventions
 

@@ -89,7 +89,7 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 **Linux/macOS:**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash
+curl -sS https://get.ngockhoi96.dev/gohome | sh
 ```
 
 The install script will:
@@ -136,8 +136,8 @@ For Arch Linux users, install from the AUR:
 # Using yay
 yay -S gohome
 
-# Or using paru
-paru -S gohome
+# Or using pacman
+pacman -S gohome
 
 # Or manually
 git clone https://aur.archlinux.org/gohome.git

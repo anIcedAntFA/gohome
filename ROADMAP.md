@@ -23,7 +23,7 @@ This document outlines the development status and future plans for **gohome** (G
 **User Interface (UI/UI):**
 
 - [x] **Output Formats:** Support both `text` list and rich `table` format.
-- [x] **Styling:** Custom table styles (markdown, nature, tech, etc.).
+- [x] **Styling:** Custom table styles (markdown, etc.).
 - [x] **Clipboard:** Cross-platform clipboard support (`--copy`).
 - [x] **Feedback:** Add a Spinner/Loading indicator during the scanning process (UX).
 
@@ -48,7 +48,7 @@ This document outlines the development status and future plans for **gohome** (G
 **CI/CD & Distribution:**
 
 - [x] **GitHub Actions:** Setup workflow for linting (`golangci-lint`) and testing on every push.
-- [x] **GoReleaser Integration:** Automate release process (see [RELEASE_GUIDE.md](RELEASE_GUIDE.md)).
+- [x] **GoReleaser Integration:** Automate release process (see [docs/RELEASE_GUIDE.md](docs/RELEASE_GUIDE.md)).
 - [x] **Cross-Platform Builds:** Binaries for Linux (amd64/arm64), Windows, macOS (Intel/Apple Silicon).
 - [x] **Installation Support:** Multiple installation methods for all platforms.
   - [x] Direct binary downloads (GitHub Releases)
