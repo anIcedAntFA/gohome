@@ -2,7 +2,10 @@ package viper
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/anIcedAntFA/gohome/internal/entity"
 	"github.com/anIcedAntFA/gohome/internal/git"
@@ -12,34 +15,34 @@ import (
 // Config represents the application configuration
 type Config struct {
 	// Time period
-	Hours  int  `mapstructure:"hours"`
-	Days   int  `mapstructure:"days"`
-	Weeks  int  `mapstructure:"weeks"`
-	Months int  `mapstructure:"months"`
-	Years  int  `mapstructure:"years"`
-	Today  bool `mapstructure:"today"`
+	Hours  int  `mapstructure:"hours" json:"hours"`
+	Days   int  `mapstructure:"days" json:"days"`
+	Weeks  int  `mapstructure:"weeks" json:"weeks"`
+	Months int  `mapstructure:"months" json:"months"`
+	Years  int  `mapstructure:"years" json:"years"`
+	Today  bool `mapstructure:"today" json:"today"`
 
 	// Path and scanning
-	Path     string `mapstructure:"path"`
-	MaxDepth int    `mapstructure:"max_depth"`
-	Author   string `mapstructure:"author"`
+	Path     string `mapstructure:"path" json:"path"`
+	MaxDepth int    `mapstructure:"max_depth" json:"max_depth"`
+	Author   string `mapstructure:"author" json:"author"`
 
 	// Output
-	Format    string `mapstructure:"format"`
-	Preset    string `mapstructure:"preset"`
-	ShowIcon  bool   `mapstructure:"show_icon"`
-	ShowScope bool   `mapstructure:"show_scope"`
+	Format    string `mapstructure:"format" json:"format"`
+	Style     string `mapstructure:"style" json:"style"`
+	ShowIcon  bool   `mapstructure:"icon" json:"icon"`
+	ShowScope bool   `mapstructure:"scope" json:"scope"`
 
 	// Branch filtering
-	AllBranches bool   `mapstructure:"all_branches"`
-	Branch      string `mapstructure:"branch"`
+	AllBranches bool   `mapstructure:"all_branches" json:"all_branches"`
+	Branch      string `mapstructure:"branch" json:"branch"`
 
 	// Clipboard
-	CopyToClipboard bool `mapstructure:"copy_to_clipboard"`
+	CopyToClipboard bool `mapstructure:"copy" json:"copy"`
 
 	// Tasks
-	Tasks        []entity.Task `mapstructure:"tasks"`
-	DynamicTasks []string      `mapstructure:"-"` // Not stored in config file
+	Tasks        []entity.Task `mapstructure:"tasks" json:"tasks"`
+	DynamicTasks []string      `mapstructure:"-" json:"-"` // Not stored in config file
 }
 
 // LoadFromViper loads config with automatic hierarchy (flags > env > config > defaults)
@@ -51,9 +54,10 @@ func LoadFromViper() *Config {
 	viper.SetDefault("path", ".")
 	viper.SetDefault("max_depth", 2)
 	viper.SetDefault("format", "text")
-	viper.SetDefault("preset", "normal")
-	viper.SetDefault("show_icon", false)
-	viper.SetDefault("show_scope", false)
+	viper.SetDefault("style", "normal")
+	viper.SetDefault("icon", false)
+	viper.SetDefault("scope", false)
+	viper.SetDefault("copy", false)
 
 	// Unmarshal into struct (Viper handles precedence automatically)
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -63,7 +67,7 @@ func LoadFromViper() *Config {
 			Path:     ".",
 			MaxDepth: 2,
 			Format:   "text",
-			Preset:   "normal",
+			Style:    "normal",
 		}
 	}
 
@@ -75,29 +79,11 @@ func LoadFromViper() *Config {
 	return &cfg
 }
 
-// SaveToFile saves current config to file
+// SaveToFile saves current config to file (clean JSON without duplicates)
 func (c *Config) SaveToFile() error {
-	// Set all fields
-	viper.Set("hours", c.Hours)
-	viper.Set("days", c.Days)
-	viper.Set("weeks", c.Weeks)
-	viper.Set("months", c.Months)
-	viper.Set("years", c.Years)
-	viper.Set("today", c.Today)
-
-	viper.Set("path", c.Path)
-	viper.Set("max_depth", c.MaxDepth)
-	viper.Set("author", c.Author)
-
-	viper.Set("format", c.Format)
-	viper.Set("preset", c.Preset)
-	viper.Set("show_icon", c.ShowIcon)
-	viper.Set("show_scope", c.ShowScope)
-
-	viper.Set("all_branches", c.AllBranches)
-	viper.Set("branch", c.Branch)
-
-	viper.Set("copy_to_clipboard", c.CopyToClipboard)
+	// Normalize period fields: only keep the highest priority non-zero period
+	// This prevents confusion when multiple period fields are set
+	c.NormalizePeriod()
 
 	// If user doesn't have any tasks yet, add sample tasks
 	if len(c.Tasks) == 0 {
@@ -120,10 +106,23 @@ func (c *Config) SaveToFile() error {
 		}
 	}
 
-	viper.Set("tasks", c.Tasks)
+	// Determine config file path
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get home directory: %w", err)
+	}
+	configPath := filepath.Join(home, ".gohome.json")
 
-	// Write to config file
-	return viper.WriteConfig()
+	// Write clean JSON directly to avoid Viper's duplicate keys
+	file, err := os.Create(configPath)
+	if err != nil {
+		return fmt.Errorf("failed to create config file: %w", err)
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	return encoder.Encode(c)
 }
 
 // detectGitAuthor auto-detects git author from git config
@@ -169,4 +168,37 @@ func pluralize(n int) string {
 		return ""
 	}
 	return "s"
+}
+
+// normalizePeriod ensures only one period field is non-zero when saving to config.
+// Priority: today > years > months > weeks > days > hours
+// This prevents confusion when multiple period fields are set in config file.
+func (c *Config) NormalizePeriod() {
+	// Special case: today flag takes highest priority
+	if c.Today {
+		c.Years = 0
+		c.Months = 0
+		c.Weeks = 0
+		c.Days = 0
+		c.Hours = 0
+		return
+	}
+
+	// Check periods in priority order, keep only the first non-zero
+	if c.Years > 0 {
+		c.Months = 0
+		c.Weeks = 0
+		c.Days = 0
+		c.Hours = 0
+	} else if c.Months > 0 {
+		c.Weeks = 0
+		c.Days = 0
+		c.Hours = 0
+	} else if c.Weeks > 0 {
+		c.Days = 0
+		c.Hours = 0
+	} else if c.Days > 0 {
+		c.Hours = 0
+	}
+	// If only Hours is set, keep it as is
 }
