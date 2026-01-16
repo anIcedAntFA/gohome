@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/anIcedAntFA/gohome/cmd/gohome/cmd"
 	"github.com/anIcedAntFA/gohome/internal/config"
 	"github.com/anIcedAntFA/gohome/internal/entity"
 	"github.com/anIcedAntFA/gohome/internal/git"
@@ -23,25 +24,7 @@ import (
 )
 
 func main() {
-	// 1. Load configuration (handles --version flag internally)
-	cfg := config.Load()
-
-	// 2. Handle config save and exit early
-	if cfg.SaveConfig {
-		handleSaveConfig(cfg)
-	}
-
-	// 3. Initialize dependencies
-	deps := initDependencies(cfg)
-
-	// 4. Setup output writer
-	outputWriter, clipboardBuffer := setupWriter(cfg.CopyToClipboard)
-
-	// 5. Process and render
-	foundAny := processAndRender(deps, cfg, outputWriter)
-
-	// 6. Handle clipboard copy
-	handleClipboard(foundAny, cfg.CopyToClipboard, clipboardBuffer)
+	cmd.Execute()
 }
 
 // handleSaveConfig saves configuration to file and exits.

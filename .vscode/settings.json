@@ -33,9 +33,6 @@
   "git.enableCommitSigning": false,
   "git.autofetch": true,
 
-  // Editor settings
-  "editor.rulers": [80, 120],
-  "editor.wordWrap": "off",
 
   // Markdown settings
   "[markdown]": {
