@@ -241,7 +241,7 @@ Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Express
 - **Subcommand completion**: `gohome config <TAB>` → shows `get`, `set`, `list`, `reset`
 - **Config key completion**: `gohome config get <TAB>` → shows all 17 config keys
 - **Flag value completion**: `gohome --format <TAB>` → shows `text`, `table`
-- **Style completion**: `gohome --style <TAB>` → shows `normal`, `markdown`, `nature`, `tech`
+- **Style completion**: `gohome --style <TAB>` → shows `normal`, `markdown`
 - **Shell completion**: `gohome completion <TAB>` → shows `bash`, `zsh`, `fish`, `powershell`
 
 **Verifying Installation:**
@@ -651,7 +651,7 @@ gohome <TAB>              # Shows: completion, config, help, report, version
 gohome config <TAB>        # Shows: get, list, reset, set
 gohome config get <TAB>    # Shows all 17 config keys
 gohome --format <TAB>      # Shows: text, table
-gohome --style <TAB>       # Shows: normal, markdown, nature, tech
+gohome --style <TAB>       # Shows: normal, markdown
 ```
 
 #### Bash
@@ -758,7 +758,7 @@ $ gohome --format <TAB>
 text  table
 
 $ gohome --style <TAB>
-normal  markdown  nature  tech
+normal  markdown
 
 $ gohome -f table --style mark<TAB>
 markdown  # Auto-completes

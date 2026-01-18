@@ -90,7 +90,7 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 - **🎯 Smart Scanning:** Skip nested repos and ignore common directories (`.git`, `.vscode`, `node_modules`).
 - **⚡️ Fast Performance:** Lightweight scanner optimized for large workspace structures like `github.com/{org}/{repo}`.
 - **🌱 Branch Support:** Include commits from all local branches or filter by specific branch.
-- **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
+- **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
 - **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
 - **⚙️ Smart Config:** Multi-format support (JSON, YAML, TOML) with environment variables (`GOHOME_*`) and config management commands.
@@ -341,7 +341,7 @@ Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Express
 - Subcommand completion: `gohome config <tab>` shows `get`, `set`, `list`, `reset`
 - Config key completion: `gohome config get <tab>` shows all 17 config keys
 - Flag value completion: `gohome --format <tab>` shows `text`, `table`
-- Style completion: `gohome --style <tab>` shows `normal`, `markdown`, `nature`, `tech`
+- Style completion: `gohome --style <tab>` shows `normal`, `markdown`
 
 ## 🚀 Usage
 

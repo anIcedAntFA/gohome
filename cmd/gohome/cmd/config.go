@@ -13,9 +13,18 @@ import (
 )
 
 var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Manage gohome configuration",
-	Long:  `View, edit, and manage gohome configuration settings.`,
+	Use:           "config",
+	Short:         "Manage gohome configuration",
+	Long:          `View, edit, and manage gohome configuration settings.`,
+	SilenceErrors: true,  // We handle error formatting ourselves
+	SilenceUsage:  false, // Show usage on errors
+	// Ensure unknown subcommands show errors (by requiring a subcommand)
+	Args:      cobra.MinimumNArgs(1),
+	ValidArgs: []string{"list", "get", "set", "reset"},
+	RunE: func(_ *cobra.Command, args []string) error {
+		// This will be called if Args validation passes but no subcommand matches
+		return fmt.Errorf("unknown command %q for \"gohome config\"", args[0])
+	},
 }
 
 var configListCmd = &cobra.Command{
@@ -62,13 +71,13 @@ func runConfigList(_ *cobra.Command, _ []string) error {
 	// Load config using the clean Config struct
 	cfg := viperconfig.LoadFromViper()
 
-	fmt.Println("Current Configuration:")
+	fmt.Println("⚙️  Current Configuration:")
 	fmt.Println("=====================")
 
 	// Get config file location
 	configFile := viper.ConfigFileUsed()
 	if configFile != "" {
-		fmt.Printf("Config file: %s\n\n", configFile)
+		fmt.Printf("📄 Config file: %s\n\n", configFile)
 	} else {
 		fmt.Println("No config file found (using defaults)")
 		fmt.Println()

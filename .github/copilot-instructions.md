@@ -20,7 +20,7 @@ main() → Load() → ScanGitRepos() → GetLogs() → Parse() → Print() → C
 - **scanner** (`internal/scanner/`): **Recursive directory scanner** (configurable depth, default 2 levels) to discover `.git` folders. Supports structures like `github.com/{org}/{repo}`. Skips `.git`, `.vscode`, `.idea`. Implements `scanRecursive()` helper with depth tracking.
 - **git** (`internal/git/`): Executes `git log` commands with sanitized inputs (regex-based injection prevention). Supports multi-branch filtering via `--all-branches` and `--branch` flags.
 - **parser** (`internal/parser/`): Regex-based Conventional Commits parser extracting type/scope/message + emoji detection.
-- **renderer** (`internal/renderer/`): Dual-format output (text/table) with preset styles (normal/markdown/nature/tech).
+- **renderer** (`internal/renderer/`): Dual-format output (text/table) with preset styles (normal/markdown).
 - **spinner** (`internal/spinner/`): Custom terminal spinner with configurable frames and intervals.
 
 ## Critical Patterns

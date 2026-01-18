@@ -23,11 +23,13 @@ import (
 )
 
 var reportCmd = &cobra.Command{
-	Use:   "report",
-	Short: "Generate activity report (default command)",
-	Long:  `Scan repositories and generate a formatted activity report.`,
-	Args:  cobra.NoArgs, // Reject any positional arguments
-	RunE:  runReport,
+	Use:           "report",
+	Short:         "Generate activity report (default command)",
+	Long:          `Scan repositories and generate a formatted activity report.`,
+	Args:          cobra.NoArgs, // Reject any positional arguments
+	SilenceErrors: true,         // We handle error formatting ourselves
+	SilenceUsage:  false,        // Show usage on errors
+	RunE:          runReport,
 }
 
 func init() {
@@ -70,7 +72,7 @@ func defineReportFlags(cmd *cobra.Command) {
 		return []string{"text", "table"}, cobra.ShellCompDirectiveNoFileComp
 	})
 	_ = cmd.RegisterFlagCompletionFunc("style", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
-		return []string{"normal", "markdown", "nature", "tech"}, cobra.ShellCompDirectiveNoFileComp
+		return []string{"normal", "markdown"}, cobra.ShellCompDirectiveNoFileComp
 	})
 
 	// Branch filtering

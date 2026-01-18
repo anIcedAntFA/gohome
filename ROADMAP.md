@@ -27,7 +27,7 @@ This document outlines the development status and future plans for **gohome** (G
 
 **User Experience:**
 - [x] **Output Formats:** Text list and rich table formats
-- [x] **Table Styles:** Multiple presets (normal, markdown, nature, tech)
+- [x] **Table Styles:** Multiple presets (normal, markdown)
 - [x] **Clipboard Integration:** Cross-platform `--copy` support (Linux, macOS, Windows, WSL2)
 - [x] **Visual Feedback:** Loading spinner during scan operations
 - [x] **Version Info:** `--version` flag with build metadata injection
