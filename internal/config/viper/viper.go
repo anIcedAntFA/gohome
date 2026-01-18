@@ -29,8 +29,14 @@ func init() {
 		viper.AddConfigPath(home)
 	}
 	viper.AddConfigPath(".")
+
+	// Set config file name (without extension)
+	// Viper will search for .json, .yaml, .yml, .toml in order
 	viper.SetConfigName(".gohome")
-	viper.SetConfigType("json")
+
+	// Note: We don't call SetConfigType() to allow multiple formats
+	// Viper will auto-detect format based on file extension
+	// Precedence (if multiple exist): .json > .yaml > .yml > .toml
 
 	// Set defaults ONCE at initialization
 	viper.SetDefault("days", 1)
