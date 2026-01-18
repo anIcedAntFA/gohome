@@ -426,6 +426,59 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --max-depth 2 --save
 
 > **Note:** By default (without `-b` or `--branch`), gohome shows commits from your **current branch only**. Use `-b` to include all local branches, or `--branch <name>` to filter by a specific branch.
 
+### 🌍 Environment Variables
+
+All configuration options can be set via environment variables with the `GOHOME_` prefix. This is especially useful for:
+- **CI/CD pipelines** (avoid creating config files)
+- **Docker containers** (pass config through env vars)
+- **Sensitive data** (API keys for future AI features)
+
+**Configuration Precedence:** `CLI Flags > Environment Variables > Config File > Defaults`
+
+#### Supported Environment Variables
+
+| Config Key       | Environment Variable        | Example Value                      |
+|------------------|-----------------------------|----------------------------------- |
+| `hours`          | `GOHOME_HOURS`             | `24`                               |
+| `days`           | `GOHOME_DAYS`              | `7`                                |
+| `weeks`          | `GOHOME_WEEKS`             | `2`                                |
+| `months`         | `GOHOME_MONTHS`            | `1`                                |
+| `years`          | `GOHOME_YEARS`             | `1`                                |
+| `today`          | `GOHOME_TODAY`             | `true`                             |
+| `path`           | `GOHOME_PATH`              | `/home/user/workspace`             |
+| `max_depth`      | `GOHOME_MAX_DEPTH`         | `3`                                |
+| `author`         | `GOHOME_AUTHOR`            | `johndoe`                          |
+| `format`         | `GOHOME_FORMAT`            | `table`                            |
+| `style`          | `GOHOME_STYLE`             | `markdown`                         |
+| `icon`           | `GOHOME_ICON`              | `true`                             |
+| `scope`          | `GOHOME_SCOPE`             | `true`                             |
+| `all_branches`   | `GOHOME_ALL_BRANCHES`      | `true`                             |
+| `branch`         | `GOHOME_BRANCH`            | `main`                             |
+| `copy`           | `GOHOME_COPY`              | `true`                             |
+
+#### Examples
+
+```bash
+# Set defaults via environment
+export GOHOME_DAYS=7
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+gohome  # Uses env var values
+
+# Override env var with flag
+export GOHOME_DAYS=7
+gohome --days 3  # Flag wins: uses 3 days
+
+# Useful for CI/CD
+export GOHOME_PATH=/workspace
+export GOHOME_AUTHOR=ci-bot
+export GOHOME_FORMAT=table
+gohome --today
+
+# Docker usage
+docker run -e GOHOME_DAYS=7 -e GOHOME_FORMAT=table gohome:latest
+```
+
 ## 🗺️ Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for the full development plan and upcoming features.

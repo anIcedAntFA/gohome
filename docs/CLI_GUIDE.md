@@ -337,26 +337,106 @@ gohome
 
 All configuration can be set via environment variables with the `GOHOME_` prefix.
 
-| Config Key | Environment Variable | Example |
-|------------|---------------------|---------|
-| `days` | `GOHOME_DAYS` | `GOHOME_DAYS=3` |
-| `format` | `GOHOME_FORMAT` | `GOHOME_FORMAT=table` |
-| `path` | `GOHOME_PATH` | `GOHOME_PATH=~/workspace` |
-| `max_depth` | `GOHOME_MAX_DEPTH` | `GOHOME_MAX_DEPTH=3` |
-| `author` | `GOHOME_AUTHOR` | `GOHOME_AUTHOR="John Doe"` |
-| `copy` | `GOHOME_COPY` | `GOHOME_COPY=true` |
+### Supported Environment Variables
 
-**Examples:**
+| Config Key       | Environment Variable        | Example Value                      |
+|------------------|-----------------------------|----------------------------------- |
+| `hours`          | `GOHOME_HOURS`             | `24`                               |
+| `days`           | `GOHOME_DAYS`              | `7`                                |
+| `weeks`          | `GOHOME_WEEKS`             | `2`                                |
+| `months`         | `GOHOME_MONTHS`            | `1`                                |
+| `years`          | `GOHOME_YEARS`             | `1`                                |
+| `today`          | `GOHOME_TODAY`             | `true`                             |
+| `path`           | `GOHOME_PATH`              | `/home/user/workspace`             |
+| `max_depth`      | `GOHOME_MAX_DEPTH`         | `3`                                |
+| `author`         | `GOHOME_AUTHOR`            | `johndoe`                          |
+| `format`         | `GOHOME_FORMAT`            | `table`                            |
+| `style`          | `GOHOME_STYLE`             | `markdown`                         |
+| `icon`           | `GOHOME_ICON`              | `true`                             |
+| `scope`          | `GOHOME_SCOPE`             | `true`                             |
+| `all_branches`   | `GOHOME_ALL_BRANCHES`      | `true`                             |
+| `branch`         | `GOHOME_BRANCH`            | `main`                             |
+| `copy`           | `GOHOME_COPY`              | `true`                             |
+
+### Basic Usage
+
 ```bash
-# Set environment variable
+# Set environment variable (persistent in current shell session)
 export GOHOME_DAYS=7
 gohome  # Uses 7 days
 
-# One-time override
+# One-time use (just for this command)
 GOHOME_FORMAT=table gohome
 
-# Multiple variables
+# Multiple variables at once
 GOHOME_DAYS=3 GOHOME_FORMAT=table GOHOME_COPY=true gohome
+```
+
+### Practical Examples
+
+#### Example 1: CI/CD Pipeline
+```bash
+# .github/workflows/daily-report.yml
+- name: Generate Daily Report
+  env:
+    GOHOME_DAYS: 1
+    GOHOME_FORMAT: table
+    GOHOME_STYLE: markdown
+    GOHOME_AUTHOR: ci-bot
+  run: gohome
+```
+
+#### Example 2: Docker Container
+```bash
+# Pass config through environment variables
+docker run -e GOHOME_DAYS=7 \
+           -e GOHOME_FORMAT=table \
+           -e GOHOME_PATH=/workspace \
+           -v $(pwd):/workspace \
+           gohome:latest
+```
+
+#### Example 3: Fish Shell Aliases
+```fish
+# ~/.config/fish/config.fish
+
+# Quick daily standup
+alias standup="set -x GOHOME_DAYS 1; set -x GOHOME_FORMAT table; gohome"
+
+# Weekly summary
+alias weekly="set -x GOHOME_DAYS 7; set -x GOHOME_FORMAT table; set -x GOHOME_STYLE markdown; gohome"
+```
+
+#### Example 4: Bash/Zsh Profile
+```bash
+# ~/.bashrc or ~/.zshrc
+
+# Set defaults via environment
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+export GOHOME_MAX_DEPTH=3
+
+# Aliases for common tasks
+alias standup="GOHOME_DAYS=1 gohome"
+alias weekly="GOHOME_DAYS=7 gohome"
+```
+
+### Precedence Testing
+
+Environment variables have **lower priority** than command-line flags:
+
+```bash
+# Set env var
+export GOHOME_DAYS=10
+
+# This uses 10 days (from env var)
+gohome
+
+# This uses 3 days (flag overrides env var)
+gohome --days 3
+
+# Verify current precedence
+gohome config list  # Shows which value is active
 ```
 
 ---
