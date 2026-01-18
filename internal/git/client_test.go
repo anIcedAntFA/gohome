@@ -48,11 +48,12 @@ func TestGetUser(t *testing.T) {
 			// Create temp directory for isolated git config
 			tmpDir := t.TempDir()
 			oldHome := os.Getenv("HOME")
-			os.Setenv("HOME", tmpDir)
-			defer os.Setenv("HOME", oldHome)
+			_ = os.Setenv("HOME", tmpDir)
+			defer func() { _ = os.Setenv("HOME", oldHome) }()
 
 			if tt.setupGit {
 				// Configure git user.name
+				// #nosec G204 -- test code with controlled input
 				cmd := exec.Command("git", "config", "--global", "user.name", tt.userName)
 				cmd.Env = append(os.Environ(), "HOME="+tmpDir)
 				if err := cmd.Run(); err != nil {
@@ -79,12 +80,12 @@ func TestGetUserWithTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 	defer cancel()
 
-	time.Sleep(2 * time.Millisecond) // Ensure context is cancelled
+	time.Sleep(2 * time.Millisecond) // Ensure context is canceled
 	result := client.GetUser(ctx)
 
-	// Should return empty string when context is cancelled
+	// Should return empty string when context is canceled
 	if result != "" {
-		t.Errorf("GetUser() with cancelled context = %q, want empty string", result)
+		t.Errorf("GetUser() with canceled context = %q, want empty string", result)
 	}
 }
 
@@ -267,7 +268,7 @@ func TestGetLogs(t *testing.T) {
 
 	// Create and commit a test file
 	testFile := filepath.Join(repoPath, "test.txt")
-	if err := os.WriteFile(testFile, []byte("test content"), 0o644); err != nil {
+	if err := os.WriteFile(testFile, []byte("test content"), 0o600); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
 	}
 
@@ -284,7 +285,7 @@ func TestGetLogs(t *testing.T) {
 	}
 
 	// Create a second commit
-	if err := os.WriteFile(testFile, []byte("updated content"), 0o644); err != nil {
+	if err := os.WriteFile(testFile, []byte("updated content"), 0o600); err != nil {
 		t.Fatalf("Failed to update test file: %v", err)
 	}
 
@@ -428,13 +429,13 @@ func TestGetLogsWithTimeout(t *testing.T) {
 	defer cancel()
 
 	// Use current directory (should be valid git repo)
-	time.Sleep(1 * time.Millisecond) // Ensure context is cancelled
+	time.Sleep(1 * time.Millisecond) // Ensure context is canceled
 
 	_, err := client.GetLogs(ctx, ".", "Test Author", "1.day.ago", false, "")
 
-	// Should return error when context is cancelled
+	// Should return error when context is canceled
 	if err == nil {
-		t.Log("GetLogs() with cancelled context should return error (may pass if git is very fast)")
+		t.Log("GetLogs() with canceled context should return error (may pass if git is very fast)")
 	}
 }
 
@@ -473,7 +474,7 @@ func TestGetLogsBranchFiltering(t *testing.T) {
 
 	// Create initial commit on main branch
 	testFile := filepath.Join(repoPath, "main.txt")
-	if err := os.WriteFile(testFile, []byte("main content"), 0o644); err != nil {
+	if err := os.WriteFile(testFile, []byte("main content"), 0o600); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
 	}
 
@@ -498,7 +499,7 @@ func TestGetLogsBranchFiltering(t *testing.T) {
 
 	// Create commit on feature branch
 	featureFile := filepath.Join(repoPath, "feature.txt")
-	if err := os.WriteFile(featureFile, []byte("feature content"), 0o644); err != nil {
+	if err := os.WriteFile(featureFile, []byte("feature content"), 0o600); err != nil {
 		t.Fatalf("Failed to write feature file: %v", err)
 	}
 

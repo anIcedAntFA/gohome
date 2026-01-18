@@ -6,7 +6,7 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/entity"
 )
 
-// TestParse tests the parsing of Conventional Commits
+// TestParse tests the parsing of Conventional Commits.
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -322,7 +322,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
-// TestExtractEmoji tests emoji extraction from commit messages
+// TestExtractEmoji tests emoji extraction from commit messages.
 func TestExtractEmoji(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -434,7 +434,7 @@ func TestExtractEmoji(t *testing.T) {
 	}
 }
 
-// TestNewService tests service creation
+// TestNewService tests service creation.
 func TestNewService(t *testing.T) {
 	service := NewService()
 	if service == nil {
@@ -442,7 +442,7 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-// TestParseRawField tests that Raw field is always set
+// TestParseRawField tests that Raw field is always set.
 func TestParseRawField(t *testing.T) {
 	service := NewService()
 	testInputs := []string{
@@ -462,7 +462,7 @@ func TestParseRawField(t *testing.T) {
 	}
 }
 
-// TestParseDefaultValues tests default values for missing fields
+// TestParseDefaultValues tests default values for missing fields.
 func TestParseDefaultValues(t *testing.T) {
 	tests := []struct {
 		name      string

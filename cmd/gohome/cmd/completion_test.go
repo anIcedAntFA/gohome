@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TestCompletionCommand tests the completion command for all shells
+// TestCompletionCommand tests the completion command for all shells.
 func TestCompletionCommand(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -106,14 +106,14 @@ func TestCompletionCommand(t *testing.T) {
 			}
 
 			// Verify output is not empty
-			if len(got) == 0 {
+			if got == "" {
 				t.Error("completion output is empty")
 			}
 		})
 	}
 }
 
-// TestCompletionCommandProperties tests the command metadata
+// TestCompletionCommandProperties tests the command metadata.
 func TestCompletionCommandProperties(t *testing.T) {
 	if completionCmd.Use != "completion [bash|zsh|fish|powershell]" {
 		t.Errorf("completionCmd.Use = %q, want %q",
@@ -150,7 +150,7 @@ func TestCompletionCommandProperties(t *testing.T) {
 	}
 }
 
-// TestCompletionCommandValidation tests argument validation
+// TestCompletionCommandValidation tests argument validation.
 func TestCompletionCommandValidation(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -201,7 +201,7 @@ func TestCompletionCommandValidation(t *testing.T) {
 				Use:       "completion [bash|zsh|fish|powershell]",
 				ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
 				Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-				Run:       func(cmd *cobra.Command, args []string) {},
+				Run:       func(_ *cobra.Command, _ []string) {},
 			}
 
 			// Suppress output
@@ -221,7 +221,7 @@ func TestCompletionCommandValidation(t *testing.T) {
 	}
 }
 
-// TestCompletionLongHelp tests that long help contains installation instructions
+// TestCompletionLongHelp tests that long help contains installation instructions.
 func TestCompletionLongHelp(t *testing.T) {
 	requiredSections := []string{
 		"Bash:",
@@ -244,7 +244,7 @@ func TestCompletionLongHelp(t *testing.T) {
 	}
 }
 
-// truncate truncates a string to maxLen characters for better error messages
+// truncate truncates a string to maxLen characters for better error messages.
 func truncate(s string, maxLen int) string {
 	if len(s) <= maxLen {
 		return s

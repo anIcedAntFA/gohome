@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestString tests the formatted version output
+// TestString tests the formatted version output.
 func TestString(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -94,7 +94,7 @@ func TestString(t *testing.T) {
 	}
 }
 
-// TestShort tests the short version output
+// TestShort tests the short version output.
 func TestShort(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -134,7 +134,7 @@ func TestShort(t *testing.T) {
 	}
 }
 
-// TestIsSemanticVersion tests semantic version detection
+// TestIsSemanticVersion tests semantic version detection.
 func TestIsSemanticVersion(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -171,7 +171,7 @@ func TestIsSemanticVersion(t *testing.T) {
 	}
 }
 
-// TestGetVersion tests version retrieval
+// TestGetVersion tests version retrieval.
 func TestGetVersion(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -205,7 +205,7 @@ func TestGetVersion(t *testing.T) {
 	}
 }
 
-// TestGetCommit tests commit hash retrieval
+// TestGetCommit tests commit hash retrieval.
 func TestGetCommit(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -239,7 +239,7 @@ func TestGetCommit(t *testing.T) {
 	}
 }
 
-// TestGetDate tests build date retrieval
+// TestGetDate tests build date retrieval.
 func TestGetDate(t *testing.T) {
 	tests := []struct {
 		name string

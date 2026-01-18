@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// TestRootCommandProperties tests the root command metadata
+// TestRootCommandProperties tests the root command metadata.
 func TestRootCommandProperties(t *testing.T) {
 	if rootCmd.Use != "gohome" {
 		t.Errorf("rootCmd.Use = %q, want %q", rootCmd.Use, "gohome")
@@ -49,7 +49,7 @@ func TestRootCommandProperties(t *testing.T) {
 	}
 }
 
-// TestRootCommandHasSubcommands tests that root has expected subcommands
+// TestRootCommandHasSubcommands tests that root has expected subcommands.
 func TestRootCommandHasSubcommands(t *testing.T) {
 	expectedCommands := []string{
 		"config",
@@ -71,7 +71,7 @@ func TestRootCommandHasSubcommands(t *testing.T) {
 	}
 }
 
-// TestExecuteWithInvalidCommand tests error handling
+// TestExecuteWithInvalidCommand tests error handling.
 func TestExecuteWithInvalidCommand(t *testing.T) {
 	// Save original args
 	oldArgs := os.Args
@@ -96,9 +96,9 @@ func TestExecuteWithInvalidCommand(t *testing.T) {
 	err := rootCmd.Execute()
 
 	// Restore stderr and read pipe
-	w.Close()
+	_ = w.Close()
 	var stderrBuf bytes.Buffer
-	stderrBuf.ReadFrom(r)
+	_, _ = stderrBuf.ReadFrom(r)
 	os.Stderr = oldStderr
 
 	if err == nil {
@@ -110,7 +110,7 @@ func TestExecuteWithInvalidCommand(t *testing.T) {
 	}
 }
 
-// TestInitConfig tests the configuration initialization
+// TestInitConfig tests the configuration initialization.
 func TestInitConfig(t *testing.T) {
 	// Save original viper state
 	origConfigFile := viper.ConfigFileUsed()
@@ -152,7 +152,7 @@ func TestInitConfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to write temp file: %v", err)
 		}
-		tmpFile.Close()
+		_ = tmpFile.Close()
 
 		// Set config file explicitly
 		viper.SetConfigFile(tmpFile.Name())
@@ -178,8 +178,8 @@ func TestInitConfig(t *testing.T) {
 		cfgFile = ""
 
 		// Set test environment variable
-		os.Setenv("GOHOME_DAYS", "10")
-		defer os.Unsetenv("GOHOME_DAYS")
+		_ = os.Setenv("GOHOME_DAYS", "10")
+		defer func() { _ = os.Unsetenv("GOHOME_DAYS") }()
 
 		initConfig()
 
@@ -190,7 +190,7 @@ func TestInitConfig(t *testing.T) {
 	})
 }
 
-// TestRootCommandHelp tests that help output is generated
+// TestRootCommandHelp tests that help output is generated.
 func TestRootCommandHelp(t *testing.T) {
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -219,7 +219,7 @@ func TestRootCommandHelp(t *testing.T) {
 	}
 }
 
-// TestRootCommandVersion tests version flag
+// TestRootCommandVersion tests version flag.
 func TestRootCommandVersion(t *testing.T) {
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -240,12 +240,12 @@ func TestRootCommandVersion(t *testing.T) {
 
 	// Version format can vary (sometimes just "version X", sometimes includes version keyword)
 	// So we just check that output is not empty
-	if len(output) == 0 {
+	if output == "" {
 		t.Error("Version output should not be empty")
 	}
 }
 
-// TestEnvVarKeyReplacer tests that environment variable names are correctly mapped
+// TestEnvVarKeyReplacer tests that environment variable names are correctly mapped.
 func TestEnvVarKeyReplacer(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -274,8 +274,8 @@ func TestEnvVarKeyReplacer(t *testing.T) {
 			defer viper.Reset()
 
 			// Set environment variable
-			os.Setenv(tt.envVar, tt.value)
-			defer os.Unsetenv(tt.envVar)
+			_ = os.Setenv(tt.envVar, tt.value)
+			defer func() { _ = os.Unsetenv(tt.envVar) }()
 
 			// Initialize config
 			cfgFile = ""

@@ -10,7 +10,7 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/version"
 )
 
-// TestVersionCommand tests the version command execution
+// TestVersionCommand tests the version command execution.
 func TestVersionCommand(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -98,10 +98,10 @@ func TestVersionCommand(t *testing.T) {
 			runVersion(versionCmd, []string{})
 
 			// Restore stdout and read output
-			w.Close()
+			_ = w.Close()
 			os.Stdout = oldStdout
 			var buf bytes.Buffer
-			io.Copy(&buf, r)
+			_, _ = io.Copy(&buf, r)
 			got := buf.String()
 
 			// Verify expected content
@@ -121,7 +121,7 @@ func TestVersionCommand(t *testing.T) {
 	}
 }
 
-// TestVersionCommandProperties tests the command metadata
+// TestVersionCommandProperties tests the command metadata.
 func TestVersionCommandProperties(t *testing.T) {
 	if versionCmd.Use != "version" {
 		t.Errorf("versionCmd.Use = %q, want %q", versionCmd.Use, "version")
