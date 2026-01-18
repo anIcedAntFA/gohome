@@ -559,10 +559,6 @@ enabled = true
 ```
 </details>
 
-**Example config files** are available in the repository:
-- [.gohome.yaml.example](.gohome.yaml.example)
-- [.gohome.toml.example](.gohome.toml.example)
-
 ### 🧾 Flags Reference
 
 | Flag             | Alias | Description                                           | Default     |
