@@ -26,6 +26,7 @@ var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Generate activity report (default command)",
 	Long:  `Scan repositories and generate a formatted activity report.`,
+	Args:  cobra.NoArgs, // Reject any positional arguments
 	RunE:  runReport,
 }
 
@@ -36,7 +37,9 @@ func init() {
 	defineReportFlags(rootCmd)
 
 	// Bind flags to viper ONCE
-	viper.BindPFlags(rootCmd.PersistentFlags())
+	if err := viper.BindPFlags(rootCmd.PersistentFlags()); err != nil {
+		fmt.Printf("Warning: failed to bind flags: %v\n", err)
+	}
 
 	// Make report the default command if no subcommand specified
 	rootCmd.RunE = runReport
@@ -47,13 +50,13 @@ func defineReportFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().IntP("hours", "H", 0, "Number of hours to look back")
 	cmd.PersistentFlags().IntP("days", "d", 1, "Number of days to look back")
 	cmd.PersistentFlags().IntP("weeks", "w", 0, "Number of weeks to look back")
-	cmd.PersistentFlags().IntP("months", "m", 0, "Number of months to look back")
+	cmd.PersistentFlags().IntP("months", "M", 0, "Number of months to look back")
 	cmd.PersistentFlags().IntP("years", "y", 0, "Number of years to look back")
-	cmd.PersistentFlags().Bool("today", false, "Report from midnight to now")
+	cmd.PersistentFlags().BoolP("today", "T", false, "Report from midnight to now")
 
 	// Path and author
 	cmd.PersistentFlags().StringP("path", "p", ".", "Root path to scan for repositories")
-	cmd.PersistentFlags().Int("max-depth", 2, "Maximum depth to scan for repositories")
+	cmd.PersistentFlags().IntP("max-depth", "m", 2, "Maximum depth to scan for repositories")
 	cmd.PersistentFlags().StringP("author", "a", "", "Git author name (auto-detected if empty)")
 
 	// Output formatting
@@ -63,24 +66,23 @@ func defineReportFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolP("scope", "c", false, "Show commit scope")
 
 	// Branch filtering
-	cmd.PersistentFlags().BoolP("all-branches", "b", false, "Include commits from all local branches")
-	cmd.PersistentFlags().String("branch", "", "Filter commits by specific branch")
+	cmd.PersistentFlags().BoolP("all-branches", "A", false, "Include commits from all local branches")
+	cmd.PersistentFlags().StringP("branch", "b", "", "Filter commits by specific branch")
 
 	// Clipboard and tasks
 	cmd.PersistentFlags().BoolP("copy", "C", false, "Copy output to clipboard")
 	cmd.PersistentFlags().StringSliceP("task", "t", []string{}, "Add custom task")
 
 	// Save config flag
-	cmd.PersistentFlags().Bool("save", false, "Save current arguments as default configuration")
+	cmd.PersistentFlags().BoolP("save", "S", false, "Save current arguments as default configuration")
+
+	// Flag groups: Mark mutually exclusive flags
+	// User cannot use --all-branches and --branch together (conflicting branch filters)
+	cmd.MarkFlagsMutuallyExclusive("all-branches", "branch")
 }
 
-func runReport(cmd *cobra.Command, args []string) error {
-	// Load configuration (Viper handles flag > env > config > default)
-	cfg := viperconfig.LoadFromViper()
-
-	// IMPORTANT: Handle period flag overrides
-	// If user explicitly sets any period flag via CLI, it should override ALL config period values
-	// This prevents conflicts like: config has today=true, but user sets -d 3
+// handlePeriodFlags applies period flag overrides to config.
+func handlePeriodFlags(cmd *cobra.Command, cfg *viperconfig.Config) {
 	periodFlags := []string{"hours", "days", "weeks", "months", "years", "today"}
 	anyPeriodChanged := false
 	for _, flag := range periodFlags {
@@ -90,114 +92,93 @@ func runReport(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if anyPeriodChanged {
-		// Reset all period values to 0/false first (clear config values)
-		cfg.Hours = 0
-		cfg.Days = 0
-		cfg.Weeks = 0
-		cfg.Months = 0
-		cfg.Years = 0
-		cfg.Today = false
-
-		// Then set only the flags that were explicitly provided by user
-		if cmd.Flags().Changed("hours") {
-			cfg.Hours = viper.GetInt("hours")
-		}
-		if cmd.Flags().Changed("days") {
-			cfg.Days = viper.GetInt("days")
-		}
-		if cmd.Flags().Changed("weeks") {
-			cfg.Weeks = viper.GetInt("weeks")
-		}
-		if cmd.Flags().Changed("months") {
-			cfg.Months = viper.GetInt("months")
-		}
-		if cmd.Flags().Changed("years") {
-			cfg.Years = viper.GetInt("years")
-		}
-		if cmd.Flags().Changed("today") {
-			cfg.Today = viper.GetBool("today")
-		}
-
-		// Normalize to keep only the highest priority
-		cfg.NormalizePeriod()
+	if !anyPeriodChanged {
+		return
 	}
 
-	// Get dynamic tasks from flag
-	cfg.DynamicTasks = viper.GetStringSlice("task")
+	// Reset all period values to 0/false first (clear config values)
+	cfg.Hours = 0
+	cfg.Days = 0
+	cfg.Weeks = 0
+	cfg.Months = 0
+	cfg.Years = 0
+	cfg.Today = false
 
-	// Handle save config
-	if viper.GetBool("save") {
-		if err := cfg.SaveToFile(); err != nil {
-			return fmt.Errorf("❌ Failed to save config: %w", err)
-		}
-		configPath := viper.ConfigFileUsed()
-		if configPath == "" {
-			home, _ := os.UserHomeDir()
-			configPath = filepath.Join(home, ".gohome.json")
-		}
-		fmt.Println("✅ Configuration saved successfully!")
-		fmt.Printf("💡 Tip: You can edit this file to customize your daily recurring tasks.\n   Config location: %s\n", configPath)
-		fmt.Println("You can now run 'gohome' without flags to use these settings.")
-		return nil
+	// Then set only the flags that were explicitly provided by user
+	if cmd.Flags().Changed("hours") {
+		cfg.Hours = viper.GetInt("hours")
+	}
+	if cmd.Flags().Changed("days") {
+		cfg.Days = viper.GetInt("days")
+	}
+	if cmd.Flags().Changed("weeks") {
+		cfg.Weeks = viper.GetInt("weeks")
+	}
+	if cmd.Flags().Changed("months") {
+		cfg.Months = viper.GetInt("months")
+	}
+	if cmd.Flags().Changed("years") {
+		cfg.Years = viper.GetInt("years")
+	}
+	if cmd.Flags().Changed("today") {
+		cfg.Today = viper.GetBool("today")
 	}
 
-	// Validate format and style compatibility
-	if cfg.Format != "table" && cfg.Style != "normal" {
-		return fmt.Errorf("❌ Error: --style flag only works with --format table\n   Current: --format %s --style %s\n   Hint: Use '--format table --style %s' or remove --style flag", cfg.Format, cfg.Style, cfg.Style)
+	// Normalize to keep only the highest priority
+	cfg.NormalizePeriod()
+}
+
+// handleSaveConfig saves config to file and prints success message.
+func handleSaveConfig(cfg *viperconfig.Config) error {
+	if err := cfg.SaveToFile(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
 	}
+	configPath := viper.ConfigFileUsed()
+	if configPath == "" {
+		home, _ := os.UserHomeDir()
+		configPath = filepath.Join(home, ".gohome.json")
+	}
+	fmt.Println("✅ Configuration saved successfully!")
+	fmt.Printf("💡 Tip: You can edit this file to customize your daily recurring tasks.\n   Config location: %s\n", configPath)
+	fmt.Println("You can now run 'gohome' without flags to use these settings.")
+	return nil
+}
 
-	// Initialize dependencies
-	gitClient := git.NewClient()
-	parserSvc := parser.NewService()
-	printer := renderer.NewPrinter(renderer.Config{
-		Format:    cfg.Format,
-		Style:     cfg.Style,
-		ShowIcon:  cfg.ShowIcon,
-		ShowScope: cfg.ShowScope,
-	})
-
-	// Determine author
+// getAuthorName determines the git author name from config or git client.
+func getAuthorName(cfg *viperconfig.Config, gitClient *git.Client) (string, error) {
 	author := cfg.Author
-	if author == "" {
-		if val := gitClient.GetUser(context.Background()); val != "" {
-			author = val
-		} else {
-			return fmt.Errorf("❌ Author not found. Please use -a flag or check git config")
-		}
+	if author != "" {
+		return author, nil
 	}
 
-	// Get period and scan repos
-	period := cfg.GetPeriod()
-	fmt.Println("🗓️  Period:", period)
+	if val := gitClient.GetUser(context.Background()); val != "" {
+		return val, nil
+	}
 
-	absPath, _ := filepath.Abs(cfg.Path)
+	return "", fmt.Errorf("author not found. Please use -a flag or check git config")
+}
 
+// scanRepositories scans for git repos and displays results.
+func scanRepositories(absPath string, maxDepth int) ([]string, error) {
 	sp := spinner.New("🔍 Scanning repositories...").
 		WithFrames(spinner.PacmanGhost).
 		WithInterval(100 * time.Millisecond)
 	sp.Start()
 
-	repos, err := scanner.ScanGitRepos(absPath, cfg.MaxDepth)
+	repos, err := scanner.ScanGitRepos(absPath, maxDepth)
 	sp.Stop()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	fmt.Printf("✓ Found %d repositories\n", len(repos))
+	return repos, nil
+}
 
-	// Setup writer for clipboard
-	var clipboardBuffer bytes.Buffer
-	var outputWriter io.Writer = os.Stdout
-
-	if cfg.CopyToClipboard {
-		outputWriter = io.MultiWriter(os.Stdout, &clipboardBuffer)
-	}
-
-	// Process commits and tasks
+// processCommits fetches and prints commits from repositories.
+func processCommits(repos []string, author, period string, cfg *viperconfig.Config, gitClient *git.Client, parserSvc *parser.Service, printer *renderer.Printer, writer io.Writer) bool {
 	foundAny := false
-
-	// Process commits
 	for _, repo := range repos {
 		repoName := filepath.Base(repo)
 		sp := spinner.New(fmt.Sprintf("📥 Fetching commits from %s...", repoName))
@@ -217,11 +198,14 @@ func runReport(cmd *cobra.Command, args []string) error {
 
 		if len(commits) > 0 {
 			foundAny = true
-			printer.Print(outputWriter, filepath.Base(repo), commits)
+			printer.Print(writer, filepath.Base(repo), commits)
 		}
 	}
+	return foundAny
+}
 
-	// Process tasks
+// collectActiveTasks gathers enabled static tasks and all dynamic tasks.
+func collectActiveTasks(cfg *viperconfig.Config) []entity.Task {
 	activeTasks := make([]entity.Task, 0, len(cfg.Tasks))
 
 	// Filter static tasks (only enabled ones)
@@ -240,25 +224,95 @@ func runReport(cmd *cobra.Command, args []string) error {
 		})
 	}
 
+	return activeTasks
+}
+
+// handleClipboard copies content to clipboard and displays result.
+func handleClipboard(content string) {
+	if err := sys.CopyToClipboard(context.Background(), content); err != nil {
+		fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
+		fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
+	} else {
+		fmt.Println("\n📋 Report copied to clipboard!")
+	}
+}
+
+func runReport(cmd *cobra.Command, _ []string) error {
+	// Load configuration (Viper handles flag > env > config > default)
+	cfg := viperconfig.LoadFromViper()
+
+	// Handle period flag overrides
+	handlePeriodFlags(cmd, cfg)
+
+	// Get dynamic tasks from flag
+	cfg.DynamicTasks = viper.GetStringSlice("task")
+
+	// Validate configuration (separate validation layer)
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("configuration validation failed: %w", err)
+	}
+
+	// Handle save config
+	if viper.GetBool("save") {
+		return handleSaveConfig(cfg)
+	}
+
+	// Validate format and style compatibility
+	if cfg.Format != "table" && cfg.Style != "normal" {
+		return fmt.Errorf("--style flag only works with --format table\n   Current: --format %s --style %s\n   Hint: Use '--format table --style %s' or remove --style flag", cfg.Format, cfg.Style, cfg.Style)
+	}
+
+	// Initialize dependencies
+	gitClient := git.NewClient()
+	parserSvc := parser.NewService()
+	printer := renderer.NewPrinter(renderer.Config{
+		Format:    cfg.Format,
+		Style:     cfg.Style,
+		ShowIcon:  cfg.ShowIcon,
+		ShowScope: cfg.ShowScope,
+	})
+
+	// Determine author
+	author, err := getAuthorName(cfg, gitClient)
+	if err != nil {
+		return err
+	}
+
+	// Get period and scan repos
+	period := cfg.GetPeriod()
+	fmt.Println("🗓️  Period:", period)
+
+	absPath, _ := filepath.Abs(cfg.Path)
+	repos, err := scanRepositories(absPath, cfg.MaxDepth)
+	if err != nil {
+		return err
+	}
+
+	// Setup writer for clipboard
+	var clipboardBuffer bytes.Buffer
+	var outputWriter io.Writer = os.Stdout
+
+	if cfg.CopyToClipboard {
+		outputWriter = io.MultiWriter(os.Stdout, &clipboardBuffer)
+	}
+
+	// Process commits and tasks
+	foundCommits := processCommits(repos, author, period, cfg, gitClient, parserSvc, printer, outputWriter)
+
+	activeTasks := collectActiveTasks(cfg)
 	if len(activeTasks) > 0 {
 		printer.PrintTasks(outputWriter, activeTasks)
-		foundAny = true
 	}
 
 	// Handle clipboard
+	foundAny := foundCommits || len(activeTasks) > 0
 	if !foundAny {
 		fmt.Println("📭 No commits or tasks found.")
 		return nil
 	}
 
 	if cfg.CopyToClipboard {
-		content := clipboardBuffer.String()
-		if err := sys.CopyToClipboard(context.Background(), content); err != nil {
-			fmt.Printf("\n⚠️  Failed to copy: %v\n", err)
-			fmt.Println("   (Linux users: please install 'wl-clipboard' or 'xclip')")
-		} else {
-			fmt.Println("\n📋 Report copied to clipboard!")
-		}
+		handleClipboard(clipboardBuffer.String())
 	}
 
 	return nil
