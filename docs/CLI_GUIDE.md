@@ -12,9 +12,11 @@ Complete guide to using gohome CLI tool for git activity reporting.
   - [Default Command (report)](#default-command-report)
   - [config](#config)
   - [version](#version)
+  - [completion](#completion)
 - [Flags Reference](#flags-reference)
 - [Configuration](#configuration)
 - [Environment Variables](#environment-variables)
+- [Shell Completions](#shell-completions)
 - [Common Use Cases](#common-use-cases)
 - [Examples](#examples)
 
@@ -171,6 +173,84 @@ gohome version
 gohome version 2.0.0
 commit: abc123def
 built: 2026-01-16T10:00:00Z
+```
+
+---
+
+### completion
+
+Generate shell completion scripts for tab-completion of commands, subcommands, and flag values.
+
+```bash
+gohome completion [bash|zsh|fish|powershell]
+```
+
+**Supported Shells:**
+- Bash
+- Zsh
+- Fish
+- PowerShell
+
+**Installation Examples:**
+
+**Fish (Permanent):**
+```bash
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+```
+
+**Fish (Temporary):**
+```bash
+gohome completion fish | source
+```
+
+**Bash (System-wide - Linux):**
+```bash
+sudo gohome completion bash > /etc/bash_completion.d/gohome
+```
+
+**Bash (User-only):**
+```bash
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Zsh:**
+```bash
+# Enable completions first (if not already enabled)
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# Install completion
+gohome completion zsh > "${fpath[1]}/_gohome"
+
+# Restart shell
+exec zsh
+```
+
+**PowerShell:**
+```powershell
+# Temporary (this session only)
+gohome completion powershell | Out-String | Invoke-Expression
+
+# Permanent (add to profile)
+Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Expression"
+```
+
+**What Completions Provide:**
+
+- **Command completion**: `gohome <TAB>` → shows `config`, `report`, `version`, `completion`
+- **Subcommand completion**: `gohome config <TAB>` → shows `get`, `set`, `list`, `reset`
+- **Config key completion**: `gohome config get <TAB>` → shows all 17 config keys
+- **Flag value completion**: `gohome --format <TAB>` → shows `text`, `table`
+- **Style completion**: `gohome --style <TAB>` → shows `normal`, `markdown`, `nature`, `tech`
+- **Shell completion**: `gohome completion <TAB>` → shows `bash`, `zsh`, `fish`, `powershell`
+
+**Verifying Installation:**
+
+After installing completions, test by typing:
+```bash
+gohome <TAB><TAB>        # Should show commands
+gohome config <TAB><TAB>  # Should show subcommands
+gohome --format <TAB>     # Should show format values
 ```
 
 ---
@@ -437,6 +517,219 @@ gohome --days 3
 
 # Verify current precedence
 gohome config list  # Shows which value is active
+```
+
+---
+
+## 🎯 Shell Completions
+
+Shell completions provide intelligent tab-completion for gohome commands, making the CLI faster and more discoverable.
+
+### Features
+
+- **Command completion**: Suggests available commands
+- **Subcommand completion**: Context-aware subcommand suggestions
+- **Flag completion**: Shows all available flags
+- **Dynamic value completion**: Suggests valid values for flags like `--format` and `--style`
+- **Config key completion**: Lists all 17 config keys for `config get/set`
+
+### Installation by Shell
+
+#### Fish
+
+**Permanent Installation:**
+```bash
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+```
+
+**Temporary (Current Session Only):**
+```bash
+gohome completion fish | source
+```
+
+**Testing:**
+```bash
+gohome <TAB>              # Shows: completion, config, help, report, version
+gohome config <TAB>        # Shows: get, list, reset, set
+gohome config get <TAB>    # Shows all 17 config keys
+gohome --format <TAB>      # Shows: text, table
+gohome --style <TAB>       # Shows: normal, markdown, nature, tech
+```
+
+#### Bash
+
+**System-wide Installation (Linux):**
+```bash
+sudo gohome completion bash > /etc/bash_completion.d/gohome
+```
+
+**System-wide Installation (macOS with Homebrew):**
+```bash
+gohome completion bash > $(brew --prefix)/etc/bash_completion.d/gohome
+```
+
+**User-only Installation:**
+```bash
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Testing:**
+```bash
+gohome <TAB><TAB>          # Shows available commands
+gohome --format <TAB><TAB> # Shows: text table
+```
+
+#### Zsh
+
+**Setup (First time only):**
+```bash
+# Enable completions if not already enabled
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+```
+
+**Installation:**
+```bash
+gohome completion zsh > "${fpath[1]}/_gohome"
+# Restart shell
+exec zsh
+```
+
+**Alternative (User-only):**
+```bash
+# Add to ~/.zshrc
+echo 'source <(gohome completion zsh)' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Testing:**
+```bash
+gohome <TAB>            # Shows commands
+gohome config get <TAB>  # Shows config keys
+```
+
+#### PowerShell
+
+**Temporary (Current Session Only):**
+```powershell
+gohome completion powershell | Out-String | Invoke-Expression
+```
+
+**Permanent Installation:**
+```powershell
+# Add to PowerShell profile
+$completionScript = "gohome completion powershell | Out-String | Invoke-Expression"
+Add-Content $PROFILE $completionScript
+
+# Reload profile
+. $PROFILE
+```
+
+**Testing:**
+```powershell
+gohome <TAB>           # Shows commands
+gohome --format <TAB>  # Shows format values
+```
+
+### Completion Examples
+
+#### Example 1: Command Discovery
+```bash
+$ gohome <TAB>
+completion  config  help  report  version
+
+$ gohome completion <TAB>
+bash  fish  powershell  zsh
+```
+
+#### Example 2: Config Management
+```bash
+$ gohome config <TAB>
+get  list  reset  set
+
+$ gohome config get <TAB>
+hours  days  weeks  months  years  today  path  max_depth  author  format  style  icon  scope  all_branches  branch  copy
+
+$ gohome config get for<TAB>
+format  # Auto-completes
+```
+
+#### Example 3: Flag Values
+```bash
+$ gohome --format <TAB>
+text  table
+
+$ gohome --style <TAB>
+normal  markdown  nature  tech
+
+$ gohome -f table --style mark<TAB>
+markdown  # Auto-completes
+```
+
+#### Example 4: Workflow Speedup
+```bash
+# Instead of typing the full command:
+gohome --days=7 --format=table --style=markdown
+
+# With completions, just type and press TAB:
+gohome -d 7 -f ta<TAB> -s ma<TAB>
+# Result: gohome -d 7 -f table -s markdown
+```
+
+### Debugging Completions
+
+If completions aren't working, verify installation:
+
+**Fish:**
+```bash
+ls ~/.config/fish/completions/gohome.fish  # Should exist
+complete -C gohome  # Shows registered completions
+```
+
+**Bash:**
+```bash
+complete -p gohome  # Should show: complete -o default -F __start_gohome gohome
+```
+
+**Zsh:**
+```bash
+echo $fpath  # Check completion search paths
+ls ${fpath[1]}/_gohome  # Should exist
+```
+
+**PowerShell:**
+```powershell
+$PROFILE  # Shows profile location
+Get-Content $PROFILE | Select-String "gohome"  # Verify entry exists
+```
+
+### Uninstalling Completions
+
+**Fish:**
+```bash
+rm ~/.config/fish/completions/gohome.fish
+```
+
+**Bash:**
+```bash
+# System-wide
+sudo rm /etc/bash_completion.d/gohome
+
+# User-only (remove from ~/.bashrc)
+sed -i '/gohome completion/d' ~/.bashrc
+```
+
+**Zsh:**
+```bash
+rm "${fpath[1]}/_gohome"
+# Or remove from ~/.zshrc if using source method
+sed -i '/gohome completion/d' ~/.zshrc
+```
+
+**PowerShell:**
+```powershell
+# Edit profile and remove gohome completion line
+notepad $PROFILE
 ```
 
 ---

@@ -352,3 +352,26 @@ func (c *Config) NormalizePeriod() {
 		// If only Hours is set, keep it as is
 	}
 }
+
+// GetAllConfigKeys returns a list of all valid configuration keys.
+// Used for shell completion of config get/set commands.
+func GetAllConfigKeys() []string {
+	return []string{
+		"hours",
+		"days",
+		"weeks",
+		"months",
+		"years",
+		"today",
+		"path",
+		"max_depth",
+		"author",
+		"format",
+		"style",
+		"icon",
+		"scope",
+		"all_branches",
+		"branch",
+		"copy",
+	}
+}

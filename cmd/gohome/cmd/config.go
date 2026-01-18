@@ -26,19 +26,21 @@ var configListCmd = &cobra.Command{
 }
 
 var configGetCmd = &cobra.Command{
-	Use:   "get <key>",
-	Short: "Get a configuration value",
-	Long:  `Retrieve the value of a specific configuration key.`,
-	Args:  cobra.ExactArgs(1),
-	RunE:  runConfigGet,
+	Use:       "get <key>",
+	Short:     "Get a configuration value",
+	Long:      `Retrieve the value of a specific configuration key.`,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: viperconfig.GetAllConfigKeys(),
+	RunE:      runConfigGet,
 }
 
 var configSetCmd = &cobra.Command{
-	Use:   "set <key> <value>",
-	Short: "Set a configuration value",
-	Long:  `Set a specific configuration key to the provided value and save to config file.`,
-	Args:  cobra.ExactArgs(2),
-	RunE:  runConfigSet,
+	Use:       "set <key> <value>",
+	Short:     "Set a configuration value",
+	Long:      `Set a specific configuration key to the provided value and save to config file.`,
+	Args:      cobra.ExactArgs(2),
+	ValidArgs: viperconfig.GetAllConfigKeys(),
+	RunE:      runConfigSet,
 }
 
 var configResetCmd = &cobra.Command{

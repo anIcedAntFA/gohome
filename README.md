@@ -265,6 +265,64 @@ The version format differs based on how it was built:
 - **Production releases** show clean version only
 - **Development builds** include commit hash and build date for debugging
 
+### Shell Completions
+
+Enable tab completion for commands, subcommands, and flag values:
+
+**Fish:**
+
+```bash
+# One-time setup
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+
+# Or load temporarily for this session
+gohome completion fish | source
+```
+
+**Bash:**
+
+```bash
+# Linux
+gohome completion bash | sudo tee /etc/bash_completion.d/gohome
+
+# macOS
+gohome completion bash > $(brew --prefix)/etc/bash_completion.d/gohome
+
+# Or add to ~/.bashrc for current user only
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Zsh:**
+
+```bash
+# Enable completions (if not already enabled)
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# Install completion
+gohome completion zsh > "${fpath[1]}/_gohome"
+
+# Restart shell or reload
+exec zsh
+```
+
+**PowerShell:**
+
+```powershell
+# Add to PowerShell profile
+gohome completion powershell | Out-String | Invoke-Expression
+
+# Or save permanently
+Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Expression"
+```
+
+**What you get with completions:**
+- Command completion: `gohome <tab>` shows `config`, `report`, `version`, `completion`
+- Subcommand completion: `gohome config <tab>` shows `get`, `set`, `list`, `reset`
+- Config key completion: `gohome config get <tab>` shows all 17 config keys
+- Flag value completion: `gohome --format <tab>` shows `text`, `table`
+- Style completion: `gohome --style <tab>` shows `normal`, `markdown`, `nature`, `tech`
+
 ## 🚀 Usage
 
 Simply run the tool in your workspace directory:

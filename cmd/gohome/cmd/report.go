@@ -65,6 +65,14 @@ func defineReportFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolP("icon", "i", false, "Show commit icon")
 	cmd.PersistentFlags().BoolP("scope", "c", false, "Show commit scope")
 
+	// Register dynamic flag completions
+	_ = cmd.RegisterFlagCompletionFunc("format", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		return []string{"text", "table"}, cobra.ShellCompDirectiveNoFileComp
+	})
+	_ = cmd.RegisterFlagCompletionFunc("style", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		return []string{"normal", "markdown", "nature", "tech"}, cobra.ShellCompDirectiveNoFileComp
+	})
+
 	// Branch filtering
 	cmd.PersistentFlags().BoolP("all-branches", "A", false, "Include commits from all local branches")
 	cmd.PersistentFlags().StringP("branch", "b", "", "Filter commits by specific branch")
