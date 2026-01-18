@@ -71,6 +71,19 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 
 *See [docs/demos/](docs/demos/) for more examples and recording guide.*
 
+## 🆕 What's New in v1.3?
+
+**v1.3** brings major architectural improvements while maintaining full backward compatibility:
+
+- ✅ **Cobra/Viper Framework:** Modern CLI with subcommands (`report`, `config`, `version`, `completion`)
+- ✅ **Multi-Format Config:** Support for JSON, YAML, and TOML configuration files
+- ✅ **Environment Variables:** Configure via `GOHOME_*` environment variables (e.g., `GOHOME_WORKSPACE`)
+- ✅ **Config Management:** New `gohome config` subcommand for easy configuration (`list`, `get`, `set`, `reset`)
+- ✅ **Enhanced Completions:** Improved shell auto-completion with subcommand and flag support
+- ✅ **100% Test Coverage:** Critical packages (parser, git, renderer) fully tested
+
+**Migrating from v1.2?** See [docs/v1.3_MIGRATION_GUIDE.md](docs/v1.3_MIGRATION_GUIDE.md) for detailed migration instructions.
+
 ## ✨ Features
 
 - **🚀 Auto-Discovery:** Recursively finds git repositories in your workspace (configurable depth, default 2 levels).
@@ -80,7 +93,9 @@ Perfect for **Daily Standups**, **Weekly Summaries**, or tracking your **Persona
 - **🎨 Rich Output:** Supports multiple formats (text, table) and styles (normal, markdown, nature, tech).
 - **📋 Clipboard Ready:** Copy reports directly to your system clipboard with `--copy`.
 - **📝 Custom Tasks:** Add manual tasks alongside git commits for complete daily reports.
-- **⚙️ Smart Config:** Persist your preferences via `~/.gohome.json` or use command-line flags.
+- **⚙️ Smart Config:** Multi-format support (JSON, YAML, TOML) with environment variables (`GOHOME_*`) and config management commands.
+- **🐚 Shell Completions:** Auto-completion for bash, zsh, fish, and PowerShell.
+- **🎯 Modern CLI:** Built with Cobra/Viper for intuitive subcommands and better UX.
 
 ## 📦 Installation
 
@@ -265,9 +280,14 @@ The version format differs based on how it was built:
 - **Production releases** show clean version only
 - **Development builds** include commit hash and build date for debugging
 
-### Shell Completions
+### Shell Completions (New in v1.3!) 🐚
 
-Enable tab completion for commands, subcommands, and flag values:
+Enable tab completion for commands, subcommands, and flag values. v1.3 includes improved completions with full support for:
+
+- Commands: `gohome <TAB>` → shows `report`, `config`, `version`, `completion`
+- Subcommands: `gohome config <TAB>` → shows `list`, `get`, `set`, `reset`
+- Flags: `gohome --<TAB>` → shows all available flags
+- Values: `gohome --format=<TAB>` → shows `text`, `table`
 
 **Fish:**
 
@@ -559,6 +579,35 @@ enabled = true
 ```
 </details>
 
+### Config Management (New in v1.3!) ⚙️
+
+Manage your configuration easily with the new `config` subcommand:
+
+```bash
+# View all current settings
+gohome config list
+
+# Get specific setting
+gohome config get workspace
+gohome config get days
+gohome config get format
+
+# Set configuration values
+gohome config set workspace /home/user/projects
+gohome config set days 7
+gohome config set format table
+gohome config set style markdown
+
+# Reset to default values
+gohome config reset
+```
+
+**Benefits:**
+- No need to manually edit JSON/YAML/TOML files
+- Automatic validation of configuration values
+- Easy viewing and updating of settings
+- Quick reset to defaults
+
 ### 🧾 Flags Reference
 
 | Flag             | Alias | Description                                           | Default     |
@@ -586,14 +635,49 @@ enabled = true
 
 > **Note:** By default (without `-b` or `--branch`), gohome shows commits from your **current branch only**. Use `-b` to include all local branches, or `--branch <name>` to filter by a specific branch.
 
-### 🌍 Environment Variables
+### 🌍 Environment Variables (New in v1.3!) 🌐
+
+v1.3 introduces full environment variable support for all configuration options. Set values using the `GOHOME_` prefix.
 
 All configuration options can be set via environment variables with the `GOHOME_` prefix. This is especially useful for:
 - **CI/CD pipelines** (avoid creating config files)
 - **Docker containers** (pass config through env vars)
-- **Sensitive data** (API keys for future AI features)
+- **Team consistency** (shared defaults across developers)
+- **Temporary overrides** (quick testing without changing config files)
 
 **Configuration Precedence:** `CLI Flags > Environment Variables > Config File > Defaults`
+
+**Quick Example:**
+
+```bash
+# Set via environment
+export GOHOME_WORKSPACE=/home/user/projects
+export GOHOME_AUTHOR="John Doe"
+export GOHOME_DAYS=7
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+
+# Run without flags
+gohome  # Uses all env var values
+```
+
+**Permanent Setup** (add to `~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`):
+
+```bash
+# Bash/Zsh
+export GOHOME_WORKSPACE=~/projects
+export GOHOME_AUTHOR="$(git config user.name)"
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+```
+
+```fish
+# Fish
+set -x GOHOME_WORKSPACE ~/projects
+set -x GOHOME_AUTHOR (git config user.name)
+set -x GOHOME_FORMAT table
+set -x GOHOME_STYLE markdown
+```
 
 #### Supported Environment Variables
 
