@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0-beta.1] - 2026-01-18
+
+### Added
+
+- **Cobra/Viper Framework Integration**
+  - Modern CLI with subcommands: `report`, `config`, `version`, `completion`
+  - Improved flag binding and validation
+  - Better organized help text with ASCII art logo
+  
+- **Multi-Format Configuration Support**
+  - Support for JSON, YAML, and TOML config files
+  - Config file location: `~/.config/gohome/config.{json,yaml,toml}`
+  - Backward compatible with `~/.gohome.json`
+  
+- **Environment Variables**
+  - Configure via `GOHOME_*` environment variables
+  - All CLI flags can be set through env vars
+  - Priority: CLI flags > env vars > config file > defaults
+  
+- **Config Management Subcommand**
+  - `gohome config init` - Initialize config with defaults
+  - `gohome config show` - Display current configuration
+  - `gohome config edit` - Edit config in default editor
+  
+- **Shell Completions**
+  - Auto-completion for bash, zsh, fish, powershell
+  - `gohome completion <shell>` to generate completion scripts
+  - Improves CLI discoverability and productivity
+  
+- **Comprehensive Test Suite**
+  - 100% coverage for critical packages (parser, git, renderer)
+  - Security-focused tests (command injection prevention)
+  - Overall project coverage: 45.1% (up from 14.6%)
+
+### Changed
+
+- **Configuration File Location**
+  - New default: `~/.config/gohome/config.{json,yaml,toml}`
+  - Old location (`~/.gohome.json`) still supported for backward compatibility
+  
+- **CLI Architecture**
+  - Refactored to use Cobra/Viper for better maintainability
+  - Subcommand structure for clearer UX
+  - Consistent error handling across all commands
+
+### Fixed
+
+- All 47 linting errors resolved (gocritic, godot, gosec, misspell, revive)
+- Improved input sanitization for security
+- Better error messages with context
+
+### Documentation
+
+- Added comprehensive migration guide (v1.2 → v1.3)
+- Updated README with v1.3 features
+- Enhanced CONTRIBUTING with testing guidelines
+- Updated CLI_GUIDE with new commands
+
 ## [1.2.0] - 2026-01-15
 
 ### Added
