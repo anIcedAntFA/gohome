@@ -8,27 +8,27 @@ import (
 // TestString tests the formatted version output
 func TestString(t *testing.T) {
 	tests := []struct {
-		name          string
-		version       string
-		commit        string
-		date          string
-		wantContains  []string // Strings that should be in output
+		name           string
+		version        string
+		commit         string
+		date           string
+		wantContains   []string // Strings that should be in output
 		wantNotContain []string // Strings that should NOT be in output
 	}{
 		{
-			name:         "production_release",
-			version:      "v1.2.0",
-			commit:       "abc123",
-			date:         "2026-01-18",
-			wantContains: []string{"gohome", "v1.2.0"},
+			name:           "production_release",
+			version:        "v1.2.0",
+			commit:         "abc123",
+			date:           "2026-01-18",
+			wantContains:   []string{"gohome", "v1.2.0"},
 			wantNotContain: []string{"commit:", "built:"}, // Clean format for releases
 		},
 		{
-			name:         "production_release_no_v_prefix",
-			version:      "1.3.0",
-			commit:       "def456",
-			date:         "2026-01-18",
-			wantContains: []string{"gohome", "1.3.0"},
+			name:           "production_release_no_v_prefix",
+			version:        "1.3.0",
+			commit:         "def456",
+			date:           "2026-01-18",
+			wantContains:   []string{"gohome", "1.3.0"},
 			wantNotContain: []string{"commit:", "built:"},
 		},
 		{
@@ -53,11 +53,11 @@ func TestString(t *testing.T) {
 			wantContains: []string{"gohome", "abc123-dirty"},
 		},
 		{
-			name:         "fallback_dev_only",
-			version:      "dev",
-			commit:       "none",
-			date:         "unknown",
-			wantContains: []string{"gohome", "dev"},
+			name:           "fallback_dev_only",
+			version:        "dev",
+			commit:         "none",
+			date:           "unknown",
+			wantContains:   []string{"gohome", "dev"},
 			wantNotContain: []string{"commit:", "built:", "none", "unknown"},
 		},
 	}

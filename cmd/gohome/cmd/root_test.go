@@ -87,14 +87,14 @@ func TestExecuteWithInvalidCommand(t *testing.T) {
 
 	// Reset root command for clean test
 	rootCmd.SetArgs([]string{"invalidcommand"})
-	
+
 	// Capture output
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
 	rootCmd.SetErr(&buf)
 
 	err := rootCmd.Execute()
-	
+
 	// Restore stderr and read pipe
 	w.Close()
 	var stderrBuf bytes.Buffer
@@ -127,7 +127,7 @@ func TestInitConfig(t *testing.T) {
 	t.Run("default_initialization", func(t *testing.T) {
 		viper.Reset()
 		cfgFile = ""
-		
+
 		initConfig()
 
 		// Verify environment variable setup
@@ -139,14 +139,14 @@ func TestInitConfig(t *testing.T) {
 	// Test 2: Custom config file specified
 	t.Run("custom_config_file", func(t *testing.T) {
 		viper.Reset()
-		
+
 		// Create a temporary config file
 		tmpFile, err := os.CreateTemp("", "gohome-test-*.json")
 		if err != nil {
 			t.Fatalf("Failed to create temp file: %v", err)
 		}
 		defer os.Remove(tmpFile.Name())
-		
+
 		// Write minimal config
 		_, err = tmpFile.WriteString(`{"days": 5}`)
 		if err != nil {
@@ -176,7 +176,7 @@ func TestInitConfig(t *testing.T) {
 	t.Run("environment_variables", func(t *testing.T) {
 		viper.Reset()
 		cfgFile = ""
-		
+
 		// Set test environment variable
 		os.Setenv("GOHOME_DAYS", "10")
 		defer os.Unsetenv("GOHOME_DAYS")

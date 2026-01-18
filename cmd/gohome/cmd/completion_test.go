@@ -11,9 +11,9 @@ import (
 // TestCompletionCommand tests the completion command for all shells
 func TestCompletionCommand(t *testing.T) {
 	tests := []struct {
-		name          string
-		shell         string
-		wantContains  []string
+		name           string
+		shell          string
+		wantContains   []string
 		wantNotContain []string
 	}{
 		{
@@ -58,7 +58,7 @@ func TestCompletionCommand(t *testing.T) {
 				Use:   "gohome",
 				Short: "Test root command",
 			}
-			
+
 			// Create completion command
 			testCompletionCmd := &cobra.Command{
 				Use:       "completion [bash|zsh|fish|powershell]",
@@ -93,7 +93,7 @@ func TestCompletionCommand(t *testing.T) {
 			// Verify expected content
 			for _, want := range tt.wantContains {
 				if !strings.Contains(got, want) {
-					t.Errorf("Output does not contain %q\nGot first 200 chars: %q", 
+					t.Errorf("Output does not contain %q\nGot first 200 chars: %q",
 						want, truncate(got, 200))
 				}
 			}
@@ -116,7 +116,7 @@ func TestCompletionCommand(t *testing.T) {
 // TestCompletionCommandProperties tests the command metadata
 func TestCompletionCommandProperties(t *testing.T) {
 	if completionCmd.Use != "completion [bash|zsh|fish|powershell]" {
-		t.Errorf("completionCmd.Use = %q, want %q", 
+		t.Errorf("completionCmd.Use = %q, want %q",
 			completionCmd.Use, "completion [bash|zsh|fish|powershell]")
 	}
 
@@ -134,13 +134,13 @@ func TestCompletionCommandProperties(t *testing.T) {
 
 	expectedValidArgs := []string{"bash", "zsh", "fish", "powershell"}
 	if len(completionCmd.ValidArgs) != len(expectedValidArgs) {
-		t.Errorf("completionCmd.ValidArgs length = %d, want %d", 
+		t.Errorf("completionCmd.ValidArgs length = %d, want %d",
 			len(completionCmd.ValidArgs), len(expectedValidArgs))
 	}
 
 	for i, arg := range expectedValidArgs {
 		if i >= len(completionCmd.ValidArgs) || completionCmd.ValidArgs[i] != arg {
-			t.Errorf("completionCmd.ValidArgs[%d] = %q, want %q", 
+			t.Errorf("completionCmd.ValidArgs[%d] = %q, want %q",
 				i, completionCmd.ValidArgs[i], arg)
 		}
 	}

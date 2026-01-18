@@ -13,11 +13,11 @@ import (
 // TestVersionCommand tests the version command execution
 func TestVersionCommand(t *testing.T) {
 	tests := []struct {
-		name          string
-		setupVersion  string
-		setupCommit   string
-		setupDate     string
-		wantContains  []string
+		name           string
+		setupVersion   string
+		setupCommit    string
+		setupDate      string
+		wantContains   []string
 		wantNotContain []string
 	}{
 		{
