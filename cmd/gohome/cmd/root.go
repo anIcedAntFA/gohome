@@ -10,22 +10,43 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command
+// rootCmd represents the base command.
 var rootCmd = &cobra.Command{
 	Use:   "gohome",
 	Short: "Git standup & activity reporting CLI",
-	Long: `gohome scans your workspace for git repositories and generates
-formatted daily standup reports from commit history.
+	Long: `
+   ____       _   _
+  / ___| ___ | | | | ___  _ __ ___   ___
+ | |  _ / _ \| |_| |/ _ \| '_ ' _ \ / _ \
+ | |_| | (_) |  _  | (_) | | | | | |  __/
+  \____|\___/|_| |_|\___/|_| |_| |_|\___|
 
-Perfect for Daily Standups, Weekly Summaries,
-or tracking your Personal Coding Habits.`,
-	Version: "2.0.0-dev",
+🏠 Git Activity Aggregator & Standup Report Generator
+
+📊 gohome scans your workspace for git repositories and generates
+   beautifully formatted daily standup reports from commit history.
+
+✨ Perfect for:
+   • Daily Standups & Team Sync
+   • Weekly Progress Summaries
+   • Personal Coding Habit Tracking
+   • Developer Productivity Insights
+
+💡 Quick Start:
+   gohome --today          # Today's commits
+   gohome -w 1             # Last week's commits
+   gohome -f table         # Table format
+   gohome config list      # View configuration`,
+	Version:       "2.0.0-dev",
+	SilenceErrors: true,  // We handle error formatting ourselves
+	SilenceUsage:  false, // Show usage on errors (but only once)
 }
 
-// Execute runs the root command
+// Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprint(os.Stderr, err)
+		// Format error with consistent emoji prefix
+		fmt.Fprintf(os.Stderr, "❌ Error: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -55,5 +76,5 @@ func initConfig() {
 
 	// Read config file (ignore error if not found)
 	// Silently ignore if config file is not found
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 }
