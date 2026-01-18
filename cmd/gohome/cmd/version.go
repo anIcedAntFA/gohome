@@ -19,7 +19,7 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 }
 
-func runVersion(cmd *cobra.Command, args []string) {
+func runVersion(_ *cobra.Command, _ []string) {
 	fmt.Printf("gohome version %s\n", version.Version)
 	if version.Commit != "" {
 		fmt.Printf("commit: %s\n", version.Commit)

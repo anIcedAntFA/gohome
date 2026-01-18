@@ -10,6 +10,7 @@ func TestNew(t *testing.T) {
 	sp := New("test")
 	if sp == nil {
 		t.Fatal("spinner should not be nil")
+		return
 	}
 	if sp.message != "test" {
 		t.Error("message not set correctly")

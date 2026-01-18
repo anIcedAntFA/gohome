@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	viperconfig "github.com/anIcedAntFA/gohome/internal/config/viper"
 )
 
 var configCmd = &cobra.Command{
@@ -52,7 +56,10 @@ func init() {
 	configCmd.AddCommand(configResetCmd)
 }
 
-func runConfigList(cmd *cobra.Command, args []string) error {
+func runConfigList(_ *cobra.Command, _ []string) error {
+	// Load config using the clean Config struct
+	cfg := viperconfig.LoadFromViper()
+
 	fmt.Println("Current Configuration:")
 	fmt.Println("=====================")
 
@@ -65,21 +72,56 @@ func runConfigList(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 	}
 
-	// Display all settings
-	allSettings := viper.AllSettings()
-	if len(allSettings) == 0 {
-		fmt.Println("No configuration settings found.")
-		return nil
-	}
+	table := tablewriter.NewTable(os.Stdout,
+		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{AutoFormat: tw.On},
+				Alignment:  tw.CellAlignment{Global: tw.AlignCenter},
+			},
+			Row: tw.CellConfig{
+				Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+			},
+		}),
+	)
 
-	for key, value := range allSettings {
-		fmt.Printf("%-20s = %v\n", key, value)
-	}
+	table.Header([]string{"Key", "Value", "Description"})
 
+	// Time period section
+	_ = table.Append([]string{"hours", fmt.Sprintf("%d", cfg.Hours), "Number of hours to look back"})
+	_ = table.Append([]string{"days", fmt.Sprintf("%d", cfg.Days), "Number of days to look back"})
+	_ = table.Append([]string{"weeks", fmt.Sprintf("%d", cfg.Weeks), "Number of weeks to look back"})
+	_ = table.Append([]string{"months", fmt.Sprintf("%d", cfg.Months), "Number of months to look back"})
+	_ = table.Append([]string{"years", fmt.Sprintf("%d", cfg.Years), "Number of years to look back"})
+	_ = table.Append([]string{"today", fmt.Sprintf("%t", cfg.Today), "Report from midnight to now"})
+	_ = table.Append([]string{"", "", ""}) // Empty separator
+
+	// Scanning section
+	_ = table.Append([]string{"path", cfg.Path, "Root path to scan for repositories"})
+	_ = table.Append([]string{"max_depth", fmt.Sprintf("%d", cfg.MaxDepth), "Maximum depth to scan repositories"})
+	_ = table.Append([]string{"author", cfg.Author, "Git author name"})
+	_ = table.Append([]string{"", "", ""}) // Empty separator
+
+	// Output section
+	_ = table.Append([]string{"format", cfg.Format, "Output format (text, table)"})
+	_ = table.Append([]string{"style", cfg.Style, "Table style (normal, markdown)"})
+	_ = table.Append([]string{"icon", fmt.Sprintf("%t", cfg.ShowIcon), "Show commit icons"})
+	_ = table.Append([]string{"scope", fmt.Sprintf("%t", cfg.ShowScope), "Show commit scope"})
+	_ = table.Append([]string{"", "", ""}) // Empty separator
+
+	// Branch filtering
+	_ = table.Append([]string{"all_branches", fmt.Sprintf("%t", cfg.AllBranches), "Include all branches"})
+	_ = table.Append([]string{"branch", cfg.Branch, "Specific branch to filter"})
+	_ = table.Append([]string{"", "", ""}) // Empty separator
+
+	// Misc
+	_ = table.Append([]string{"copy", fmt.Sprintf("%t", cfg.CopyToClipboard), "Copy output to clipboard"})
+	_ = table.Append([]string{"tasks", fmt.Sprintf("%d task(s)", len(cfg.Tasks)), "Static recurring tasks"})
+
+	_ = table.Render()
 	return nil
 }
 
-func runConfigGet(cmd *cobra.Command, args []string) error {
+func runConfigGet(_ *cobra.Command, args []string) error {
 	key := args[0]
 	value := viper.Get(key)
 
@@ -91,33 +133,32 @@ func runConfigGet(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func runConfigSet(cmd *cobra.Command, args []string) error {
-	key, value := args[0], args[1]
+func runConfigSet(_ *cobra.Command, args []string) error {
+	key, valueStr := args[0], args[1]
 
-	viper.Set(key, value)
+	// Load existing config or create new one
+	cfg := viperconfig.LoadFromViper()
 
-	// Try to write to existing config file, or create new one
-	if err := viper.WriteConfig(); err != nil {
-		// If config file doesn't exist, create it
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return fmt.Errorf("failed to get home directory: %w", err)
-			}
-			viper.SetConfigFile(home + "/.gohome.json")
-			if err := viper.SafeWriteConfig(); err != nil {
-				return fmt.Errorf("failed to create config file: %w", err)
-			}
-		} else {
-			return fmt.Errorf("failed to write config: %w", err)
-		}
+	// Use reflection-based SetValue (DRY, maintainable)
+	if err := cfg.SetValue(key, valueStr); err != nil {
+		return fmt.Errorf("failed to set %q: %w", key, err)
 	}
 
-	fmt.Printf("✅ Set %s = %s\n", key, value)
+	// Validate configuration before saving
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("validation failed: %w", err)
+	}
+
+	// Save using the same method as --save flag (clean JSON, no duplicates)
+	if err := cfg.SaveToFile(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	fmt.Printf("✅ Set %s = %s\n", key, valueStr)
 	return nil
 }
 
-func runConfigReset(cmd *cobra.Command, args []string) error {
+func runConfigReset(_ *cobra.Command, _ []string) error {
 	// Get config file location
 	configFile := viper.ConfigFileUsed()
 	if configFile == "" {
@@ -128,10 +169,10 @@ func runConfigReset(cmd *cobra.Command, args []string) error {
 	// Prompt for confirmation
 	fmt.Printf("Are you sure you want to delete %s? (y/N): ", configFile)
 	var response string
-	fmt.Scanln(&response)
+	_, _ = fmt.Scanln(&response)
 
 	if response != "y" && response != "Y" {
-		fmt.Println("Cancelled.")
+		fmt.Println("Canceled.")
 		return nil
 	}
 
