@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -72,6 +73,9 @@ func initConfig() {
 
 	// Environment variable support
 	viper.SetEnvPrefix("GOHOME")
+	// Replace underscores with hyphens in env var keys to match flag names
+	// Example: GOHOME_MAX_DEPTH → max-depth → max_depth (via RegisterAlias)
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 
 	// Read config file (ignore error if not found)

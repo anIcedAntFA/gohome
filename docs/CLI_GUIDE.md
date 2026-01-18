@@ -12,9 +12,11 @@ Complete guide to using gohome CLI tool for git activity reporting.
   - [Default Command (report)](#default-command-report)
   - [config](#config)
   - [version](#version)
+  - [completion](#completion)
 - [Flags Reference](#flags-reference)
 - [Configuration](#configuration)
 - [Environment Variables](#environment-variables)
+- [Shell Completions](#shell-completions)
 - [Common Use Cases](#common-use-cases)
 - [Examples](#examples)
 
@@ -175,6 +177,84 @@ built: 2026-01-16T10:00:00Z
 
 ---
 
+### completion
+
+Generate shell completion scripts for tab-completion of commands, subcommands, and flag values.
+
+```bash
+gohome completion [bash|zsh|fish|powershell]
+```
+
+**Supported Shells:**
+- Bash
+- Zsh
+- Fish
+- PowerShell
+
+**Installation Examples:**
+
+**Fish (Permanent):**
+```bash
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+```
+
+**Fish (Temporary):**
+```bash
+gohome completion fish | source
+```
+
+**Bash (System-wide - Linux):**
+```bash
+sudo gohome completion bash > /etc/bash_completion.d/gohome
+```
+
+**Bash (User-only):**
+```bash
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Zsh:**
+```bash
+# Enable completions first (if not already enabled)
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# Install completion
+gohome completion zsh > "${fpath[1]}/_gohome"
+
+# Restart shell
+exec zsh
+```
+
+**PowerShell:**
+```powershell
+# Temporary (this session only)
+gohome completion powershell | Out-String | Invoke-Expression
+
+# Permanent (add to profile)
+Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Expression"
+```
+
+**What Completions Provide:**
+
+- **Command completion**: `gohome <TAB>` → shows `config`, `report`, `version`, `completion`
+- **Subcommand completion**: `gohome config <TAB>` → shows `get`, `set`, `list`, `reset`
+- **Config key completion**: `gohome config get <TAB>` → shows all 17 config keys
+- **Flag value completion**: `gohome --format <TAB>` → shows `text`, `table`
+- **Style completion**: `gohome --style <TAB>` → shows `normal`, `markdown`, `nature`, `tech`
+- **Shell completion**: `gohome completion <TAB>` → shows `bash`, `zsh`, `fish`, `powershell`
+
+**Verifying Installation:**
+
+After installing completions, test by typing:
+```bash
+gohome <TAB><TAB>        # Should show commands
+gohome config <TAB><TAB>  # Should show subcommands
+gohome --format <TAB>     # Should show format values
+```
+
+---
+
 ## 🚩 Flags Reference
 
 ### Time Period Flags
@@ -278,11 +358,22 @@ gohome --save                      # Save current flags
 
 ### Configuration File
 
-Location: `~/.gohome.json`
+**Supported Formats:** JSON, YAML, TOML
 
-The config file stores your default settings. It's created automatically when you use `--save` or `gohome config set`.
+**Locations:**
+- `~/.gohome.json` (JSON format - created by `--save`)
+- `~/.gohome.yaml` or `~/.gohome.yml` (YAML format)
+- `~/.gohome.toml` (TOML format)
 
-**Example config file:**
+The config file stores your default settings. It's created automatically when you use `--save` (generates JSON) or `gohome config set`.
+
+**Format Precedence:** If multiple config files exist, gohome uses the first one found: `.json` > `.toml` > `.yaml` > `.yml`
+
+**Example config files:**
+
+<details>
+<summary><strong>JSON Format</strong> (~/.gohome.json)</summary>
+
 ```json
 {
   "hours": 0,
@@ -311,6 +402,85 @@ The config file stores your default settings. It's created automatically when yo
   ]
 }
 ```
+</details>
+
+<details>
+<summary><strong>YAML Format</strong> (~/.gohome.yaml)</summary>
+
+```yaml
+# Time period
+hours: 0
+days: 5
+weeks: 0
+months: 0
+years: 0
+today: false
+
+# Path and scanning
+path: .
+max_depth: 2
+author: your-name
+
+# Output
+format: table
+style: markdown
+icon: true
+scope: false
+
+# Branch filtering
+all_branches: false
+branch: ""
+
+# Clipboard
+copy: false
+
+# Tasks
+tasks:
+  - type: review
+    message: "Code Review & PR Feedback"
+    icon: "👀"
+    enabled: true
+```
+</details>
+
+<details>
+<summary><strong>TOML Format</strong> (~/.gohome.toml)</summary>
+
+```toml
+# Time period
+hours = 0
+days = 5
+weeks = 0
+months = 0
+years = 0
+today = false
+
+# Path and scanning
+path = "."
+max_depth = 2
+author = "your-name"
+
+# Output
+format = "table"
+style = "markdown"
+icon = true
+scope = false
+
+# Branch filtering
+all_branches = false
+branch = ""
+
+# Clipboard
+copy = false
+
+# Tasks
+[[tasks]]
+type = "review"
+message = "Code Review & PR Feedback"
+icon = "👀"
+enabled = true
+```
+</details>
 
 ### Configuration Priority
 
@@ -318,7 +488,7 @@ Settings are loaded in this order (highest to lowest priority):
 
 1. **Command-line flags** (highest priority)
 2. **Environment variables**
-3. **Configuration file** (~/.gohome.json)
+3. **Configuration file** (~/.gohome.json/.yaml/.toml)
 4. **Default values** (lowest priority)
 
 **Example:**
@@ -331,32 +501,333 @@ gohome --days=3
 gohome
 ```
 
+**Choosing a Format:**
+
+- **JSON**: Auto-generated by `--save` or `config set`, best for programmatic editing
+- **YAML**: Human-friendly, great for manual editing with comments. Create `~/.gohome.yaml` manually (see examples above)
+- **TOML**: Clean syntax, good balance between JSON and YAML. Create `~/.gohome.toml` manually (see examples above)
+
+**Tip:** Copy examples from the collapsible sections above and paste into your config file.
+
 ---
 
 ## 🌍 Environment Variables
 
 All configuration can be set via environment variables with the `GOHOME_` prefix.
 
-| Config Key | Environment Variable | Example |
-|------------|---------------------|---------|
-| `days` | `GOHOME_DAYS` | `GOHOME_DAYS=3` |
-| `format` | `GOHOME_FORMAT` | `GOHOME_FORMAT=table` |
-| `path` | `GOHOME_PATH` | `GOHOME_PATH=~/workspace` |
-| `max_depth` | `GOHOME_MAX_DEPTH` | `GOHOME_MAX_DEPTH=3` |
-| `author` | `GOHOME_AUTHOR` | `GOHOME_AUTHOR="John Doe"` |
-| `copy` | `GOHOME_COPY` | `GOHOME_COPY=true` |
+### Supported Environment Variables
 
-**Examples:**
+| Config Key       | Environment Variable        | Example Value                      |
+|------------------|-----------------------------|----------------------------------- |
+| `hours`          | `GOHOME_HOURS`             | `24`                               |
+| `days`           | `GOHOME_DAYS`              | `7`                                |
+| `weeks`          | `GOHOME_WEEKS`             | `2`                                |
+| `months`         | `GOHOME_MONTHS`            | `1`                                |
+| `years`          | `GOHOME_YEARS`             | `1`                                |
+| `today`          | `GOHOME_TODAY`             | `true`                             |
+| `path`           | `GOHOME_PATH`              | `/home/user/workspace`             |
+| `max_depth`      | `GOHOME_MAX_DEPTH`         | `3`                                |
+| `author`         | `GOHOME_AUTHOR`            | `johndoe`                          |
+| `format`         | `GOHOME_FORMAT`            | `table`                            |
+| `style`          | `GOHOME_STYLE`             | `markdown`                         |
+| `icon`           | `GOHOME_ICON`              | `true`                             |
+| `scope`          | `GOHOME_SCOPE`             | `true`                             |
+| `all_branches`   | `GOHOME_ALL_BRANCHES`      | `true`                             |
+| `branch`         | `GOHOME_BRANCH`            | `main`                             |
+| `copy`           | `GOHOME_COPY`              | `true`                             |
+
+### Basic Usage
+
 ```bash
-# Set environment variable
+# Set environment variable (persistent in current shell session)
 export GOHOME_DAYS=7
 gohome  # Uses 7 days
 
-# One-time override
+# One-time use (just for this command)
 GOHOME_FORMAT=table gohome
 
-# Multiple variables
+# Multiple variables at once
 GOHOME_DAYS=3 GOHOME_FORMAT=table GOHOME_COPY=true gohome
+```
+
+### Practical Examples
+
+#### Example 1: CI/CD Pipeline
+```bash
+# .github/workflows/daily-report.yml
+- name: Generate Daily Report
+  env:
+    GOHOME_DAYS: 1
+    GOHOME_FORMAT: table
+    GOHOME_STYLE: markdown
+    GOHOME_AUTHOR: ci-bot
+  run: gohome
+```
+
+#### Example 2: Docker Container
+```bash
+# Pass config through environment variables
+docker run -e GOHOME_DAYS=7 \
+           -e GOHOME_FORMAT=table \
+           -e GOHOME_PATH=/workspace \
+           -v $(pwd):/workspace \
+           gohome:latest
+```
+
+#### Example 3: Fish Shell Aliases
+```fish
+# ~/.config/fish/config.fish
+
+# Quick daily standup
+alias standup="set -x GOHOME_DAYS 1; set -x GOHOME_FORMAT table; gohome"
+
+# Weekly summary
+alias weekly="set -x GOHOME_DAYS 7; set -x GOHOME_FORMAT table; set -x GOHOME_STYLE markdown; gohome"
+```
+
+#### Example 4: Bash/Zsh Profile
+```bash
+# ~/.bashrc or ~/.zshrc
+
+# Set defaults via environment
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+export GOHOME_MAX_DEPTH=3
+
+# Aliases for common tasks
+alias standup="GOHOME_DAYS=1 gohome"
+alias weekly="GOHOME_DAYS=7 gohome"
+```
+
+### Precedence Testing
+
+Environment variables have **lower priority** than command-line flags:
+
+```bash
+# Set env var
+export GOHOME_DAYS=10
+
+# This uses 10 days (from env var)
+gohome
+
+# This uses 3 days (flag overrides env var)
+gohome --days 3
+
+# Verify current precedence
+gohome config list  # Shows which value is active
+```
+
+---
+
+## 🎯 Shell Completions
+
+Shell completions provide intelligent tab-completion for gohome commands, making the CLI faster and more discoverable.
+
+### Features
+
+- **Command completion**: Suggests available commands
+- **Subcommand completion**: Context-aware subcommand suggestions
+- **Flag completion**: Shows all available flags
+- **Dynamic value completion**: Suggests valid values for flags like `--format` and `--style`
+- **Config key completion**: Lists all 17 config keys for `config get/set`
+
+### Installation by Shell
+
+#### Fish
+
+**Permanent Installation:**
+```bash
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+```
+
+**Temporary (Current Session Only):**
+```bash
+gohome completion fish | source
+```
+
+**Testing:**
+```bash
+gohome <TAB>              # Shows: completion, config, help, report, version
+gohome config <TAB>        # Shows: get, list, reset, set
+gohome config get <TAB>    # Shows all 17 config keys
+gohome --format <TAB>      # Shows: text, table
+gohome --style <TAB>       # Shows: normal, markdown, nature, tech
+```
+
+#### Bash
+
+**System-wide Installation (Linux):**
+```bash
+sudo gohome completion bash > /etc/bash_completion.d/gohome
+```
+
+**System-wide Installation (macOS with Homebrew):**
+```bash
+gohome completion bash > $(brew --prefix)/etc/bash_completion.d/gohome
+```
+
+**User-only Installation:**
+```bash
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Testing:**
+```bash
+gohome <TAB><TAB>          # Shows available commands
+gohome --format <TAB><TAB> # Shows: text table
+```
+
+#### Zsh
+
+**Setup (First time only):**
+```bash
+# Enable completions if not already enabled
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+```
+
+**Installation:**
+```bash
+gohome completion zsh > "${fpath[1]}/_gohome"
+# Restart shell
+exec zsh
+```
+
+**Alternative (User-only):**
+```bash
+# Add to ~/.zshrc
+echo 'source <(gohome completion zsh)' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Testing:**
+```bash
+gohome <TAB>            # Shows commands
+gohome config get <TAB>  # Shows config keys
+```
+
+#### PowerShell
+
+**Temporary (Current Session Only):**
+```powershell
+gohome completion powershell | Out-String | Invoke-Expression
+```
+
+**Permanent Installation:**
+```powershell
+# Add to PowerShell profile
+$completionScript = "gohome completion powershell | Out-String | Invoke-Expression"
+Add-Content $PROFILE $completionScript
+
+# Reload profile
+. $PROFILE
+```
+
+**Testing:**
+```powershell
+gohome <TAB>           # Shows commands
+gohome --format <TAB>  # Shows format values
+```
+
+### Completion Examples
+
+#### Example 1: Command Discovery
+```bash
+$ gohome <TAB>
+completion  config  help  report  version
+
+$ gohome completion <TAB>
+bash  fish  powershell  zsh
+```
+
+#### Example 2: Config Management
+```bash
+$ gohome config <TAB>
+get  list  reset  set
+
+$ gohome config get <TAB>
+hours  days  weeks  months  years  today  path  max_depth  author  format  style  icon  scope  all_branches  branch  copy
+
+$ gohome config get for<TAB>
+format  # Auto-completes
+```
+
+#### Example 3: Flag Values
+```bash
+$ gohome --format <TAB>
+text  table
+
+$ gohome --style <TAB>
+normal  markdown  nature  tech
+
+$ gohome -f table --style mark<TAB>
+markdown  # Auto-completes
+```
+
+#### Example 4: Workflow Speedup
+```bash
+# Instead of typing the full command:
+gohome --days=7 --format=table --style=markdown
+
+# With completions, just type and press TAB:
+gohome -d 7 -f ta<TAB> -s ma<TAB>
+# Result: gohome -d 7 -f table -s markdown
+```
+
+### Debugging Completions
+
+If completions aren't working, verify installation:
+
+**Fish:**
+```bash
+ls ~/.config/fish/completions/gohome.fish  # Should exist
+complete -C gohome  # Shows registered completions
+```
+
+**Bash:**
+```bash
+complete -p gohome  # Should show: complete -o default -F __start_gohome gohome
+```
+
+**Zsh:**
+```bash
+echo $fpath  # Check completion search paths
+ls ${fpath[1]}/_gohome  # Should exist
+```
+
+**PowerShell:**
+```powershell
+$PROFILE  # Shows profile location
+Get-Content $PROFILE | Select-String "gohome"  # Verify entry exists
+```
+
+### Uninstalling Completions
+
+**Fish:**
+```bash
+rm ~/.config/fish/completions/gohome.fish
+```
+
+**Bash:**
+```bash
+# System-wide
+sudo rm /etc/bash_completion.d/gohome
+
+# User-only (remove from ~/.bashrc)
+sed -i '/gohome completion/d' ~/.bashrc
+```
+
+**Zsh:**
+```bash
+rm "${fpath[1]}/_gohome"
+# Or remove from ~/.zshrc if using source method
+sed -i '/gohome completion/d' ~/.zshrc
+```
+
+**PowerShell:**
+```powershell
+# Edit profile and remove gohome completion line
+notepad $PROFILE
 ```
 
 ---

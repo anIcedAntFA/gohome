@@ -265,6 +265,64 @@ The version format differs based on how it was built:
 - **Production releases** show clean version only
 - **Development builds** include commit hash and build date for debugging
 
+### Shell Completions
+
+Enable tab completion for commands, subcommands, and flag values:
+
+**Fish:**
+
+```bash
+# One-time setup
+gohome completion fish > ~/.config/fish/completions/gohome.fish
+
+# Or load temporarily for this session
+gohome completion fish | source
+```
+
+**Bash:**
+
+```bash
+# Linux
+gohome completion bash | sudo tee /etc/bash_completion.d/gohome
+
+# macOS
+gohome completion bash > $(brew --prefix)/etc/bash_completion.d/gohome
+
+# Or add to ~/.bashrc for current user only
+echo 'source <(gohome completion bash)' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Zsh:**
+
+```bash
+# Enable completions (if not already enabled)
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# Install completion
+gohome completion zsh > "${fpath[1]}/_gohome"
+
+# Restart shell or reload
+exec zsh
+```
+
+**PowerShell:**
+
+```powershell
+# Add to PowerShell profile
+gohome completion powershell | Out-String | Invoke-Expression
+
+# Or save permanently
+Add-Content $PROFILE "gohome completion powershell | Out-String | Invoke-Expression"
+```
+
+**What you get with completions:**
+- Command completion: `gohome <tab>` shows `config`, `report`, `version`, `completion`
+- Subcommand completion: `gohome config <tab>` shows `get`, `set`, `list`, `reset`
+- Config key completion: `gohome config get <tab>` shows all 17 config keys
+- Flag value completion: `gohome --format <tab>` shows `text`, `table`
+- Style completion: `gohome --style <tab>` shows `normal`, `markdown`, `nature`, `tech`
+
 ## 🚀 Usage
 
 Simply run the tool in your workspace directory:
@@ -360,9 +418,21 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --max-depth 2 --save
 
 ## 🔧 Configuration
 
-**gohome** looks for a config file at `~/.gohome.json`. You can create it manually or use the `--save` flag to auto-generate it.
+**gohome** supports multiple configuration file formats: **JSON**, **YAML**, and **TOML**. 
 
-### Example Config
+The config file should be named `.gohome` with the appropriate extension in your home directory:
+- `~/.gohome.json` (JSON format)
+- `~/.gohome.yaml` or `~/.gohome.yml` (YAML format)
+- `~/.gohome.toml` (TOML format)
+
+You can create it manually or use the `--save` flag to auto-generate a JSON config file.
+
+**Format Precedence:** If multiple config files exist, gohome will use the first one found in this order: `.json` > `.toml` > `.yaml` > `.yml`
+
+### Example Configs
+
+<details>
+<summary><strong>JSON Format</strong> (~/.gohome.json)</summary>
 
 ```json
 {
@@ -398,6 +468,96 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --max-depth 2 --save
   ]
 }
 ```
+</details>
+
+<details>
+<summary><strong>YAML Format</strong> (~/.gohome.yaml)</summary>
+
+```yaml
+# Time period (only one should be set)
+hours: 0
+days: 1
+weeks: 0
+months: 0
+years: 0
+today: false
+
+# Path and scanning
+path: /Users/ngockhoi96/workspace
+max_depth: 2
+author: ngockhoi96
+
+# Output formatting
+format: table
+style: normal
+icon: true
+scope: false
+
+# Branch filtering
+all_branches: false
+branch: ""
+
+# Clipboard
+copy: false
+
+# Static recurring tasks
+tasks:
+  - type: meeting
+    message: "Daily Standup & Team Sync"
+    icon: "📅"
+    enabled: true
+    
+  - type: review
+    message: "Code Review & PR Feedback"
+    icon: "👀"
+    enabled: true
+```
+</details>
+
+<details>
+<summary><strong>TOML Format</strong> (~/.gohome.toml)</summary>
+
+```toml
+# Time period (only one should be set)
+hours = 0
+days = 1
+weeks = 0
+months = 0
+years = 0
+today = false
+
+# Path and scanning
+path = "/Users/ngockhoi96/workspace"
+max_depth = 2
+author = "ngockhoi96"
+
+# Output formatting
+format = "table"
+style = "normal"
+icon = true
+scope = false
+
+# Branch filtering
+all_branches = false
+branch = ""
+
+# Clipboard
+copy = false
+
+# Static recurring tasks
+[[tasks]]
+type = "meeting"
+message = "Daily Standup & Team Sync"
+icon = "📅"
+enabled = true
+
+[[tasks]]
+type = "review"
+message = "Code Review & PR Feedback"
+icon = "👀"
+enabled = true
+```
+</details>
 
 ### 🧾 Flags Reference
 
@@ -425,6 +585,59 @@ gohome -p /Users/ngockhoi96/workspace -d 1 -f table --max-depth 2 --save
 | `--help`         | `-h`  | Show help message                                     |             |
 
 > **Note:** By default (without `-b` or `--branch`), gohome shows commits from your **current branch only**. Use `-b` to include all local branches, or `--branch <name>` to filter by a specific branch.
+
+### 🌍 Environment Variables
+
+All configuration options can be set via environment variables with the `GOHOME_` prefix. This is especially useful for:
+- **CI/CD pipelines** (avoid creating config files)
+- **Docker containers** (pass config through env vars)
+- **Sensitive data** (API keys for future AI features)
+
+**Configuration Precedence:** `CLI Flags > Environment Variables > Config File > Defaults`
+
+#### Supported Environment Variables
+
+| Config Key       | Environment Variable        | Example Value                      |
+|------------------|-----------------------------|----------------------------------- |
+| `hours`          | `GOHOME_HOURS`              | `24`                               |
+| `days`           | `GOHOME_DAYS`               | `7`                                |
+| `weeks`          | `GOHOME_WEEKS`              | `2`                                |
+| `months`         | `GOHOME_MONTHS`             | `1`                                |
+| `years`          | `GOHOME_YEARS`              | `1`                                |
+| `today`          | `GOHOME_TODAY`              | `true`                             |
+| `path`           | `GOHOME_PATH`               | `/home/user/workspace`             |
+| `max_depth`      | `GOHOME_MAX_DEPTH`          | `3`                                |
+| `author`         | `GOHOME_AUTHOR`             | `johndoe`                          |
+| `format`         | `GOHOME_FORMAT`             | `table`                            |
+| `style`          | `GOHOME_STYLE`              | `markdown`                         |
+| `icon`           | `GOHOME_ICON`               | `true`                             |
+| `scope`          | `GOHOME_SCOPE`              | `true`                             |
+| `all_branches`   | `GOHOME_ALL_BRANCHES`       | `true`                             |
+| `branch`         | `GOHOME_BRANCH`             | `main`                             |
+| `copy`           | `GOHOME_COPY`               | `true`                             |
+
+#### Examples
+
+```bash
+# Set defaults via environment
+export GOHOME_DAYS=7
+export GOHOME_FORMAT=table
+export GOHOME_STYLE=markdown
+gohome  # Uses env var values
+
+# Override env var with flag
+export GOHOME_DAYS=7
+gohome --days 3  # Flag wins: uses 3 days
+
+# Useful for CI/CD
+export GOHOME_PATH=/workspace
+export GOHOME_AUTHOR=ci-bot
+export GOHOME_FORMAT=table
+gohome --today
+
+# Docker usage
+docker run -e GOHOME_DAYS=7 -e GOHOME_FORMAT=table gohome:latest
+```
 
 ## 🗺️ Roadmap
 

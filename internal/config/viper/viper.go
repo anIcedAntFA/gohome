@@ -29,8 +29,14 @@ func init() {
 		viper.AddConfigPath(home)
 	}
 	viper.AddConfigPath(".")
+
+	// Set config file name (without extension)
+	// Viper will search for .json, .yaml, .yml, .toml in order
 	viper.SetConfigName(".gohome")
-	viper.SetConfigType("json")
+
+	// Note: We don't call SetConfigType() to allow multiple formats
+	// Viper will auto-detect format based on file extension
+	// Precedence (if multiple exist): .json > .yaml > .yml > .toml
 
 	// Set defaults ONCE at initialization
 	viper.SetDefault("days", 1)
@@ -350,5 +356,28 @@ func (c *Config) NormalizePeriod() {
 	case c.Days > 0:
 		c.Hours = 0
 		// If only Hours is set, keep it as is
+	}
+}
+
+// GetAllConfigKeys returns a list of all valid configuration keys.
+// Used for shell completion of config get/set commands.
+func GetAllConfigKeys() []string {
+	return []string{
+		"hours",
+		"days",
+		"weeks",
+		"months",
+		"years",
+		"today",
+		"path",
+		"max_depth",
+		"author",
+		"format",
+		"style",
+		"icon",
+		"scope",
+		"all_branches",
+		"branch",
+		"copy",
 	}
 }
