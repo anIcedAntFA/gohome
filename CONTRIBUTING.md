@@ -82,9 +82,183 @@ make lint
 
 ### Testing
 
+v1.3 focuses heavily on testing quality. All new code should include comprehensive tests.
+
+#### Test Requirements
+
 - **Unit Tests** - Test individual functions/packages
-- **Integration Tests** - Test end-to-end workflows
-- All tests must pass before merging
+- **Table-Driven Tests** - Use table-driven pattern for comprehensive coverage
+- **Coverage Target** - Aim for >80% coverage for new packages
+- **Critical Packages** - Parser, git client, and renderer require 100% coverage
+
+#### Running Tests
+
+```bash
+# Run all tests
+go test -v ./...
+make test
+
+# Run specific package tests
+go test -v ./internal/scanner/
+go test -v ./internal/parser/
+go test -v ./internal/git/
+
+# Run with coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+
+# Check coverage for specific package
+go test -cover ./internal/parser/
+# Output: coverage: 100.0% of statements
+
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out | tail -1
+# Output: total: (statements) 45.1%
+```
+
+#### Test Patterns
+
+**Table-Driven Tests** (Recommended):
+```go
+func TestParse(t *testing.T) {
+    tests := []struct {
+        name        string
+        input       string
+        wantType    string
+        wantScope   string
+        wantMessage string
+    }{
+        {
+            name:        "feat_with_scope",
+            input:       "feat(api): add user endpoint",
+            wantType:    "feat",
+            wantScope:   "api",
+            wantMessage: "add user endpoint",
+        },
+        // ... more test cases
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got := Parse(tt.input)
+            if got.Type != tt.wantType {
+                t.Errorf("Type = %v, want %v", got.Type, tt.wantType)
+            }
+            // ... more assertions
+        })
+    }
+}
+```
+
+**Output Capture** (for stdout/stderr testing):
+```go
+func TestPrintCommand(t *testing.T) {
+    oldStdout := os.Stdout
+    r, w, _ := os.Pipe()
+    os.Stdout = w
+
+    // Run function that prints to stdout
+    PrintSomething()
+
+    w.Close()
+    var buf bytes.Buffer
+    buf.ReadFrom(r)
+    os.Stdout = oldStdout
+
+    output := buf.String()
+    if !strings.Contains(output, "expected text") {
+        t.Errorf("Output missing expected text")
+    }
+}
+```
+
+**Temp Files/Directories**:
+```go
+func TestConfigFile(t *testing.T) {
+    tmpDir := t.TempDir() // Automatically cleaned up
+    configPath := filepath.Join(tmpDir, "config.json")
+    
+    // Write test config
+    err := os.WriteFile(configPath, []byte(`{"days": 7}`), 0644)
+    if err != nil {
+        t.Fatal(err)
+    }
+    
+    // Test loading config
+    cfg := LoadConfig(configPath)
+    if cfg.Days != 7 {
+        t.Errorf("Days = %d, want 7", cfg.Days)
+    }
+}
+```
+
+**Mock Git Repos** (for scanner/git tests):
+```go
+func TestGitOperations(t *testing.T) {
+    tmpDir := t.TempDir()
+    repoPath := filepath.Join(tmpDir, "test-repo")
+    
+    // Create git repo
+    os.Mkdir(repoPath, 0755)
+    exec.Command("git", "init").Dir = repoPath
+    exec.Command("git", "config", "user.name", "Test").Dir = repoPath
+    exec.Command("git", "config", "user.email", "test@example.com").Dir = repoPath
+    
+    // Create and commit file
+    os.WriteFile(filepath.Join(repoPath, "test.txt"), []byte("test"), 0644)
+    exec.Command("git", "add", ".").Dir = repoPath
+    exec.Command("git", "commit", "-m", "feat: test commit").Dir = repoPath
+    
+    // Test your git functions
+    logs, err := GetLogs(repoPath, "Test", "1.day.ago")
+    if len(logs) != 1 {
+        t.Errorf("Got %d logs, want 1", len(logs))
+    }
+}
+```
+
+#### Test Organization
+
+```
+internal/
+├── parser/
+│   ├── parser.go
+│   └── parser_test.go       # Tests for parser.go
+├── git/
+│   ├── client.go
+│   └── client_test.go       # Tests for client.go
+└── renderer/
+    ├── printer.go
+    └── printer_test.go      # Tests for printer.go
+```
+
+#### Coverage Goals
+
+| Package | Target | Status |
+|---------|--------|--------|
+| internal/parser | 100% | ✅ Achieved (v1.3) |
+| internal/git | 100% | ✅ Achieved (v1.3) |
+| internal/renderer | 100% | ✅ Achieved (v1.3) |
+| internal/scanner | >80% | ✅ 87.5% (v1.2) |
+| internal/version | >90% | ✅ 92.0% (v1.3) |
+| cmd/gohome/cmd | >80% | 🔄 In Progress |
+
+#### Test Documentation
+
+Document tricky test cases with comments:
+```go
+{
+    name:  "breaking_change_exclamation",
+    input: "feat!: breaking change",
+    wantType: "misc", // ! not supported by current regex
+},
+{
+    name:  "emoji_variant_selector",
+    input: "✏️ docs: update",
+    wantIcon: "✏", // Variant selector (️) not captured
+},
+```
 
 Example test command:
 ```bash
