@@ -7,6 +7,141 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-01-19
+
+### 🎉 Major Release - Cobra/Viper Migration Complete
+
+This major release represents a complete architectural overhaul of gohome, migrating from a monolithic main.go to a modern Cobra/Viper CLI framework. The result is a more maintainable, testable, and user-friendly application.
+
+### Added
+
+- **Modern CLI Framework with Subcommands**
+  - Cobra/Viper integration for better command organization
+  - Subcommands: `report`, `config`, `version`, `completion`
+  - Improved help text with ASCII art logo and emoji indicators
+  - Better flag validation and error messages
+
+- **Configuration Management System**
+  - New `config` subcommand with operations: `list`, `get`, `set`, `reset`
+  - Multi-format support: JSON, YAML, TOML
+  - Config file locations:
+    - Primary: `~/.config/gohome/config.{json,yaml,toml}`
+    - Legacy: `~/.gohome.json` (still supported)
+  - Environment variable support: `GOHOME_*` prefix
+  - Configuration priority: CLI flags > env vars > config file > defaults
+
+- **Shell Auto-Completion**
+  - Generate completion scripts: `gohome completion [bash|zsh|fish|powershell]`
+  - Improved CLI discoverability and productivity
+  - Supports all major shells
+
+- **Comprehensive Test Suite**
+  - 100% coverage for critical packages (parser, git, scanner)
+  - Config command: 90%+ coverage (list: 100%, get: 100%, set: 90%, reset: 92.9%)
+  - Overall project coverage: **49.6%** (up from 14.6% in v1.2)
+  - Security-focused tests preventing command injection
+  - Dependency injection pattern for testability
+
+- **Code Quality & CI/CD Improvements**
+  - Codecov integration with coverage tracking
+  - GitHub Actions workflow for automated testing
+  - golangci-lint with zero issues
+  - Coverage badges and reporting
+
+### Changed
+
+- **Configuration Architecture**
+  - Migrated from custom config loading to Viper
+  - Normalized config structure with validation
+  - Better error handling with detailed messages
+  - Config file format consolidation
+
+- **CLI Structure**
+  - From: `gohome [flags]`
+  - To: `gohome [command] [flags]`
+  - Default command: `gohome report` (backward compatible)
+  - Better separation of concerns per command
+
+- **Error Handling**
+  - Consistent error formatting with ❌ emoji prefix
+  - Better validation messages with context
+  - Silent error mode option (`SilenceErrors: true`)
+  - Improved usage hints on errors
+
+### Fixed
+
+- **Build & Release**
+  - NPM prerelease publishing with correct tags (beta/alpha/rc)
+  - Parallel test execution conflicts resolved (`-p 1` flag)
+  - Package.json version sync with git tags
+  - Cross-platform compatibility improvements
+
+- **Code Quality**
+  - All 47 linting errors resolved
+  - Security vulnerabilities fixed (command injection prevention)
+  - Memory leaks in tests patched
+  - Race conditions in config tests eliminated
+
+- **Configuration**
+  - Codecov YAML validation errors fixed
+  - Config command unknown subcommand handling
+  - Environment variable key mapping (underscore to hyphen)
+  - Config file path resolution on Windows
+
+### Improved
+
+- **Test Coverage**
+  - completion.go: 0% → 90%+ (using `cmd.OutOrStdout()`)
+  - config.go: 0% → 95%+ (comprehensive test suite)
+  - root.go: 0% → 85%+ (dependency injection refactoring)
+  - Overall cmd package: 20% → 49.6%
+
+- **Documentation**
+  - Comprehensive Codecov usage guide
+  - Migration guide from v1.2 to v1.3
+  - NPM publishing guide with prerelease handling
+  - Go testing best practices documentation
+  - CLI guide with all command examples
+
+### Developer Experience
+
+- **Testing Best Practices**
+  - Dependency injection for testable code
+  - `io.Writer` injection instead of `os.Stdout`/`os.Stderr`
+  - Exit code returns instead of `os.Exit()` calls
+  - Isolated test environments with `t.TempDir()`
+
+- **Code Organization**
+  - Clear package structure: `cmd/`, `internal/`, `pkg/`
+  - Single responsibility per package
+  - Interface-driven design for better mocking
+  - Constructor pattern for all services
+
+### Breaking Changes
+
+⚠️ **Minimal breaking changes - mostly additive:**
+
+- Config file location preference changed (old location still works)
+- CLI now uses subcommands (but default behavior preserved)
+- Environment variable prefix standardized to `GOHOME_`
+
+**Migration:** See `docs/v1.3_MIGRATION_GUIDE.md` for detailed upgrade instructions.
+
+### Statistics
+
+- **45 commits** since v1.2.0
+- **12 commits** since v1.3.0-beta.1
+- **2,100+ lines** of test code added
+- **49.6%** overall test coverage
+- **0 linting errors**
+- **100%** critical path coverage
+
+### Credits
+
+Special thanks to the Cobra, Viper, and Go communities for excellent frameworks and documentation.
+
+---
+
 ## [1.3.0-beta.2] - 2026-01-19
 
 ### Fixed

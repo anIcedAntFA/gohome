@@ -397,7 +397,7 @@ func TestRootCommandSilenceSettings(t *testing.T) {
 
 // TestRootCommandVersion tests the version field.
 func TestRootCommandVersionField(t *testing.T) {
-	expectedVersion := "v1.3.0-beta.2"
+	expectedVersion := "v1.3.0"
 	if rootCmd.Version != expectedVersion {
 		t.Errorf("Version = %q, want %q", rootCmd.Version, expectedVersion)
 	}

@@ -39,7 +39,7 @@ var rootCmd = &cobra.Command{
    gohome -w 1             # Last week's commits
    gohome -f table         # Table format
    gohome config list      # View configuration`,
-	Version:       "v1.3.0-beta.2",
+	Version:       "v1.3.0",
 	SilenceErrors: true,  // We handle error formatting ourselves
 	SilenceUsage:  false, // Show usage on errors (but only once)
 }
