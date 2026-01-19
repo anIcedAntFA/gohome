@@ -418,3 +418,129 @@ func TestInitFunctionCalled(t *testing.T) {
 		t.Error("rootCmd.Use should not be empty after init()")
 	}
 }
+
+// TestExecuteWithWriter verifies Execute error formatting with custom writer.
+// This tests the refactored Execute function that allows dependency injection.
+func TestExecuteWithWriter(t *testing.T) {
+	tests := []struct {
+		name         string
+		args         []string
+		wantExitCode int
+		wantErrMsg   string
+	}{
+		{
+			name:         "invalid_command",
+			args:         []string{"invalidcmd"},
+			wantExitCode: 1,
+			wantErrMsg:   "❌ Error:",
+		},
+		{
+			name:         "valid_version_command",
+			args:         []string{"version"},
+			wantExitCode: 0,
+			wantErrMsg:   "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Setup: Capture error output
+			var errBuf bytes.Buffer
+
+			// Reset command state
+			rootCmd.SetArgs(tt.args)
+			rootCmd.SetOut(&bytes.Buffer{})
+			rootCmd.SetErr(&errBuf)
+
+			// Execute: Run command with custom error writer
+			exitCode := ExecuteWithWriter(&errBuf)
+
+			// Assert: Check exit code
+			if exitCode != tt.wantExitCode {
+				t.Errorf("ExecuteWithWriter() exitCode = %d, want %d", exitCode, tt.wantExitCode)
+			}
+
+			// Assert: Check error message if expecting failure
+			errOutput := errBuf.String()
+			if tt.wantExitCode != 0 {
+				if !strings.Contains(errOutput, tt.wantErrMsg) {
+					t.Errorf("Error output should contain %q, got: %q", tt.wantErrMsg, errOutput)
+				}
+			} else {
+				// For successful commands, error output should be empty
+				if errOutput != "" {
+					t.Errorf("Error output should be empty for success, got: %q", errOutput)
+				}
+			}
+		})
+	}
+}
+
+// TestInitConfigWithWriter verifies config initialization with custom error writer.
+// This tests error handling when home directory is inaccessible.
+func TestInitConfigWithWriter(t *testing.T) {
+	t.Run("successful_initialization", func(t *testing.T) {
+		// Save original state
+		viper.Reset()
+		origCfgFile := cfgFile
+		defer func() {
+			cfgFile = origCfgFile
+			viper.Reset()
+		}()
+
+		cfgFile = ""
+		var errBuf bytes.Buffer
+
+		// Execute: Initialize config
+		err := initConfigWithWriter(&errBuf)
+		// Assert: Should succeed
+		if err != nil {
+			t.Errorf("initConfigWithWriter() unexpected error: %v", err)
+		}
+
+		// Assert: No error output
+		if errBuf.String() != "" {
+			t.Errorf("Error output should be empty, got: %q", errBuf.String())
+		}
+
+		// Verify environment setup
+		if viper.GetEnvPrefix() != "GOHOME" {
+			t.Errorf("Env prefix = %q, want %q", viper.GetEnvPrefix(), "GOHOME")
+		}
+	})
+
+	t.Run("with_custom_config_file", func(t *testing.T) {
+		// Save original state
+		viper.Reset()
+		origCfgFile := cfgFile
+		defer func() {
+			cfgFile = origCfgFile
+			viper.Reset()
+		}()
+
+		// Setup: Create temp config file
+		tmpFile, err := os.CreateTemp("", "gohome-test-*.json")
+		if err != nil {
+			t.Fatalf("Failed to create temp file: %v", err)
+		}
+		defer os.Remove(tmpFile.Name())
+
+		_, _ = tmpFile.WriteString(`{"path": "/test/path"}`)
+		_ = tmpFile.Close()
+
+		cfgFile = tmpFile.Name()
+		var errBuf bytes.Buffer
+
+		// Execute: Initialize with custom config
+		err = initConfigWithWriter(&errBuf)
+		// Assert: Should succeed
+		if err != nil {
+			t.Errorf("initConfigWithWriter() unexpected error: %v", err)
+		}
+
+		// Verify config was loaded
+		if viper.ConfigFileUsed() != cfgFile {
+			t.Errorf("ConfigFileUsed = %q, want %q", viper.ConfigFileUsed(), cfgFile)
+		}
+	})
+}

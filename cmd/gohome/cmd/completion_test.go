@@ -8,13 +8,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TestCompletionCommand tests the completion command for all shells.
+// TestCompletionCommand verifies completion script generation for all supported shells.
+// Tests that the generated scripts contain expected shell-specific content.
 func TestCompletionCommand(t *testing.T) {
 	tests := []struct {
 		name           string
 		shell          string
-		wantContains   []string
-		wantNotContain []string
+		wantContains   []string // Expected strings that must appear in output
+		wantNotContain []string // Strings that should NOT appear in output
 	}{
 		{
 			name:  "bash_completion",
@@ -53,13 +54,13 @@ func TestCompletionCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a new root command for testing
+			// Setup: Create isolated test root command
 			testRootCmd := &cobra.Command{
 				Use:   "gohome",
 				Short: "Test root command",
 			}
 
-			// Create completion command
+			// Create completion command with actual implementation
 			testCompletionCmd := &cobra.Command{
 				Use:       "completion [bash|zsh|fish|powershell]",
 				Short:     "Generate shell completion script",
@@ -80,17 +81,17 @@ func TestCompletionCommand(t *testing.T) {
 			}
 			testRootCmd.AddCommand(testCompletionCmd)
 
-			// Capture output
+			// Capture output using buffer
 			var buf bytes.Buffer
 			testRootCmd.SetOut(&buf)
 			testCompletionCmd.SetOut(&buf)
 
-			// Execute the Run function directly with the shell arg
+			// Execute: Run the completion command for the specified shell
 			testCompletionCmd.Run(testCompletionCmd, []string{tt.shell})
 
 			got := buf.String()
 
-			// Verify expected content
+			// Assert: Verify expected content is present
 			for _, want := range tt.wantContains {
 				if !strings.Contains(got, want) {
 					t.Errorf("Output does not contain %q\nGot first 200 chars: %q",
@@ -98,14 +99,14 @@ func TestCompletionCommand(t *testing.T) {
 				}
 			}
 
-			// Verify excluded content
+			// Assert: Verify excluded content is absent
 			for _, notWant := range tt.wantNotContain {
 				if strings.Contains(got, notWant) {
 					t.Errorf("Output should NOT contain %q", notWant)
 				}
 			}
 
-			// Verify output is not empty
+			// Assert: Verify output is not empty
 			if got == "" {
 				t.Error("completion output is empty")
 			}
@@ -113,7 +114,7 @@ func TestCompletionCommand(t *testing.T) {
 	}
 }
 
-// TestCompletionCommandProperties tests the command metadata.
+// TestCompletionCommandProperties verifies the completion command metadata and configuration.
 func TestCompletionCommandProperties(t *testing.T) {
 	if completionCmd.Use != "completion [bash|zsh|fish|powershell]" {
 		t.Errorf("completionCmd.Use = %q, want %q",
@@ -275,70 +276,47 @@ func TestCompletionRunFunction(t *testing.T) {
 		shell        string
 		wantInOutput string
 	}{
-		{
-			name:         "run_bash",
-			shell:        "bash",
-			wantInOutput: "_gohome",
-		},
-		{
-			name:         "run_zsh",
-			shell:        "zsh",
-			wantInOutput: "#compdef",
-		},
-		{
-			name:         "run_fish",
-			shell:        "fish",
-			wantInOutput: "complete",
-		},
-		{
-			name:         "run_powershell",
-			shell:        "powershell",
-			wantInOutput: "Register-ArgumentCompleter",
-		},
+		{"run_bash", "bash", "_gohome"},
+		{"run_zsh", "zsh", "#compdef"},
+		{"run_fish", "fish", "complete"},
+		{"run_powershell", "powershell", "Register-ArgumentCompleter"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Test via command execution to capture stdout properly
-			var buf bytes.Buffer
+			// 1. Setup Buffer để hứng output
+			buf := new(bytes.Buffer)
 
-			// Create a fresh root command for testing
-			testRootCmd := &cobra.Command{Use: "gohome"}
-			testCompletionCmd := &cobra.Command{
-				Use:       "completion [bash|zsh|fish|powershell]",
-				ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
-				Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-				Run: func(cmd *cobra.Command, args []string) {
-					switch args[0] {
-					case "bash":
-						_ = cmd.Root().GenBashCompletion(cmd.OutOrStdout())
-					case "zsh":
-						_ = cmd.Root().GenZshCompletion(cmd.OutOrStdout())
-					case "fish":
-						_ = cmd.Root().GenFishCompletion(cmd.OutOrStdout(), true)
-					case "powershell":
-						_ = cmd.Root().GenPowerShellCompletionWithDesc(cmd.OutOrStdout())
-					}
-				},
-			}
-			testRootCmd.AddCommand(testCompletionCmd)
-			testRootCmd.SetOut(&buf)
-			testRootCmd.SetErr(&buf)
-			testRootCmd.SetArgs([]string{"completion", tt.shell})
+			// 2. CẤU HÌNH LẠI CÁI completionCmd THẬT
+			// Reset output của lệnh thật về buffer của mình
+			completionCmd.SetOut(buf)
+			completionCmd.SetErr(buf)
 
-			err := testRootCmd.Execute()
+			// 3. Setup root command giả để gắn completionCmd vào (nếu cần context root)
+			// Lưu ý: completionCmd là biến global, cẩn thận khi add vào root mới nhiều lần
+			// Cách an toàn nhất là dùng trực tiếp RunE/Run hoặc Mock Root
+
+			// Mẹo: Do completionCmd dùng cmd.Root(), ta cần đảm bảo nó có cha.
+			// Nhưng completionCmd đã được add vào rootCmd thật ở hàm init().
+			// Ta có thể dùng trực tiếp rootCmd để execute.
+
+			rootCmd.SetOut(buf)
+			rootCmd.SetErr(buf)
+			rootCmd.SetArgs([]string{"completion", tt.shell})
+
+			// 4. CHẠY LỆNH THẬT
+			err := rootCmd.Execute()
+			// Hoặc nếu muốn test unit nhỏ hơn chỉ cho completionCmd:
+			// completionCmd.Run(completionCmd, []string{tt.shell})
+			// Nhưng cách trên (rootCmd.Execute) giống thực tế hơn.
+			// 5. Assert
 			if err != nil {
 				t.Fatalf("Execute() failed: %v", err)
 			}
 
 			output := buf.String()
 			if !strings.Contains(output, tt.wantInOutput) {
-				t.Errorf("Expected output to contain %q, got first 200 chars: %q",
-					tt.wantInOutput, truncate(output, 200))
-			}
-
-			if output == "" {
-				t.Error("Output should not be empty")
+				t.Errorf("Expected output to contain %q, got: %q", tt.wantInOutput, truncate(output, 50))
 			}
 		})
 	}

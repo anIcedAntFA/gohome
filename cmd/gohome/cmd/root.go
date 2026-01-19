@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -44,12 +45,24 @@ var rootCmd = &cobra.Command{
 }
 
 // Execute runs the root command.
+// This is the entry point called by main.go.
 func Execute() {
+	exitCode := ExecuteWithWriter(os.Stderr)
+	if exitCode != 0 {
+		os.Exit(exitCode)
+	}
+}
+
+// ExecuteWithWriter runs the root command with a custom error writer.
+// This allows testing error output without calling os.Exit().
+// Returns the exit code: 0 for success, 1 for error.
+func ExecuteWithWriter(errWriter io.Writer) int {
 	if err := rootCmd.Execute(); err != nil {
 		// Format error with consistent emoji prefix
-		fmt.Fprintf(os.Stderr, "❌ Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(errWriter, "❌ Error: %v\n", err)
+		return 1
 	}
+	return 0
 }
 
 func init() {
@@ -57,13 +70,19 @@ func init() {
 }
 
 func initConfig() {
+	_ = initConfigWithWriter(os.Stderr)
+}
+
+// initConfigWithWriter initializes Viper configuration with a custom error writer.
+// This allows testing error handling without calling os.Exit().
+func initConfigWithWriter(errWriter io.Writer) error {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			fmt.Fprint(os.Stderr, err)
-			os.Exit(1)
+			fmt.Fprint(errWriter, err)
+			return err
 		}
 
 		viper.AddConfigPath(home)
@@ -81,4 +100,5 @@ func initConfig() {
 	// Read config file (ignore error if not found)
 	// Silently ignore if config file is not found
 	_ = viper.ReadInConfig()
+	return nil
 }
