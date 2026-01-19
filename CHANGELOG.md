@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0-beta.2] - 2026-01-19
+
+### Fixed
+
+- **Config Command Error Handling**
+  - Add consistent error formatting with ❌ prefix across all commands
+  - `gohome config <unknown>` now shows proper error instead of just help
+  - Add `SilenceErrors`/`SilenceUsage` to both config and report commands
+  - Add Args validation to config command for unknown subcommands
+
+- **Config List Output Enhancement**
+  - Add ⚙️ emoji to 'Current Configuration' header
+  - Add 📄 emoji to config file path display
+  - Remove unused table options (nature and tech type)
+
+### Documentation
+
+- Add comprehensive release checklist template (`.github/RELEASE_CHECKLIST_CURRENT.md`)
+- Add release notes template for v1.3.0-beta.1
+- Update README with improved examples
+- Update CLI_GUIDE with latest command usage
+- Add beta release testing script (`scripts/test-beta-release.sh`)
+- Update quickstart demo with better visuals
+
 ## [1.3.0-beta.1] - 2026-01-18
 
 ### Added
