@@ -33,12 +33,34 @@ gohome config 123  → ❌ Error: invalid argument "123" (consistent!)
 - 📄 Added emoji to config file path display
 - 🧹 Removed unused table options (nature/tech type) to reduce clutter
 
+### NPM Prerelease Publishing Fix
+
+- **Fixed Critical Issue**: NPM publish workflow now handles beta/alpha/rc versions correctly
+- **Auto-Detection**: Automatically detects prerelease versions (contains hyphen) and applies appropriate `--tag`
+- **Tag Management**: Beta versions published with `--tag beta`, stable versions published to `latest`
+- **Impact**: Prevents beta releases from overwriting production `latest` tag
+
+**How it works:**
+```bash
+# Prerelease (beta, alpha, rc)
+v1.3.0-beta.2 → npm publish --tag beta
+
+# Stable release
+v1.3.0 → npm publish (defaults to latest)
+```
+
+**Why this matters:**
+- Users running `npm install gohome` get stable releases, not beta versions
+- Beta testers can explicitly install via `npm install gohome@beta`
+- Production safety maintained while enabling prerelease testing
+
 ---
 
 ## 📚 Documentation Updates
 
 - ✅ Added comprehensive **release checklist template** (`.github/RELEASE_CHECKLIST_CURRENT.md`)
 - ✅ Added **release notes template** for v1.3.0-beta.1 as reference
+- ✅ Added **NPM prerelease fix guide** (`.github/NPM_PRERELEASE_FIX.md`) with detailed explanation
 - ✅ Updated **README** with improved examples and clarity
 - ✅ Updated **CLI_GUIDE** with latest command usage patterns
 - ✅ Added **beta release testing script** (`scripts/test-beta-release.sh`) for QA automation
@@ -53,11 +75,16 @@ gohome config 123  → ❌ Error: invalid argument "123" (consistent!)
 1. **📝 docs(docs,readme)**: Update documents and assets
 2. **🐛 fix(cmd)**: Add emojis to config list output and fix error consistency
 3. **📝 docs(changelog,scripts)**: Update changelog, add script test beta version
+4. **🔖 chore(release)**: Bump version to v1.3.0-beta.2
+5. **🔧 fix(ci)**: Add NPM prerelease tag detection for beta/alpha/rc versions
 
 ### Files Modified
 
 - `.github/RELEASE_CHECKLIST_CURRENT.md` (new)
 - `.github/RELEASE_NOTES_v1.3.0-beta.1.md` (new)
+- `.github/RELEASE_NOTES_v1.3.0-beta.2.md` (new)
+- `.github/NPM_PRERELEASE_FIX.md` (new)
+- `.github/workflows/release.yml` ⚠️ **Critical fix**
 - `CHANGELOG.md`
 - `README.md`
 - `cmd/gohome/cmd/config.go`

@@ -22,10 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add 📄 emoji to config file path display
   - Remove unused table options (nature and tech type)
 
+- **NPM Prerelease Publishing**
+  - Fix NPM publish workflow for beta/alpha/rc versions
+  - Auto-detect prerelease versions and apply correct `--tag` flag
+  - Prevent beta versions from overwriting `latest` NPM tag
+  - Support conditional publishing: prereleases use custom tags, stable uses `latest`
+
 ### Documentation
 
 - Add comprehensive release checklist template (`.github/RELEASE_CHECKLIST_CURRENT.md`)
 - Add release notes template for v1.3.0-beta.1
+- Add NPM prerelease fix documentation (`.github/NPM_PRERELEASE_FIX.md`)
 - Update README with improved examples
 - Update CLI_GUIDE with latest command usage
 - Add beta release testing script (`scripts/test-beta-release.sh`)

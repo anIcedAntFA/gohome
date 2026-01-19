@@ -14,38 +14,38 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full history for changelog
           lfs: true       # Fetch LFS files (demo GIFs)
-      
+
       - name: Normalize line endings
         run: |
           # Ensure line endings are normalized according to .gitattributes
           # This prevents "dirty state" errors in GoReleaser
           git add --renormalize .
           git status
-      
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
           cache: true
-      
+
       - name: Install cross-compilation toolchains
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-mingw-w64-x86-64 gcc-aarch64-linux-gnu
-      
+
       - name: Run tests
         run: |
           go test -v -coverprofile=coverage.txt ./...
           mkdir -p /tmp/coverage
           mv coverage.txt /tmp/coverage/ || true
-      
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -55,7 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -68,26 +68,26 @@ jobs:
     permissions:
       contents: read
       id-token: write  # Required for npm OIDC trusted publishing
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
-      
+
       - name: Update npm for OIDC trusted publishing
         run: npm install -g npm@latest  # Requires npm >= 11.5.1 for OIDC
-      
+
       - name: Extract version from tag
         id: get_version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          
+
           # Detect prerelease (contains -, e.g., beta, alpha, rc)
           # NPM requires --tag flag for prerelease versions to prevent overwriting "latest"
           if [[ "$VERSION" == *-* ]]; then
@@ -101,19 +101,19 @@ jobs:
             echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
             echo "📦 Detected stable version: $VERSION (tag: latest)"
           fi
-      
+
       - name: Update package.json version
         run: |
           cd npm-package
           npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
-      
+
       - name: Publish to NPM (Prerelease)
         if: steps.get_version.outputs.IS_PRERELEASE == 'true'
         run: |
           cd npm-package
           npm publish --access public --tag ${{ steps.get_version.outputs.TAG }}
           echo "✅ Published as prerelease with tag: ${{ steps.get_version.outputs.TAG }}"
-      
+
       - name: Publish to NPM (Stable)
         if: steps.get_version.outputs.IS_PRERELEASE == 'false'
         run: |
