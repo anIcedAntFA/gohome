@@ -1,7 +1,6 @@
 # Codecov Configuration
 # https://docs.codecov.com/docs/codecov-yaml
 
-# Coverage targets
 coverage:
   precision: 2
   round: down
@@ -12,44 +11,22 @@ coverage:
       default:
         target: 50%
         threshold: 5%
-        if_ci_failed: error
 
     patch:
       default:
         target: 60%
         threshold: 10%
 
-# Ignore patterns
+# Ignore patterns - exclude from coverage
 ignore:
-  - "cmd/gohome/main.go"  # Entry point - tested via cmd.Execute()
-  - "**/*_test.go"        # Test files
-  - "**/example_*.go"     # Example code
-  - "scripts/**"          # Shell scripts
-  - "npm-package/**"      # NPM wrapper package
+  - "cmd/gohome/main.go"
+  - "**/*_test.go"
+  - "**/example_*.go"
+  - "scripts/**"
+  - "npm-package/**"
 
-# Comment settings
+# Comment on PRs
 comment:
-  layout: "reach,diff,flags,tree,files"
+  layout: "reach,diff,flags,files"
   behavior: default
   require_changes: false
-  require_base: no
-  require_head: yes
-
-# File-specific annotations
-flag_management:
-  default_rules:
-    carryforward: true
-    statuses:
-      - type: project
-        target: auto
-        threshold: 5%
-
-# GitHub Checks
-github_checks:
-  annotations: true
-
-# Codecov UI settings
-ui:
-  hide_density: false
-  hide_complexity: false
-  hide_sunburst: false
