@@ -80,20 +80,43 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - name: Update npm for OIDC trusted publishing
-        run: npm install -g npm@latest  # Requires npm >= 11.5.1
+        run: npm install -g npm@latest  # Requires npm >= 11.5.1 for OIDC
       
       - name: Extract version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Detect prerelease (contains -, e.g., beta, alpha, rc)
+          # NPM requires --tag flag for prerelease versions to prevent overwriting "latest"
+          if [[ "$VERSION" == *-* ]]; then
+            # Extract prerelease tag (e.g., "beta" from "1.3.0-beta.2")
+            TAG=$(echo "$VERSION" | sed -E 's/.*-([a-z]+).*/\1/')
+            echo "TAG=$TAG" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "📦 Detected prerelease version: $VERSION (tag: $TAG)"
+          else
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "📦 Detected stable version: $VERSION (tag: latest)"
+          fi
       
       - name: Update package.json version
         run: |
           cd npm-package
           npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
       
-      - name: Publish to NPM
+      - name: Publish to NPM (Prerelease)
+        if: steps.get_version.outputs.IS_PRERELEASE == 'true'
+        run: |
+          cd npm-package
+          npm publish --access public --tag ${{ steps.get_version.outputs.TAG }}
+          echo "✅ Published as prerelease with tag: ${{ steps.get_version.outputs.TAG }}"
+      
+      - name: Publish to NPM (Stable)
+        if: steps.get_version.outputs.IS_PRERELEASE == 'false'
         run: |
           cd npm-package
           npm publish --access public
-          # Uses OIDC trusted publishing - no token needed
-          # Provenance attestations are automatic with trusted publishing
+          echo "✅ Published as stable release with tag: latest"
