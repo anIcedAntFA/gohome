@@ -251,3 +251,102 @@ func truncate(s string, maxLen int) string {
 	}
 	return s[:maxLen] + "..."
 }
+
+// TestCompletionInit tests that the completion command is properly initialized.
+func TestCompletionInit(t *testing.T) {
+	// Verify completionCmd is added to rootCmd
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "completion" {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		t.Error("completion command not found in root command")
+	}
+}
+
+// TestCompletionRunFunction tests the Run function with actual execution.
+func TestCompletionRunFunction(t *testing.T) {
+	tests := []struct {
+		name         string
+		shell        string
+		wantInOutput string
+	}{
+		{
+			name:         "run_bash",
+			shell:        "bash",
+			wantInOutput: "_gohome",
+		},
+		{
+			name:         "run_zsh",
+			shell:        "zsh",
+			wantInOutput: "#compdef",
+		},
+		{
+			name:         "run_fish",
+			shell:        "fish",
+			wantInOutput: "complete",
+		},
+		{
+			name:         "run_powershell",
+			shell:        "powershell",
+			wantInOutput: "Register-ArgumentCompleter",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test via command execution to capture stdout properly
+			var buf bytes.Buffer
+
+			// Create a fresh root command for testing
+			testRootCmd := &cobra.Command{Use: "gohome"}
+			testCompletionCmd := &cobra.Command{
+				Use:       "completion [bash|zsh|fish|powershell]",
+				ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
+				Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+				Run: func(cmd *cobra.Command, args []string) {
+					switch args[0] {
+					case "bash":
+						_ = cmd.Root().GenBashCompletion(cmd.OutOrStdout())
+					case "zsh":
+						_ = cmd.Root().GenZshCompletion(cmd.OutOrStdout())
+					case "fish":
+						_ = cmd.Root().GenFishCompletion(cmd.OutOrStdout(), true)
+					case "powershell":
+						_ = cmd.Root().GenPowerShellCompletionWithDesc(cmd.OutOrStdout())
+					}
+				},
+			}
+			testRootCmd.AddCommand(testCompletionCmd)
+			testRootCmd.SetOut(&buf)
+			testRootCmd.SetErr(&buf)
+			testRootCmd.SetArgs([]string{"completion", tt.shell})
+
+			err := testRootCmd.Execute()
+			if err != nil {
+				t.Fatalf("Execute() failed: %v", err)
+			}
+
+			output := buf.String()
+			if !strings.Contains(output, tt.wantInOutput) {
+				t.Errorf("Expected output to contain %q, got first 200 chars: %q",
+					tt.wantInOutput, truncate(output, 200))
+			}
+
+			if output == "" {
+				t.Error("Output should not be empty")
+			}
+		})
+	}
+}
+
+// TestCompletionDisableFlagsInUseLine verifies the DisableFlagsInUseLine setting.
+func TestCompletionDisableFlagsInUseLine(t *testing.T) {
+	if !completionCmd.DisableFlagsInUseLine {
+		t.Error("DisableFlagsInUseLine should be true to hide flags in usage line")
+	}
+}

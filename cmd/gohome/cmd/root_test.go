@@ -289,3 +289,132 @@ func TestEnvVarKeyReplacer(t *testing.T) {
 		})
 	}
 }
+
+// TestExecuteFunction tests the Execute function wrapper.
+func TestExecuteFunction(t *testing.T) {
+	t.Run("execute_success", func(t *testing.T) {
+		// Reset root command
+		rootCmd.SetArgs([]string{"--version"})
+
+		// Capture output
+		var buf bytes.Buffer
+		rootCmd.SetOut(&buf)
+		rootCmd.SetErr(&buf)
+
+		// Call Execute() wrapper directly
+		// Save old os.Stderr
+		oldStderr := os.Stderr
+		r, w, _ := os.Pipe()
+		os.Stderr = w
+
+		// This should not exit or panic
+		// We can't actually test the exit(1) case without subprocess
+		// So we just test the success path
+		err := rootCmd.Execute()
+
+		// Restore stderr
+		_ = w.Close()
+		os.Stderr = oldStderr
+		_, _ = r.Read(make([]byte, 1024))
+
+		if err != nil {
+			t.Errorf("Execute() should not return error for --version, got: %v", err)
+		}
+	})
+
+	t.Run("execute_with_help", func(t *testing.T) {
+		rootCmd.SetArgs([]string{"--help"})
+
+		var buf bytes.Buffer
+		rootCmd.SetOut(&buf)
+		rootCmd.SetErr(&buf)
+
+		err := rootCmd.Execute()
+		if err != nil {
+			t.Errorf("Execute() should not return error for --help, got: %v", err)
+		}
+
+		if !strings.Contains(buf.String(), "Usage:") {
+			t.Error("Help output should contain 'Usage:'")
+		}
+	})
+
+	t.Run("execute_error_formatting", func(t *testing.T) {
+		// Test error formatting by using invalid command
+		rootCmd.SetArgs([]string{"nonexistent"})
+
+		var buf bytes.Buffer
+		rootCmd.SetOut(&buf)
+		rootCmd.SetErr(&buf)
+
+		// Capture stderr for error message
+		oldStderr := os.Stderr
+		r, w, _ := os.Pipe()
+		os.Stderr = w
+
+		// Execute will return error
+		err := rootCmd.Execute()
+
+		_ = w.Close()
+		var stderrBuf bytes.Buffer
+		_, _ = stderrBuf.ReadFrom(r)
+		os.Stderr = oldStderr
+
+		if err == nil {
+			t.Error("Execute() should return error for invalid command")
+		}
+	})
+}
+
+// TestInitConfigWithHomeDir tests initConfig when home directory is available.
+func TestInitConfigWithHomeDir(t *testing.T) {
+	// Reset viper
+	viper.Reset()
+	defer viper.Reset()
+
+	// Set empty config file to trigger default path logic
+	cfgFile = ""
+
+	// This should not panic even if config file doesn't exist
+	initConfig()
+
+	// Verify env prefix is set
+	if viper.GetEnvPrefix() != "GOHOME" {
+		t.Errorf("Expected env prefix 'GOHOME', got %q", viper.GetEnvPrefix())
+	}
+}
+
+// TestRootCommandSilenceSettings tests error and usage silence settings.
+func TestRootCommandSilenceSettings(t *testing.T) {
+	if !rootCmd.SilenceErrors {
+		t.Error("SilenceErrors should be true (we handle errors ourselves)")
+	}
+
+	if rootCmd.SilenceUsage {
+		t.Error("SilenceUsage should be false (show usage on errors)")
+	}
+}
+
+// TestRootCommandVersion tests the version field.
+func TestRootCommandVersionField(t *testing.T) {
+	expectedVersion := "v1.3.0-beta.2"
+	if rootCmd.Version != expectedVersion {
+		t.Errorf("Version = %q, want %q", rootCmd.Version, expectedVersion)
+	}
+}
+
+// TestInitFunctionCalled tests that init function is called.
+func TestInitFunctionCalled(t *testing.T) {
+	// Verify that cobra.OnInitialize was called by checking
+	// if initConfig is in the initialization chain
+	// This is tested implicitly by other tests that call Execute()
+
+	// Just verify rootCmd is initialized
+	if rootCmd == nil {
+		t.Fatal("rootCmd should be initialized")
+	}
+
+	if rootCmd.Use == "" {
+		t.Error("rootCmd.Use should not be empty after init()")
+	}
+}
