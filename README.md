@@ -59,7 +59,7 @@
   />
 </p>
 
-**Forgot what you worked on yesterday?**
+**Forgot what you worked today?**
 
 **gohome** automates your daily status reporting by recursively scanning your workspace to find git repositories. It aggregates commit logs from multiple projects instantly and formats them into beautiful, ready-to-share reports.
 
@@ -359,10 +359,10 @@ gohome
 gohome
 ```
 
-**2️⃣ Look back 3 days**
+**2️⃣ Look back 1 week**
 
 ```bash
-gohome -d 3
+gohome -w 1
 ```
 
 **3️⃣ Generate a Table Report**
@@ -613,23 +613,23 @@ gohome config reset
 | Flag             | Alias | Description                                           | Default     |
 | ---------------- | ----- | ----------------------------------------------------- | ----------- |
 | `--hours`        | `-H`  | Number of hours to look back                          | 0           |
-| `--today`        |       | Report from midnight to now                           | false       |
+| `--today`        | `-T`  | Report from midnight to now                           | false       |
 | `--days`         | `-d`  | Number of days to look back                           | 1           |
 | `--weeks`        | `-w`  | Number of weeks to look back                          | 0           |
 | `--months`       | `-m`  | Number of months to look back                         | 0           |
 | `--years`        | `-y`  | Number of years to look back                          | 0           |
 | `--path`         | `-p`  | Root path to scan for repositories                    | `.`         |
-| `--max-depth`    |       | Maximum depth to scan for repositories                | 2           |
+| `--max-depth`    | `-m`  | Maximum depth to scan for repositories                | 2           |
 | `--author`       | `-a`  | Git author name (auto-detected)                       | System User |
 | `--format`       | `-f`  | Output format: `text`, `table`                        | `text`      |
 | `--preset`       | `-s`  | Table style: `normal`, `markdown`                     | `normal`    |
-| `--all-branches` | `-b`  | Include commits from all local branches               | false       |
-| `--branch`       |       | Filter commits by specific branch                     | (current)   |
+| `--all-branches` | `-A`  | Include commits from all local branches               | false       |
+| `--branch`       | `-b`  | Filter commits by specific branch                     | (current)   |
 | `--copy`         | `-cp` | Copy output to clipboard                              | false       |
 | `--icon`         | `-i`  | Show icon column (table format only)                  | false       |
 | `--scope`        | `-c`  | Show scope column (table format only)                 | false       |
 | `--task`         | `-t`  | Add custom task (repeatable)                          | []          |
-| `--save`         |       | Save current flags as default config                  | false       |
+| `--save`         | `-S`  | Save current flags as default config                  | false       |
 | `--version`      | `-v`  | Show version information                              |             |
 | `--help`         | `-h`  | Show help message                                     |             |
 

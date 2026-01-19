@@ -54,18 +54,29 @@ Sleep 500ms
 Enter
 Sleep 4s
 
-# Show with icons and scope
-Type "# With emojis and commit scopes"
-Enter  
-Type "gohome --icon --scope"
+# Save configuration
+Type "# Save your preferences"
+Enter
+Type "gohome --today --icon --scope --save"
 Sleep 500ms
 Enter
-Sleep 4s
+Sleep 3s
+
+# Copy to clipboard
+Type "# Copy report to clipboard"
+Enter
+Type "gohome --copy"
+Sleep 500ms
+Enter
+Sleep 1s
+Type "# 📋 Report copied!"
+Enter
+Sleep 2s
 
 # Final message
 Sleep 1s
 Type "# ✨ Try it yourself!"
 Enter
-Type "# curl -fsSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/scripts/install.sh | bash"
+Type "# curl -sS https://get.ngockhoi96.dev/gohome | sh"
 Enter
 Sleep 3s

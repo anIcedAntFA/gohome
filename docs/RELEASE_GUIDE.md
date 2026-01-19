@@ -400,7 +400,7 @@ release:
     
     #### Linux
     ```bash
-    curl -sSL https://raw.githubusercontent.com/anIcedAntFA/gohome/main/install.sh | bash
+    curl -sS https://get.ngockhoi96.dev/gohome | sh
     ```
     
     #### Go Install
