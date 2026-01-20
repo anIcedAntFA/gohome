@@ -111,10 +111,114 @@ This document outlines the development status and future plans for **gohome** (G
 
 ---
 
-## 🚧 Phase 3: Enhanced Features & Ecosystem (v1.4.x - v2.0.0) — **IN PLANNING**
-  - [ ] `gohome config list` - Show current configuration
-  - [ ] `gohome config reset` - Reset to defaults
+## 🚧 Phase 2: Enhanced Features & UX (v1.4.x - v1.5.x) — **IN PROGRESS**
+
+**Goal:** Enhance user experience with beautiful UI, repository management, and performance improvements.
+
+**Status:** 🚧 **IN PROGRESS** - Building on v1.3.0 foundation with focus on daily workflow and visual polish.
+
+### 🎨 UI/UX Enhancement with Lip Gloss (Priority: HIGH)
+
+**Goal:** Transform terminal output from functional to beautiful using industry-leading styling library.
+
+- [ ] **Lip Gloss Integration:**
+  - [ ] Core styling system with adaptive colors (light/dark mode)
+  - [ ] Brand color palette and typography styles
+  - [ ] Component library: banner, cards, headers, tables
+  - [ ] See [docs/UI_UX_ENHANCEMENT.md](docs/UI_UX_ENHANCEMENT.md) for complete design
+- [ ] **Enhanced Components:**
+  - [ ] ASCII art banner with animated option
+  - [ ] Repository cards with borders and badges
+  - [ ] Styled commit lists with type-based colors
+  - [ ] Rich table output replacing tablewriter
+  - [ ] Progress indicators and spinners
+- [ ] **Theme System:**
+  - [ ] Predefined themes: default, ocean, forest, sunset, monochrome
+  - [ ] Custom theme support from config
+  - [ ] `--theme` flag and `gohome config set theme <name>`
+- [ ] **Configuration:**
+  - [ ] `--style` flag: classic, modern, minimal
+  - [ ] `--no-banner` and `--no-color` flags
+  - [ ] Emoji set customization
+  - [ ] Respect NO_COLOR environment variable
+
+**Foundation for:** Interactive TUI in Phase 3, better visual hierarchy, professional branding
+
+### ⭐ Repository Whitelist/Favorites (Priority: HIGH)
+
+**Goal:** Enable users to focus on active projects for faster, cleaner daily reports.
+
+- [ ] **Core Whitelist Management:**
+  - [ ] `gohome whitelist add <path>` - Add repo to favorites
+  - [ ] `gohome whitelist remove <path>` - Remove from favorites
+  - [ ] `gohome whitelist list` - Show all favorited repos
+  - [ ] `gohome whitelist clear` - Remove all repos
+  - [ ] `gohome whitelist enable/disable` - Toggle whitelist mode
+  - [ ] See [docs/WHITELIST_FEATURE_DESIGN.md](docs/WHITELIST_FEATURE_DESIGN.md) for complete spec
+- [ ] **Tag System:**
+  - [ ] Add tags to repos: `--tags backend,client-x`
+  - [ ] Filter by tags: `gohome report --tags active,urgent`
+  - [ ] Tag management commands
+- [ ] **Scanning Modes:**
+  - [ ] `--whitelist-only` flag - Scan ONLY favorited repos
+  - [ ] Whitelist-only mode: Skip directory scanning entirely (70%+ faster)
+  - [ ] Blacklist mode: Exclude specific repos
+- [ ] **UI Enhancements:**
+  - [ ] Whitelist indicator in output (⭐ badge)
+  - [ ] Status command with rich formatting
+  - [ ] Styled whitelist list with table
+
+**Use Case:** "Scan only my 5 active projects, not all 47 repos in workspace"
+
+### 📦 Distribution & Package Managers (Priority: MEDIUM)
+
+**Goal:** Make gohome available on high-demand package managers first.
+
+- [ ] **High Priority Package Managers:**
+  - [ ] **AUR-bin** (Arch Linux) - Pre-built binaries for faster installation
+  - [ ] **Homebrew** (macOS/Linux) - `brew install gohome`
+  - [ ] **NUR** (Nix User Repository) - Nix package for NixOS
+- [ ] **Verification:**
+  - [ ] Package signing and checksums for all distributions
+
+**Note:** Additional package managers (winget, APT, RPM, Scoop, Chocolatey, MacPorts) moved to Phase 3.
+
+### ⚡️ Performance & Concurrency (Priority: MEDIUM)
+
+- [ ] **Concurrent Scanning:** Implement Fan-out/Fan-in pattern using Goroutines
+  - [ ] Worker pool for parallel git operations
+  - [ ] Rate limiting to prevent system overload
+  - [ ] Progress reporting for long scans
+- [ ] **Caching:** Cache repository paths to speed up repeated scans
+- [ ] **Incremental Updates:** Only scan repos with new commits since last run
+
+---
+
+## 🔮 Phase 3: Advanced Features & Ecosystem (v1.6.x - v2.0.0) — **FUTURE**
+
+**Goal:** Add advanced developer experience features, export capabilities, and expand distribution.
+
+**Note:** Phase 3 builds on Phase 2's whitelist and UI foundation.
+
+### 🔧 Developer Experience Features
+
+- [ ] **Debugging Tools:**
+  - [ ] `--verbose` flag: Print debug logs (scanned paths, git commands, errors)
+  - [ ] `--dry-run` flag: Show what would be scanned without executing
+  - [ ] Structured logging with levels (ERROR, WARN, INFO, DEBUG)
+- [ ] **Scripting Support:**
+  - [ ] `--quiet` / `-q` flag: Suppress banners and meta-info (output raw data only)
+  - [ ] `--no-color` flag: Disable ANSI colors for piping
+  - [ ] Exit codes for different error conditions
+- [ ] **Advanced Filtering:**
+  - [ ] `--types feat,fix` - Filter by commit types
+  - [ ] `--exclude vendor,node_modules` - Exclude directories by pattern
+  - [ ] `--include pattern` - Only scan matching directories
+  - [ ] `--since <date>` / `--until <date>` - Date range filtering
+- [ ] **Configuration Enhancements:**
   - [ ] Multiple config profiles (work, personal, etc.)
+  - [ ] Profile switching: `gohome --profile work`
+  - [ ] Profile management commands
 
 ### 📤 Export & Integration
 
@@ -133,13 +237,28 @@ This document outlines the development status and future plans for **gohome** (G
   - [ ] Slack/Discord webhook support
   - [ ] Webhook retry and error handling
 
+### 📦 Additional Package Managers
+
+**Goal:** Complete package manager coverage for remaining platforms.
+
+- [ ] **Windows Package Managers:**
+  - [ ] **winget** (Windows) - Microsoft's official package manager
+  - [ ] **Scoop** - `scoop install gohome` (developer-focused)
+  - [ ] **Chocolatey** - `choco install gohome` (enterprise-friendly)
+- [ ] **Linux Package Managers:**
+  - [ ] **APT** (Debian/Ubuntu) - `.deb` packages for Debian-based distros
+  - [ ] **RPM** (Fedora/RHEL/openSUSE) - `.rpm` packages for RedHat-based distros
+  - [ ] **Snap** (Universal Linux) - Snap package for all distros
+- [ ] **macOS Package Managers:**
+  - [ ] **MacPorts** - Alternative macOS package manager
+
 ---
 
-## 🔮 Phase 3: AI & Interactive Features (v2.x.x) — **FUTURE**
+## 🌟 Phase 4: AI & Interactive Features (v2.x.x) — **VISIONARY**
 
 **Goal:** Transform gohome into an intelligent, interactive productivity tool with AI-powered insights.
 
-**Note:** Phase 3 depends on Phase 2 Cobra/Viper architecture for sub-commands and advanced config management.
+**Note:** Phase 4 depends on Phase 2 architecture (UI components, whitelist) for advanced features.
 
 ### 🤖 AI-Powered Features
 
@@ -159,9 +278,11 @@ This document outlines the development status and future plans for **gohome** (G
 
 ### 🎨 Interactive Mode (TUI)
 
+**Note:** Will leverage Phase 2 lipgloss components and styling system.
+
 - [ ] **Terminal UI Framework:**
   - [ ] Implement `charmbracelet/bubbletea` interface
-  - [ ] Beautiful, responsive terminal UI
+  - [ ] Beautiful, responsive terminal UI built on lipgloss foundation
   - [ ] Keyboard navigation and shortcuts
 - [ ] **Interactive Features:**
   - [ ] Select/deselect repositories to include
@@ -169,10 +290,11 @@ This document outlines the development status and future plans for **gohome** (G
   - [ ] Multi-select commits for export
   - [ ] Preview reports before copying
   - [ ] Configuration editor in TUI
+  - [ ] Interactive whitelist management
 - [ ] **Visual Enhancements:**
   - [ ] Syntax highlighting for code diffs
-  - [ ] Rich formatting with `lipgloss`
-  - [ ] Custom themes and color schemes
+  - [ ] Reuse lipgloss components from Phase 2
+  - [ ] Animation and transitions
 
 ### 📊 Advanced Task Management
 
@@ -191,9 +313,9 @@ This document outlines the development status and future plans for **gohome** (G
 
 ---
 
-## 📚 Phase 3 Extended: Distribution, Documentation & Marketing (v2.x.x) — **EXPANSION**
+## 📚 Phase 5: Distribution & Documentation Expansion — **GROWTH**
 
-**Goal:** Complete distribution channels, establish official documentation, and grow community.
+**Goal:** Establish official documentation site, complete distribution channels, and grow community.
 
 ### 📦 Additional Package Managers
 
@@ -272,8 +394,10 @@ This document outlines the development status and future plans for **gohome** (G
 
 ### Version Numbering
 
-- **v1.x.x:** Stable releases with incremental improvements (Phase 1 - Complete)
-- **v2.x.x:** Major architecture changes (Cobra/Viper), enhanced features, AI/TUI (Phases 2-3)
+- **v1.0.x - v1.3.x:** Foundation and architecture (Phase 1-2) - **COMPLETED**
+- **v1.4.x - v1.5.x:** Enhanced features and UX (Phase 2) - **IN PROGRESS**
+- **v1.6.x - v2.0.0:** Advanced features (Phase 3)
+- **v2.x.x:** AI and interactive mode (Phase 4)
 - **v3.x.x:** (Reserved for future major breaking changes)
 
 ### Release Cadence
@@ -286,19 +410,34 @@ This document outlines the development status and future plans for **gohome** (G
 
 ## 📝 Notes & Priorities
 
-### Current Focus (v1.3.x - v2.0.0)
+### Current Focus (v1.4.0 - Phase 2)
 
 **Priority Order:**
 
-1. **🏗️ Architecture Migration (TOP PRIORITY):** Cobra/Viper migration is the foundation for all Phase 2 features
-   - See [docs/COBRA_VIPER_MIGRATION.md](docs/COBRA_VIPER_MIGRATION.md) for complete implementation guide
-   - 12-week timeline with 4 phases
-   - Enables sub-commands, plugins, advanced config management
-2. **🧪 Testing:** Expand unit and integration test coverage during architecture migration
-3. **⭐ Repository Whitelist/Favorites:** Daily workflow feature to scan only active projects
-4. **📦 Package Managers:** AUR-bin, Homebrew, Snap, winget (priority after v2.0.0 release)
-5. **⚡ Performance:** Implement concurrent scanning (easier with Cobra architecture)
-6. **🔧 DX:** Add `--verbose` and `--quiet` flags (native Cobra support)
+1. **🎨 UI/UX Enhancement (TOP PRIORITY):** Lip Gloss integration for beautiful terminal output
+   - See [docs/UI_UX_ENHANCEMENT.md](docs/UI_UX_ENHANCEMENT.md) for complete design guide
+   - Foundation for future interactive TUI
+   - 8-week implementation timeline
+   - Deliverables: Styled components, theme system, enhanced output
+2. **⭐ Repository Whitelist (HIGH PRIORITY):** Daily workflow optimization
+   - See [docs/WHITELIST_FEATURE_DESIGN.md](docs/WHITELIST_FEATURE_DESIGN.md) for complete spec
+   - 7-week implementation timeline
+   - Key features: whitelist management, tag system, 70%+ performance boost
+3. **📦 Package Managers:** AUR-bin, Homebrew, NUR (after core features complete)
+4. **⚡ Performance:** Concurrent scanning with goroutines (pairs well with whitelist)
+
+### Next Steps (v1.5.0 - v1.6.0)
+
+5. **🔧 Developer Experience:** Debugging tools, scripting support, advanced filtering (Phase 3)
+6. **📤 Export & Integration:** JSON, Markdown, HTML exports and webhook support (Phase 3)
+7. **📦 Distribution Expansion:** Complete package manager coverage (Phase 3-5)
+
+### Long-term Vision (v2.0.0+)
+
+8. **🤖 AI Features:** Smart summaries, commit enhancement, natural language queries (Phase 4)
+9. **🎨 Interactive TUI:** Bubble Tea interface with live updates (Phase 4)
+10. **📊 Task Management:** Recurring tasks, time tracking, prioritization (Phase 4)
+11. **🌐 Community Growth:** Official docs site, landing page, marketing (Phase 5)
 
 ### Community Feedback Wanted
 
