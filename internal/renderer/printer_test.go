@@ -135,11 +135,11 @@ func TestPrint(t *testing.T) {
 			repoName:  "test-repo",
 			commits:   commits,
 			expectStrings: []string{
-				"📁 Repository: test-repo",
-				"ICON", // Headers are uppercase in table output
-				"TYPE",
-				"SCOPE",
-				"MESSAGE",
+				"📁 test-repo",
+				"Icon",
+				"Type",
+				"Scope",
+				"Message",
 				"✨",
 				"feat",
 				"api",
@@ -155,10 +155,16 @@ func TestPrint(t *testing.T) {
 			repoName:  "test-repo",
 			commits:   commits,
 			expectStrings: []string{
-				"📁 Repository: test-repo",
-				"| ICON | TYPE | SCOPE |      MESSAGE      |", // Uppercase headers with center alignment
-				"|  ✨  | feat |  api  | add user endpoint |",
-				"|  🐛  | fix  |   -   |      bug fix      |",
+				"📁 test-repo",
+				"Icon",
+				"Type",
+				"Scope",
+				"Message",
+				"|------",
+				"✨",
+				"feat",
+				"api",
+				"add user endpoint",
 			},
 		},
 		{
@@ -170,9 +176,9 @@ func TestPrint(t *testing.T) {
 			repoName:  "test-repo",
 			commits:   commits,
 			expectStrings: []string{
-				"TYPE", // Uppercase headers
-				"SCOPE",
-				"MESSAGE",
+				"Type",
+				"Scope",
+				"Message",
 				"feat",
 				"api",
 				"add user endpoint",
@@ -187,9 +193,9 @@ func TestPrint(t *testing.T) {
 			repoName:  "test-repo",
 			commits:   commits,
 			expectStrings: []string{
-				"ICON",
-				"TYPE",
-				"MESSAGE",
+				"Icon",
+				"Type",
+				"Message",
 				"✨",
 				"feat",
 				"add user endpoint",
@@ -352,10 +358,10 @@ func TestPrintTableFormat(t *testing.T) {
 			showIcon:  true,
 			showScope: true,
 			wantInOutput: []string{
-				"ICON",
-				"TYPE",
-				"SCOPE",
-				"MESSAGE",
+				"Icon",
+				"Type",
+				"Scope",
+				"Message",
 				"✨",
 				"feat",
 			},
@@ -366,8 +372,13 @@ func TestPrintTableFormat(t *testing.T) {
 			showIcon:  true,
 			showScope: true,
 			wantInOutput: []string{
-				"| ICON | TYPE | SCOPE |   MESSAGE   |", // Markdown with center alignment
-				"|  ✨  | feat |   -   | new feature |",
+				"Icon",
+				"Type",
+				"Scope",
+				"Message",
+				"|------", // Markdown separator row
+				"✨",
+				"feat",
 			},
 		},
 	}
@@ -536,9 +547,9 @@ func TestPrintTasks(t *testing.T) {
 			tasks:    tasks,
 			expectStrings: []string{
 				"📝 Additional Tasks",
-				"ICON", // Uppercase
-				"TYPE",
-				"MESSAGE",
+				"Icon",
+				"Type",
+				"Message",
 				"📝",
 				"todo",
 				"Review pull requests",
@@ -552,9 +563,13 @@ func TestPrintTasks(t *testing.T) {
 			tasks:    tasks,
 			expectStrings: []string{
 				"📝 Additional Tasks",
-				"| ICON |  TYPE   |       MESSAGE        |", // Spacing adjusted to column width
-				"|  📝  |  todo   | Review pull requests |",
-				"|  👥  | meeting |     Team standup     |",
+				"Icon",
+				"Type",
+				"Message",
+				"|------",
+				"📝",
+				"todo",
+				"Review pull requests",
 			},
 		},
 		{
@@ -564,8 +579,8 @@ func TestPrintTasks(t *testing.T) {
 			showIcon: false,
 			tasks:    tasks,
 			expectStrings: []string{
-				"TYPE",
-				"MESSAGE",
+				"Type",
+				"Message",
 				"todo",
 				"Review pull requests",
 			},
@@ -653,50 +668,7 @@ func TestPrintTasksWithEmptyFields(t *testing.T) {
 }
 
 // TestCreateTable verifies table creation with different styles.
-func TestCreateTable(t *testing.T) {
-	tests := []struct {
-		name  string
-		style string
-	}{
-		{
-			name:  "normal_style",
-			style: "normal",
-		},
-		{
-			name:  "markdown_style",
-			style: "markdown",
-		},
-		{
-			name:  "unknown_style_defaults_to_normal",
-			style: "unknown",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg := Config{
-				Format: "table",
-				Style:  tt.style,
-			}
-			printer := NewPrinter(cfg)
-
-			var buf bytes.Buffer
-			table := printer.createTable(&buf, tt.style)
-
-			if table == nil {
-				t.Fatal("createTable() returned nil")
-			}
-
-			// Test that table can be used
-			table.Header([]string{"Test"})
-			_ = table.Append([]string{"Value"})
-			err := table.Render()
-			if err != nil {
-				t.Errorf("createTable() created table that fails to render: %v", err)
-			}
-		})
-	}
-}
+// NOTE: This test was removed because createTable() was replaced with direct lipgloss table usage.
 
 // TestPrintMultipleRepos verifies printing commits from multiple repositories.
 func TestPrintMultipleRepos(t *testing.T) {

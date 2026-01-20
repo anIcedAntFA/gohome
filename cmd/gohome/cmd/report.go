@@ -20,6 +20,8 @@ import (
 	"github.com/anIcedAntFA/gohome/internal/scanner"
 	"github.com/anIcedAntFA/gohome/internal/spinner"
 	"github.com/anIcedAntFA/gohome/internal/sys"
+	"github.com/anIcedAntFA/gohome/internal/ui"
+	"github.com/anIcedAntFA/gohome/internal/version"
 )
 
 var reportCmd = &cobra.Command{
@@ -63,16 +65,13 @@ func defineReportFlags(cmd *cobra.Command) {
 
 	// Output formatting
 	cmd.PersistentFlags().StringP("format", "f", "text", "Output format: text, table")
-	cmd.PersistentFlags().StringP("style", "s", "normal", "Table style: normal, markdown")
 	cmd.PersistentFlags().BoolP("icon", "i", false, "Show commit icon")
 	cmd.PersistentFlags().BoolP("scope", "c", false, "Show commit scope")
+	cmd.PersistentFlags().Bool("no-banner", false, "Disable ASCII banner")
 
 	// Register dynamic flag completions
 	_ = cmd.RegisterFlagCompletionFunc("format", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		return []string{"text", "table"}, cobra.ShellCompDirectiveNoFileComp
-	})
-	_ = cmd.RegisterFlagCompletionFunc("style", func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
-		return []string{"normal", "markdown"}, cobra.ShellCompDirectiveNoFileComp
 	})
 
 	// Branch filtering
@@ -267,17 +266,18 @@ func runReport(cmd *cobra.Command, _ []string) error {
 		return handleSaveConfig(cfg)
 	}
 
-	// Validate format and style compatibility
-	if cfg.Format != "table" && cfg.Style != "normal" {
-		return fmt.Errorf("--style flag only works with --format table\n   Current: --format %s --style %s\n   Hint: Use '--format table --style %s' or remove --style flag", cfg.Format, cfg.Style, cfg.Style)
-	}
-
 	// Initialize dependencies
 	gitClient := git.NewClient()
 	parserSvc := parser.NewService()
+
+	// Get theme
+	theme := viper.GetString("theme")
+
+	// Create printer with theme
 	printer := renderer.NewPrinter(renderer.Config{
 		Format:    cfg.Format,
 		Style:     cfg.Style,
+		Theme:     theme,
 		ShowIcon:  cfg.ShowIcon,
 		ShowScope: cfg.ShowScope,
 	})
@@ -290,6 +290,22 @@ func runReport(cmd *cobra.Command, _ []string) error {
 
 	// Get period and scan repos
 	period := cfg.GetPeriod()
+
+	// Display banner if styled theme is enabled and banner is not disabled
+	noBanner := viper.GetBool("no-banner")
+
+	if ui.IsStyledTheme(theme) && !noBanner {
+		banner := ui.Banner{
+			Subtitle: "Daily Standup Report",
+			Author:   author,
+			Date:     time.Now(),
+			Version:  version.Version,
+		}
+
+		fmt.Println(ui.RenderBanner(banner))
+		fmt.Println()
+	}
+
 	fmt.Println("🗓️  Period:", period)
 
 	absPath, _ := filepath.Abs(cfg.Path)

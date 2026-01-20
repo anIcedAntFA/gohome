@@ -23,9 +23,9 @@ func TestRootCommandProperties(t *testing.T) {
 		t.Error("rootCmd.Long should not be empty")
 	}
 
-	// Verify Long contains ASCII art
-	if !strings.Contains(rootCmd.Long, "____") {
-		t.Error("rootCmd.Long should contain ASCII art")
+	// Verify Long contains key description (ASCII art is now in custom help)
+	if !strings.Contains(rootCmd.Long, "Git Activity Aggregator") {
+		t.Error("rootCmd.Long should contain description")
 	}
 
 	// Verify Long contains emoji indicators

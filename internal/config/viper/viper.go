@@ -23,6 +23,7 @@ func init() {
 	// Allows Viper to map flag "max-depth" to config field "max_depth"
 	viper.RegisterAlias("max_depth", "max-depth")
 	viper.RegisterAlias("all_branches", "all-branches")
+	viper.RegisterAlias("no_banner", "no-banner")
 
 	// Set config file search paths
 	if home, err := os.UserHomeDir(); err == nil {
@@ -50,6 +51,10 @@ func init() {
 	viper.SetDefault("all_branches", false)
 	viper.SetDefault("today", false)
 
+	// UI/UX defaults
+	viper.SetDefault("theme", "default")
+	viper.SetDefault("no_banner", false)
+
 	// Auto-read config file if exists (silent fail is OK)
 	_ = viper.ReadInConfig()
 }
@@ -74,6 +79,10 @@ type Config struct {
 	Style     string `mapstructure:"style" json:"style"`
 	ShowIcon  bool   `mapstructure:"icon" json:"icon"`
 	ShowScope bool   `mapstructure:"scope" json:"scope"`
+
+	// UI/UX styling
+	Theme    string `mapstructure:"theme" json:"theme"`
+	NoBanner bool   `mapstructure:"no_banner" json:"no_banner"`
 
 	// Branch filtering
 	AllBranches bool   `mapstructure:"all_branches" json:"all_branches"`
