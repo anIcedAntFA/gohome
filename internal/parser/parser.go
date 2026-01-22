@@ -20,7 +20,7 @@ func NewService() *Service {
 }
 
 // Parse converts a raw log line into a Commit entity.
-func (s *Service) Parse(rawLine string) entity.Commit {
+func (s *Service) parseSingleLine(rawLine string) entity.Commit {
 	emoji := s.extractEmoji(rawLine)
 	if emoji == "" {
 		emoji = "-"
@@ -47,6 +47,23 @@ func (s *Service) Parse(rawLine string) entity.Commit {
 	}
 
 	return commit
+}
+
+// Parse parses a slice of raw log lines and returns parsed commits with duplicate
+// commit messages removed (keeps the first occurrence).
+func (s *Service) Parse(rawLogs []string) []entity.Commit {
+	seen := make(map[string]bool)
+	result := make([]entity.Commit, 0, len(rawLogs))
+
+	for _, raw := range rawLogs {
+		if !seen[raw] {
+			seen[raw] = true
+			c := s.parseSingleLine(raw)
+			result = append(result, c)
+		}
+	}
+
+	return result
 }
 
 func (s *Service) extractEmoji(input string) string {
