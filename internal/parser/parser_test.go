@@ -297,7 +297,7 @@ func TestParse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := NewService()
-			got := service.Parse(tt.input)
+			got := service.parseSingleLine(tt.input)
 
 			if got.Type != tt.wantType {
 				t.Errorf("Parse(%q).Type = %q, want %q", tt.input, got.Type, tt.wantType)
@@ -454,7 +454,7 @@ func TestParseRawField(t *testing.T) {
 
 	for _, input := range testInputs {
 		t.Run(input, func(t *testing.T) {
-			got := service.Parse(input)
+			got := service.parseSingleLine(input)
 			if got.Raw != input {
 				t.Errorf("Parse(%q).Raw = %q, want %q", input, got.Raw, input)
 			}
@@ -501,7 +501,7 @@ func TestParseDefaultValues(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := NewService()
-			got := service.Parse(tt.input)
+			got := service.parseSingleLine(tt.input)
 			tt.checkFunc(t, got)
 		})
 	}

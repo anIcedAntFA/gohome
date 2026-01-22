@@ -201,10 +201,7 @@ func processCommits(repos []string, author, period string, cfg *viperconfig.Conf
 			continue
 		}
 
-		commits := make([]entity.Commit, 0, len(rawLogs))
-		for _, line := range rawLogs {
-			commits = append(commits, parserSvc.Parse(line))
-		}
+		commits := parserSvc.Parse(rawLogs)
 
 		if len(commits) > 0 {
 			foundAny = true
