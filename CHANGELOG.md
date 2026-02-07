@@ -7,6 +7,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-02-07
+
+### ✨ Feature Release - Interactive Editor Integration
+
+This release adds comprehensive editor integration, enabling interactive content filtering before sharing reports and direct configuration file editing.
+
+### Added
+
+- **Interactive Report Editing** 🎨
+  - `--edit` / `-E` flag for filtering reports before display/copy
+  - Opens report in default editor (nano, vim, VS Code, etc.)
+  - Respects `$VISUAL`, `$EDITOR`, and `$GOHOME_EDITOR` environment variables
+  - Platform-specific fallbacks (nano on Linux, vi on macOS, notepad on Windows)
+  - ASCII-only instruction formatting for terminal compatibility
+  - Comment-based instructions with automatic removal
+  - Seamless clipboard integration (`--edit --copy`)
+  - Example: `gohome --today --edit -C`
+
+- **Configuration Editor Command** ⚙️
+  - `gohome config edit` opens config file in editor
+  - Auto-creates config file with defaults if missing
+  - Direct editor access without instruction wrapper
+  - Full validation and error handling
+  - Example: `gohome config edit`
+
+- **Editor Package** (`internal/editor/`) 📦
+  - Smart editor detection with priority system
+  - Cross-platform support (Linux, macOS, Windows)
+  - Temporary file management with proper cleanup
+  - Content validation and cleaning
+  - Security: Command injection prevention
+  - **100% test coverage** (15+ comprehensive unit tests)
+
+### Fixed
+
+- **Duplicate Commit Messages** 🐛 (by [@lazarus2019](https://github.com/lazarus2019))
+  - Fixed duplicate commit messages when using `--all-branches` flag
+  - Parser now properly deduplicates commits across multiple branches
+  - Improved commit message normalization and comparison
+  - Resolves issue #13
+
+- **Output Formatting Issues** 🎨
+  - Removed blank line after instruction separator
+  - Fixed duplicate separators in edit mode output
+  - Improved visual hierarchy in edited reports
+  - Better spacing between sections
+
+### Changed
+
+- **Editor UX Improvements** ✨
+  - Changed unicode characters to ASCII (`-` instead of `•`, `--` instead of `───`)
+  - Improved error messages ("editing canceled" instead of generic errors)
+  - Better output flow: generate → edit → display (not display → edit)
+  - Removed spinner in edit mode for clearer user experience
+  - Clear instructions with save/cancel tips
+
+### Documentation
+
+- **README.md**
+  - Added `config edit` to configuration management section
+  - Updated feature list with editor integration
+  - Enhanced usage examples
+
+- **ROADMAP.md**
+  - Marked editor integration features as completed
+  - Updated Phase 2 status with edit mode implementation
+
+- **CLI_GUIDE.md**
+  - Comprehensive edit mode documentation
+  - Editor configuration examples
+  - Workflow integration guides
+
+### Contributors
+
+Special thanks to:
+- [@lazarus2019](https://github.com/lazarus2019) for fixing the duplicate branch commit issue 🎉
+- All contributors who reported issues and provided feedback
+
+### Technical Details
+
+**Test Coverage:**
+- Editor package: 100% coverage (15+ tests)
+- Config commands: Maintained 90%+ coverage
+- All linting checks passed (golangci-lint)
+
+**Security:**
+- Editor command validation and sanitization
+- Secure temp file handling
+- Path validation and cleanup
+
+**Compatibility:**
+- Cross-platform editor detection
+- Terminal compatibility (ASCII-only formatting)
+- Backward compatible with existing workflows
+
 ## [1.3.0] - 2026-01-19
 
 ### 🎉 Major Release - Cobra/Viper Migration Complete
