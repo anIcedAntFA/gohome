@@ -36,7 +36,7 @@ func TestConfigCmdInit(t *testing.T) {
 	}
 
 	// Verify valid args
-	expectedValidArgs := []string{"list", "get", "set", "reset"}
+	expectedValidArgs := []string{"list", "get", "set", "reset", "edit"}
 	if len(configCmd.ValidArgs) != len(expectedValidArgs) {
 		t.Errorf("expected %d valid args, got %d", len(expectedValidArgs), len(configCmd.ValidArgs))
 	}
@@ -51,6 +51,7 @@ func TestConfigCmdInit(t *testing.T) {
 		{"get", configGetCmd, "get <key>"},
 		{"set", configSetCmd, "set <key> <value>"},
 		{"reset", configResetCmd, "reset"},
+		{"edit", configEditCmd, "edit"},
 	}
 
 	for _, sc := range subcommands {
@@ -624,6 +625,25 @@ func TestConfigResetCmdProperties(t *testing.T) {
 	}
 
 	if configResetCmd.RunE == nil {
+		t.Error("RunE function should not be nil")
+	}
+}
+
+// TestConfigEditCmdProperties verifies properties of the edit command.
+func TestConfigEditCmdProperties(t *testing.T) {
+	if configEditCmd.Use != "edit" {
+		t.Errorf("expected Use to be 'edit', got %q", configEditCmd.Use)
+	}
+
+	if configEditCmd.Short == "" {
+		t.Error("Short description should not be empty")
+	}
+
+	if configEditCmd.Long == "" {
+		t.Error("Long description should not be empty")
+	}
+
+	if configEditCmd.RunE == nil {
 		t.Error("RunE function should not be nil")
 	}
 }

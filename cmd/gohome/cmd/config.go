@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/tw"
@@ -10,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 
 	viperconfig "github.com/anIcedAntFA/gohome/internal/config/viper"
+	"github.com/anIcedAntFA/gohome/internal/editor"
 )
 
 var configCmd = &cobra.Command{
@@ -20,7 +23,7 @@ var configCmd = &cobra.Command{
 	SilenceUsage:  false, // Show usage on errors
 	// Ensure unknown subcommands show errors (by requiring a subcommand)
 	Args:      cobra.MinimumNArgs(1),
-	ValidArgs: []string{"list", "get", "set", "reset"},
+	ValidArgs: []string{"list", "get", "set", "reset", "edit"},
 	RunE: func(_ *cobra.Command, args []string) error {
 		// This will be called if Args validation passes but no subcommand matches
 		return fmt.Errorf("unknown command %q for \"gohome config\"", args[0])
@@ -59,12 +62,20 @@ var configResetCmd = &cobra.Command{
 	RunE:  runConfigReset,
 }
 
+var configEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit configuration file in editor",
+	Long:  `Open the configuration file in your default editor for manual editing.`,
+	RunE:  runConfigEdit,
+}
+
 func init() {
 	rootCmd.AddCommand(configCmd)
 	configCmd.AddCommand(configListCmd)
 	configCmd.AddCommand(configGetCmd)
 	configCmd.AddCommand(configSetCmd)
 	configCmd.AddCommand(configResetCmd)
+	configCmd.AddCommand(configEditCmd)
 }
 
 func runConfigList(_ *cobra.Command, _ []string) error {
@@ -193,5 +204,45 @@ func runConfigReset(_ *cobra.Command, _ []string) error {
 	}
 
 	fmt.Println("✅ Configuration reset to defaults.")
+	return nil
+}
+
+func runConfigEdit(_ *cobra.Command, _ []string) error {
+	// Get config file location
+	configFile := viper.ConfigFileUsed()
+	if configFile == "" {
+		// No config file exists, create one with defaults
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("failed to get home directory: %w", err)
+		}
+		configFile = filepath.Join(homeDir, ".gohome.yaml")
+
+		// Create default config file
+		cfg := viperconfig.LoadFromViper()
+		if err := cfg.SaveToFile(); err != nil {
+			return fmt.Errorf("failed to create config file: %w", err)
+		}
+		fmt.Printf("📄 Created new config file: %s\n", configFile)
+	}
+
+	// Get editor
+	editorClient := editor.NewClient()
+	editorCmd := editorClient.GetEditor()
+
+	fmt.Printf("📝 Opening config file in %s...\n", editorCmd)
+
+	// Open editor directly without instructions (config file already has comments)
+	//nolint:noctx // Interactive command requires direct terminal control
+	cmd := exec.Command(editorCmd, configFile) // #nosec G204 -- editorCmd is validated via detectEditor()
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("editor exited with error: %w", err)
+	}
+
+	fmt.Println("\n✅ Config file saved. Changes will take effect on next run.")
 	return nil
 }

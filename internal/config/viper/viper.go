@@ -82,6 +82,10 @@ type Config struct {
 	// Clipboard
 	CopyToClipboard bool `mapstructure:"copy" json:"copy"`
 
+	// Editor
+	EditMode      bool   `mapstructure:"edit" json:"edit"`
+	EditorCommand string `mapstructure:"editor" json:"editor,omitempty"`
+
 	// Tasks
 	Tasks        []entity.Task `mapstructure:"tasks" json:"tasks"`
 	DynamicTasks []string      `mapstructure:"-" json:"-"` // Not stored in config file
