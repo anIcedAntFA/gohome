@@ -379,7 +379,34 @@ This is useful for pasting directly into Slack/Teams/Discord:
 gohome -d 1 --copy
 ```
 
-**5️⃣ Add Custom Tasks**
+**5️⃣ Edit Before Sharing**
+
+Review and modify your report interactively before copying or displaying:
+
+```bash
+# Opens in your default editor ($VISUAL or $EDITOR)
+gohome --today --edit --copy
+
+# Edit table format reports
+gohome -d 7 -f table --edit
+
+# Use specific editor
+EDITOR="code --wait" gohome --edit
+```
+
+When the editor opens, you can:
+- Delete sensitive or irrelevant lines
+- Edit commit messages for clarity
+- Add custom notes or explanations
+- Lines starting with `#` are comments (will be removed)
+
+This is useful when you need to:
+- Filter out work-in-progress commits
+- Remove confidential information
+- Reorganize the output manually
+- Add context before sharing with your team
+
+**6️⃣ Add Custom Tasks**
 
 Add tasks that aren't tracked in git:
 
@@ -387,7 +414,7 @@ Add tasks that aren't tracked in git:
 gohome -t "Meeting: Sprint Planning" -t "Review: PR #123"
 ```
 
-**6️⃣ Include All Local Branches**
+**7️⃣ Include All Local Branches**
 
 By default, gohome only shows commits from your current branch. Use `-b` to include commits from all local branches:
 
@@ -401,7 +428,7 @@ This is useful when:
 - You want to see all your work across multiple branches
 - You're generating a standup report before merging PRs
 
-**7️⃣ Filter by Specific Branch**
+**8️⃣ Filter by Specific Branch**
 
 Filter commits from a specific branch instead of the current one:
 
@@ -411,7 +438,7 @@ gohome -d 3 --branch feature/new-ui
 
 Useful for reviewing work on a specific feature branch without checking it out.
 
-**8️⃣ Customize Scan Depth**
+**9️⃣ Customize Scan Depth**
 
 Control how deep gohome scans for repositories (default: 2 levels):
 
@@ -598,6 +625,9 @@ gohome config set days 7
 gohome config set format table
 gohome config set style markdown
 
+# Edit config file directly in your editor
+gohome config edit
+
 # Reset to default values
 gohome config reset
 ```
@@ -607,6 +637,7 @@ gohome config reset
 - Automatic validation of configuration values
 - Easy viewing and updating of settings
 - Quick reset to defaults
+- **NEW:** Direct editor access with `config edit`
 
 ### 🧾 Flags Reference
 
@@ -625,7 +656,8 @@ gohome config reset
 | `--preset`       | `-s`  | Table style: `normal`, `markdown`                     | `normal`    |
 | `--all-branches` | `-A`  | Include commits from all local branches               | false       |
 | `--branch`       | `-b`  | Filter commits by specific branch                     | (current)   |
-| `--copy`         | `-cp` | Copy output to clipboard                              | false       |
+| `--copy`         | `-C`  | Copy output to clipboard                              | false       |
+| `--edit`         | `-E`  | Edit output in editor before displaying/copying       | false       |
 | `--icon`         | `-i`  | Show icon column (table format only)                  | false       |
 | `--scope`        | `-c`  | Show scope column (table format only)                 | false       |
 | `--task`         | `-t`  | Add custom task (repeatable)                          | []          |

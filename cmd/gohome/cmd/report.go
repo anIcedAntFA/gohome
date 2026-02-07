@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	viperconfig "github.com/anIcedAntFA/gohome/internal/config/viper"
+	"github.com/anIcedAntFA/gohome/internal/editor"
 	"github.com/anIcedAntFA/gohome/internal/entity"
 	"github.com/anIcedAntFA/gohome/internal/git"
 	"github.com/anIcedAntFA/gohome/internal/parser"
@@ -82,6 +83,9 @@ func defineReportFlags(cmd *cobra.Command) {
 	// Clipboard and tasks
 	cmd.PersistentFlags().BoolP("copy", "C", false, "Copy output to clipboard")
 	cmd.PersistentFlags().StringSliceP("task", "t", []string{}, "Add custom task")
+
+	// Editor flag
+	cmd.PersistentFlags().BoolP("edit", "E", false, "Edit output in editor before displaying/copying")
 
 	// Save config flag
 	cmd.PersistentFlags().BoolP("save", "S", false, "Save current arguments as default configuration")
@@ -247,6 +251,36 @@ func handleClipboard(content string) {
 	}
 }
 
+// handleEditMode opens the content in editor and returns the edited version.
+func handleEditMode(content string, cfg *viperconfig.Config) (string, error) {
+	// Create editor client (respects VISUAL/EDITOR env or uses config)
+	var editorClient *editor.Client
+	if cfg.EditorCommand != "" {
+		editorClient = editor.NewClientWithEditor(cfg.EditorCommand)
+	} else {
+		editorClient = editor.NewClient()
+	}
+
+	// Show brief message before opening editor
+	fmt.Printf("\n📝 Opening editor (%s)... Save and close when done.\n", editorClient.GetEditor())
+	fmt.Println("💡 Tip: Delete all content or close without saving to cancel")
+
+	// Brief pause to let user read the message
+	time.Sleep(500 * time.Millisecond)
+
+	// Open editor and get modified content
+	editedContent, err := editorClient.Open(content)
+	if err != nil {
+		return "", err
+	}
+
+	// Show preview of edited content
+	fmt.Println("\n✅ Edited Report:")
+	fmt.Println(editedContent)
+
+	return editedContent, nil
+}
+
 func runReport(cmd *cobra.Command, _ []string) error {
 	// Load configuration (Viper handles flag > env > config > default)
 	cfg := viperconfig.LoadFromViper()
@@ -298,31 +332,43 @@ func runReport(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	// Setup writer for clipboard
-	var clipboardBuffer bytes.Buffer
-	var outputWriter io.Writer = os.Stdout
+	// Setup buffer for output generation
+	var outputBuffer bytes.Buffer
 
-	if cfg.CopyToClipboard {
-		outputWriter = io.MultiWriter(os.Stdout, &clipboardBuffer)
-	}
-
-	// Process commits and tasks
-	foundCommits := processCommits(repos, author, period, cfg, gitClient, parserSvc, printer, outputWriter)
+	// Process commits and tasks to buffer (don't print to stdout yet if edit mode is on)
+	foundCommits := processCommits(repos, author, period, cfg, gitClient, parserSvc, printer, &outputBuffer)
 
 	activeTasks := collectActiveTasks(cfg)
 	if len(activeTasks) > 0 {
-		printer.PrintTasks(outputWriter, activeTasks)
+		printer.PrintTasks(&outputBuffer, activeTasks)
 	}
 
-	// Handle clipboard
+	// Check if anything was found
 	foundAny := foundCommits || len(activeTasks) > 0
 	if !foundAny {
 		fmt.Println("📭 No commits or tasks found.")
 		return nil
 	}
 
+	// Get the generated output
+	output := outputBuffer.String()
+
+	// Handle edit mode (if enabled)
+	editMode := viper.GetBool("edit")
+	if editMode {
+		editedOutput, err := handleEditMode(output, cfg)
+		if err != nil {
+			return fmt.Errorf("edit mode failed: %w", err)
+		}
+		output = editedOutput
+	} else {
+		// Only print to stdout if not in edit mode (edit mode prints after editing)
+		fmt.Print(output)
+	}
+
+	// Handle clipboard (use edited output if edit mode was used)
 	if cfg.CopyToClipboard {
-		handleClipboard(clipboardBuffer.String())
+		handleClipboard(output)
 	}
 
 	return nil

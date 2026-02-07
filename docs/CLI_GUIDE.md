@@ -341,6 +341,7 @@ gohome --branch=develop         # Only develop branch
 | Flag | Shorthand | Default | Description |
 |------|-----------|---------|-------------|
 | `--copy` | `-C` | false | Copy output to clipboard |
+| `--edit` | `-E` | false | Edit output in editor before displaying/copying |
 | `--task` | `-t` | - | Add custom task (repeatable) |
 | `--save` | - | false | Save settings to config file |
 
@@ -348,9 +349,54 @@ gohome --branch=develop         # Only develop branch
 ```bash
 gohome --copy                      # Copy to clipboard
 gohome -C                          # Copy (short)
+gohome --edit --copy               # Edit then copy
+gohome -E -C                       # Edit then copy (short)
 gohome -t "Fix bug" -t "Review PR" # Add tasks
 gohome --save                      # Save current flags
 ```
+
+---
+
+### Edit Mode (New in v1.3.1!)
+
+The `--edit` flag opens the generated report in your default editor, allowing you to:
+- Remove sensitive or irrelevant commits
+- Edit commit messages for clarity
+- Add custom notes or explanations
+- Filter content before sharing
+
+**Editor Detection Priority:**
+1. `$VISUAL` environment variable
+2. `$EDITOR` environment variable
+3. `$GOHOME_EDITOR` environment variable
+4. Auto-detected editors (VS Code, Sublime Text, nano, vim)
+5. Platform fallback (notepad on Windows, nano on Unix)
+
+**Examples:**
+```bash
+# Basic edit mode
+gohome --edit
+
+# Edit then copy to clipboard
+gohome --today --edit --copy
+
+# Use specific editor
+EDITOR="code --wait" gohome --edit
+VISUAL="subl -w" gohome --edit
+
+# Edit table format
+gohome -d 7 -f table --edit
+
+# Combine with other flags
+gohome -d 3 --all-branches --edit -C
+```
+
+**Instructions in Editor:**
+- Lines starting with `#` are comments (removed from output)
+- Delete any lines you don't want
+- Edit commit messages directly
+- Save and close to continue
+- Close without saving to cancel
 
 ---
 
@@ -431,8 +477,10 @@ scope: false
 all_branches: false
 branch: ""
 
-# Clipboard
+# Clipboard & Editor
 copy: false
+edit: false
+editor: ""  # Optional: Override editor command (e.g., "code --wait", "vim")
 
 # Tasks
 tasks:
@@ -470,8 +518,10 @@ scope = false
 all_branches = false
 branch = ""
 
-# Clipboard
+# Clipboard & Editor
 copy = false
+edit = false
+editor = ""  # Optional: Override editor command
 
 # Tasks
 [[tasks]]
@@ -535,6 +585,10 @@ All configuration can be set via environment variables with the `GOHOME_` prefix
 | `all_branches`   | `GOHOME_ALL_BRANCHES`      | `true`                             |
 | `branch`         | `GOHOME_BRANCH`            | `main`                             |
 | `copy`           | `GOHOME_COPY`              | `true`                             |
+| `edit`           | `GOHOME_EDIT`              | `true`                             |
+| `editor`         | `GOHOME_EDITOR`            | `code --wait`                      |
+
+**Note:** For editor selection, standard environment variables `$VISUAL` and `$EDITOR` are also respected. Priority: `$VISUAL` > `$EDITOR` > `$GOHOME_EDITOR` > auto-detection.
 
 ### Basic Usage
 

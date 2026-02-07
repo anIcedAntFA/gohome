@@ -81,7 +81,15 @@ This document outlines the development status and future plans for **gohome** (G
   - [x] Environment variable binding: `GOHOME_*` prefix
   - [x] Automatic config hierarchy: Flags > Env > Config > Defaults
   - [x] Type-safe configuration access
-  - [x] Config subcommands: `list`, `get`, `set`, `reset`
+  - [x] Config subcommands: `list`, `get`, `set`, `reset`, `edit`
+  - [x] Direct editor access via `config edit` command
+
+- [x] **Edit Mode & Content Filtering:**
+  - [x] `--edit` / `-E` flag for interactive content filtering
+  - [x] Opens report in default editor (respects $VISUAL/$EDITOR)
+  - [x] ASCII-only formatting for terminal compatibility
+  - [x] Comment-based instructions with auto-removal
+  - [x] Integration with clipboard workflow
 
 **Testing & Quality Improvements:**
 - [x] **Comprehensive Test Suite:**
